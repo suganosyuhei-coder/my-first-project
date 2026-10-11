@@ -7,7 +7,10 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "deploy:preview": "bash scripts/deploy-preview.sh"
+    "deploy:preview": "bash scripts/deploy-preview.sh",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node tests/browser-smoke.cjs",
+    "test:exploration": "node tests/exploration-smoke.cjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.0.0",
@@ -18,6 +21,7 @@
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "playwright": "^1.64.0",
     "vite": "^7.0.0"
   }
 }
