@@ -27,7 +27,7 @@ export function componentVolume(p) {
   if (p.kind === 'pipe') return Math.PI * (p.radius ** 2 - p.innerRadius ** 2) * p.height;
   return Math.PI * p.radius ** 2 * p.height;
 }
-export const itemMass = id => ITEMS[id].parts.reduce((mass,p)=>mass+componentVolume(p)*MATERIALS[p.material || ITEMS[id].material].density,0);
+export const itemMass = (id,scale=1,override) => scale**3* ITEMS[id].parts.reduce((mass,p)=>mass+componentVolume(p)*MATERIALS[override || p.material || ITEMS[id].material].density,0);
 export const createInventory = () => Object.fromEntries(Object.entries(ITEMS).map(([id,item])=>[id,item.initial]));
 // Smooth weights, not discrete area boundaries; edit these parameters to tune rarity.
 export const LOOT_SETTINGS = {nearScale:35,midCenter:60,midWidth:32,farCenter:90,farSlope:18};

@@ -26,10 +26,10 @@ export function MaterialSurface({ material='resin', color, ghost=false }) {
   const m=MATERIALS[material] || MATERIALS.resin;
   return <meshStandardMaterial color={color || m.color} metalness={m.metalness} roughness={m.roughness} map={material==='concrete'?concreteTexture:null} bumpMap={material==='concrete'?concreteTexture:null} bumpScale={.015} transparent={ghost} opacity={ghost ? .4 : 1} depthWrite={!ghost}/>;
 }
-export default function ItemModel({ itemId, ghost=false }) {
+export default function ItemModel({ itemId, ghost=false, materialOverride }) {
   const item=ITEMS[itemId];
   return <group>{item.parts.map((p,i)=><mesh key={i} position={p.position} rotation={p.rotation} castShadow={!ghost} receiveShadow>
     {p.kind==='box'?<boxGeometry args={p.size}/>:p.kind==='torus'?<torusGeometry args={[p.radius,p.tube,6,20]}/>:p.kind==='pipe'?<PipeGeometry {...p}/>:<cylinderGeometry args={[p.radius,p.radius,p.height,20]}/>}
-    <MaterialSurface material={p.material || item.material} color={p.color} ghost={ghost}/>
+    <MaterialSurface material={materialOverride || p.material || item.material} color={materialOverride ? undefined : p.color} ghost={ghost}/>
   </mesh>)}</group>;
 }

@@ -2,13 +2,13 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
 (async()=>{
 const b=await chromium.launch({executablePath:process.env.SHUTLE_CHROMIUM_PATH || (require('node:fs').existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const p=await b.newPage({viewport:{width:1440,height:1000}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
-await p.goto(process.env.SHUTLE_TEST_URL || 'http://127.0.0.1:5173');await p.getByRole('button',{name:'宇宙へ冒険に出る'}).click();
+await p.goto(process.env.SHUTLE_TEST_URL || 'http://127.0.0.1:5173');await p.getByRole('button',{name:'砂漠へ冒険に出る'}).click();
 await p.getByTestId('contact').filter({hasText:'接地中'}).waitFor({timeout:20000});
 assert.equal(await p.locator('.inventory-card').count(),15);
 await p.waitForFunction(()=>Number(document.querySelector('[data-testid=elapsed]').textContent)>1.5 && document.querySelector('[data-testid=contact]').textContent==='接地中');
 await p.keyboard.press('Space');await p.getByTestId('contact').filter({hasText:'空中'}).waitFor();
 await p.getByTestId('contact').filter({hasText:'接地中'}).waitFor({timeout:5000});
-await p.keyboard.down('KeyW');await p.waitForTimeout(600);await p.keyboard.up('KeyW');
+await p.keyboard.down('KeyW');await p.waitForFunction(()=>Number(document.querySelector('[data-item=wire]').textContent)===6,{},{timeout:15000});await p.keyboard.up('KeyW');
 await p.getByRole('button',{name:'ワイヤー 所持数 6',exact:true}).waitFor();
 assert.ok(Number(await p.getByTestId('collected').textContent())>=1);
 await p.getByRole('button',{name:'コンクリートブロック 所持数 4',exact:true}).click();await p.getByRole('button',{name:'前方に配置',exact:true}).click();
@@ -17,9 +17,19 @@ await p.getByRole('button',{name:'近くの物体を回収'}).click();await p.ge
 await p.getByRole('button',{name:'室外機 所持数 1',exact:true}).click();await p.getByRole('button',{name:'前方に配置',exact:true}).click();await p.getByRole('button',{name:'室外機 所持数 0',exact:true}).waitFor();assert.ok(await p.getByRole('button',{name:'前方に配置',exact:true}).isDisabled());
 await p.getByRole('button',{name:'一人称に切替'}).click();await p.getByRole('button',{name:'三人称に切替'}).waitFor();await p.getByRole('button',{name:'三人称に切替'}).click();
 await p.waitForTimeout(1000);
-await p.getByRole('button',{name:'図形のエディットへ',exact:true}).click();await p.getByRole('combobox',{name:'図形の材質'}).selectOption('gold');await p.getByText('154.40 t',{exact:true}).waitFor();await p.getByRole('button',{name:'＋ 追加',exact:true}).click();await p.getByText('2 PARTS',{exact:true}).waitFor();
-await p.getByRole('button',{name:'冒険に出る',exact:false}).click();await p.getByRole('button',{name:'ワイヤー 所持数 6',exact:true}).waitFor();await p.getByRole('button',{name:'室外機 所持数 0',exact:true}).waitFor();
+await p.getByRole('button',{name:'全体モードへ',exact:true}).click();
+assert.equal(await p.locator('.part-card').count(),0);
+await p.getByRole('button',{name:'ワイヤー 所持数 6',exact:true}).click();
+await p.getByRole('textbox').count();
+await p.getByLabel('位置 X',{exact:true}).fill('8');await p.getByLabel('位置 埋没 / 高さ',{exact:true}).fill('-.2');
+await p.getByLabel('回転',{exact:true}).fill('45');await p.getByLabel('倍率',{exact:true}).fill('1.5');await p.getByLabel('アイテムの材質').selectOption('gold');
+await p.getByRole('button',{name:'＋ 配置',exact:true}).click();await p.getByRole('button',{name:'ワイヤー 所持数 5',exact:true}).waitFor();
+await p.getByText('2 ITEMS',{exact:false}).waitFor();
+await p.screenshot({path:'artifacts/editor.png'});
+await p.getByRole('button',{name:'冒険に出る',exact:false}).click();await p.getByRole('button',{name:'ワイヤー 所持数 5',exact:true}).waitFor();await p.getByRole('button',{name:'室外機 所持数 0',exact:true}).waitFor();
+
 await p.getByTestId('contact').filter({hasText:'接地中'}).waitFor({timeout:10000});
+await p.waitForTimeout(1500);await p.screenshot({path:'artifacts/adventure.png'});
 if(errors.length)throw Error(errors.join('\n'));
-console.log('PASS: 15 inventory items, grounded jump/landing, physical star collection, stock decrease/recovery/zero rejection, first/third switch, material mass, edited shape preservation and inventory persistence');await b.close();
+console.log('PASS: 15 inventory items, grounded jump/landing, physical star collection, stock decrease/recovery/zero rejection, first/third switch, material mass, shared desert world and inventory placement and inventory persistence');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
