@@ -39,3 +39,19 @@ GitHub の Settings → Pages → Build and deployment で Source を「Deploy f
 GitHub Free では公開リポジトリで Pages を利用できます。非公開の場合はプランにより制限があります。リポジトリの公開範囲はこの作業では変更しません。
 
 更新時は `npm ci` と `npm run build` を実行し、`dist/` の内容を `gh-pages` ブランチへ反映します。ソースの更新だけでは公開サイトは更新されません。
+
+## コード反映 → プレビュー → 微調整
+
+変更をコミットした後、次のコマンドでソースと公開プレビューを更新します。
+
+```sh
+npm run deploy:preview
+```
+
+ビルド成功後、現在のコミットを `floating-workshop-preview` へ push し、ビルド結果を `gh-pages` へ push します。force push は使いません。公開プレビューを更新する際はこのコマンドを実行してください。ソースの push だけではプレビューは更新されません。
+初回の Pages 設定は前述の手順が必要です。無料利用の条件はリポジトリの公開範囲とGitHubプランによります。
+
+GitHub の Actions で Pages のデプロイ完了を確認し、公開URLで画面と操作を確認 → 調整内容を決める → 再度コードを修正・コミット・公開する、という流れです。
+公開画面の上部にソースコミットの短縮IDを表示し、`version.json` に完全なIDを保存しています。更新が見えないときはデプロイ状況と表示IDを確認し、ブラウザを再読み込みしてください。
+
+ソース変更の main へのマージは公開プレビュー更新とは別です。必要に応じて `floating-workshop-preview` から PR を作成します。
