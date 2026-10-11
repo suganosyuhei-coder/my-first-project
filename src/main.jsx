@@ -5,9 +5,10 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { Physics, RigidBody, CapsuleCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+import shutleLogo from './assets/shutle_logo.svg';
 import './style.css';
 
-const initialBlocks = () => [{ id: 'base', shape: 'cube', position: [0, 0, 0], size: [8, 1, 8], color: '#82d8ce' }];
+const initialBlocks = () => [{ id: 'base', shape: 'cube', position: [0, 0, 0], size: [8, 1, 8], color: '#c7cbd1' }];
 const parts = [
   { shape: 'cube', name: '立方体', size: [2,2,2] },
   { shape: 'box', name: '直方体', size: [3,1.5,2] },
@@ -41,7 +42,7 @@ function RotatingPart({ part, index }) {
   const ref = useRef();
   const reduced = useRef(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useFrame((_,dt) => { if (!reduced.current && ref.current) { ref.current.rotation.y += dt * (.25 + index * .04); ref.current.rotation.x += dt * .07; } });
-  return <mesh ref={ref} rotation={[.3,.5,0]}><Shape shape={part.shape} size={part.size}/><meshStandardMaterial color={index % 2 ? '#a7bde8' : '#82d8ce'} roughness={.45}/></mesh>;
+  return <mesh ref={ref} rotation={[.3,.5,0]}><Shape shape={part.shape} size={part.size}/><meshStandardMaterial color={index % 2 ? '#a1a5ac' : '#d8dadd'} roughness={.45}/></mesh>;
 }
 function MiniView({ blocks }) {
   const bounds = useMemo(() => {
@@ -93,7 +94,7 @@ function Player({ reset }) {
 }
 function World({ blocks, draft, mode, reset }) {
   return <Canvas shadows camera={{ position: [12,10,14], fov: 45 }}>
-    <color attach="background" args={['#0b1425']}/><ambientLight intensity={.7}/><directionalLight position={[8,15,5]} intensity={2} castShadow shadow-mapSize={[2048,2048]}/><Stars radius={100} depth={40} count={1800} factor={3} fade/>
+    <color attach="background" args={['#101113']}/><ambientLight intensity={.7}/><directionalLight position={[8,15,5]} intensity={2} castShadow shadow-mapSize={[2048,2048]}/><Stars radius={100} depth={40} count={1800} factor={3} fade/>
     <Suspense fallback={null}><Physics gravity={[0,-9.81,0]}>
       {blocks.map(b => <RigidBody key={b.id} type="fixed" position={b.position} colliders={b.shape === 'cube' ? 'cuboid' : 'hull'}><mesh castShadow receiveShadow><Shape shape={b.shape} size={b.size}/><meshStandardMaterial color={b.color} roughness={.65}/></mesh></RigidBody>)}
       {mode === 'walk' && <Player reset={reset}/>}
@@ -110,13 +111,13 @@ function App() {
   const [viewKey, setViewKey] = useState(0);
   const [message, setMessage] = useState('');
   const part = parts[partIndex];
-  const draft = {shape:part.shape, size:part.size, position, color:'#82d8ce'};
+  const draft = {shape:part.shape, size:part.size, position, color:'#c7cbd1'};
   const openEditor = () => { setScreen('edit'); setMode('build'); setMessage(''); };
   const goHome = () => { setScreen('start'); setMode('build'); };
   const reset = reason => { goHome(); setMessage(reason); };
   return <main className={screen === 'edit' ? 'editor-page' : ''}>
-    <header className="app-header"><span className="brand">◈ 浮遊工房</span><span className="tag">FLOATING WORKSHOP / 001</span><span className="prototype-badge">{import.meta.env.VITE_PREVIEW_COMMIT ? `PREVIEW ${import.meta.env.VITE_PREVIEW_COMMIT}` : 'UI PROTOTYPE'}</span>{screen !== 'start' && <button className="quiet" onClick={goHome}>← スタート画面へ</button>}</header>
-    {screen === 'start' && <><div className="scene"><div className="welcome-art"><div className="floating-cube"/><div className="orbit"/></div></div><section className="welcome"><span className="eyebrow">BUILD · COLLECT · EXPLORE</span><h1>浮かぶ空間に、<br/>かたちをつくる。</h1><p>小さなパーツから、ひとつの世界へ。<br/>組み立てて、眺めて、いつか冒険に出かけよう。</p><div className="entry-cards"><button className="entry-card" onClick={openEditor}><span className="entry-icon">◇</span><strong>図形のエディット <span>↗</span></strong><small>パーツを組み合わせて、空間をつくる</small></button><button className="entry-card secondary" onClick={() => setScreen('library')}><span className="entry-icon">▦</span><strong>図形のライブラリ <span>↗</span></strong><small>つくった作品を集める</small></button></div>{message && <p role="status">{message}</p>}<div className="stack">React / Three.js / Rapier</div></section></>}
+    <header className="app-header"><span className="brand">SHuTLe<span className="brand-reading">シャトル</span></span><span className="tag">SHAPE · BUILD · EXPLORE / 001</span><span className="prototype-badge">{import.meta.env.VITE_PREVIEW_COMMIT ? `PREVIEW ${import.meta.env.VITE_PREVIEW_COMMIT}` : 'UI PROTOTYPE'}</span>{screen !== 'start' && <button className="quiet" onClick={goHome}>← スタート画面へ</button>}</header>
+    {screen === 'start' && <><div className="scene"><div className="welcome-art"><div className="logo-art"><img src={shutleLogo} alt="SHuTLeのロゴ"/><span>SHAPE YOUR OWN WORLD.</span></div></div></div><section className="welcome"><span className="eyebrow">BUILD · COLLECT · EXPLORE</span><h1 className="shutle-title">SHuTLe<span>シャトル</span></h1><h2 className="welcome-copy">浮かぶ空間に、かたちをつくる。</h2><p>小さなパーツから、ひとつの世界へ。<br/>組み立てて、眺めて、いつか冒険に出かけよう。</p><div className="entry-cards"><button className="entry-card" onClick={openEditor}><span className="entry-icon">◇</span><strong>図形のエディット <span>↗</span></strong><small>パーツを組み合わせて、空間をつくる</small></button><button className="entry-card secondary" onClick={() => setScreen('library')}><span className="entry-icon">▦</span><strong>図形のライブラリ <span>↗</span></strong><small>つくった作品を集める</small></button></div>{message && <p role="status">{message}</p>}<div className="stack">React / Three.js / Rapier</div></section></>}
     {screen === 'library' && <section className="library-placeholder"><span className="eyebrow">YOUR COLLECTION</span><h1>図形のライブラリ</h1><div className="empty-library"><span>▦</span><h2>作品が並ぶ場所</h2><p>保存・読み込みはこれから実装します。<br/>まずはエディット画面で、かたちを試してみましょう。</p><button className="primary" onClick={openEditor}>図形のエディットへ ↗</button></div></section>}
     {screen === 'edit' && <div className="editor-layout">
       <aside className="parts-sidebar"><div className="sidebar-heading"><span className="eyebrow">PARTS PALETTE</span><h2>パーツを選ぶ</h2><p>8つのかたちから、はじめよう。</p></div><div className="parts-grid">{parts.map((p,i) => <button key={p.shape} className={'part-card '+(i === partIndex ? 'chosen' : '')} aria-pressed={i === partIndex} onClick={() => { setPartIndex(i); setMode('build'); }}><div className="part-thumbnail"><Canvas camera={{position:[4,3,5],fov:40}} dpr={[1,1.5]}><ambientLight intensity={1}/><directionalLight position={[5,6,4]} intensity={2}/><RotatingPart part={p} index={i}/></Canvas></div><span>{p.name}</span><small>{String(i+1).padStart(2,'0')}</small></button>)}</div><p className="sidebar-note">今はクリックで選択できます。<br/>ドラッグ＆ドロップは次の実験で。</p></aside>

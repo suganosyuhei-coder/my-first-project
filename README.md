@@ -1,4 +1,4 @@
-# 浮遊工房 / Floating Workshop
+# SHuTLe（シャトル）
 
 React、Three.js、Rapier を組み合わせた、浮遊する足場を構築して歩く実験用アプリ。
 
@@ -55,3 +55,5 @@ GitHub の Actions で Pages のデプロイ完了を確認し、公開URLで画
 公開画面の上部にソースコミットの短縮IDを表示し、`version.json` に完全なIDを保存しています。更新が見えないときはデプロイ状況と表示IDを確認し、ブラウザを再読み込みしてください。
 
 ソース変更の main へのマージは公開プレビュー更新とは別です。必要に応じて `floating-workshop-preview` から PR を作成します。
+
+ロゴは添付された `src/assets/shutle_logo.svg` を使用。スタート画面では元のSVGの形状を維持して表示します。
