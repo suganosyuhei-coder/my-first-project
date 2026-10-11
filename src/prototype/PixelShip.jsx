@@ -1,0 +1,11 @@
+import React from 'react';
+import { GRID, isHull, criticalAt, pipeMask } from './model.js';
+export function PartGlyph({type,mask=0}) {
+  if(type==='pipe')return <g fill="none" stroke="#79d2df" strokeWidth="3" strokeLinecap="square"><path d="M10 10h.01"/>{[[1,'M10 10V0'],[2,'M10 10H20'],[4,'M10 10V20'],[8,'M10 10H0']].filter(([b])=>mask&b).map(([b,d])=><path key={b} d={d}/>)}{!mask&&<path d="M7 7h6v6H7z"/>}</g>;
+  if(type==='tank')return <g><path d="M3 3h14v14H3z" fill="#bcbfc1"/><path d="M5 1h10v2H5zM5 17h10v2H5z" fill="#f5f4f0"/><path d="M6 5h2v10H6z" fill="#f5f4f0"/><path d="M12 5h3v10h-3z" fill="#71818a"/></g>;
+  if(type==='engine')return <g><path d="M4 1h12v12H4z" fill="#8e999f"/><path d="M6 3h8v6H6z" fill="#151515"/><path d="M3 13h14v4H3z" fill="#eeaa72"/><path d="M7 17h6v3H7z" fill="#79d2df"/></g>;
+  return <g><rect x="1" y="1" width="18" height="18" fill="#284758"/><path d="M2 6h16M2 12h16M6 2v16M13 2v16" stroke="#79d2df" strokeWidth="1"/><path d="M1 1h18v18H1z" fill="none" stroke="#a1b7c0"/></g>;
+}
+export default function PixelShip({parts}) {
+  return <g shapeRendering="crispEdges">{Array.from({length:GRID.rows*GRID.columns},(_,i)=>{const x=i%GRID.columns,y=Math.floor(i/GRID.columns);if(!isHull(x,y))return null;const critical=criticalAt(x,y);return <g key={i} transform={`translate(${x*20} ${y*20})`}><rect width="20" height="20" fill={critical==='canopy'?'#79d2df':critical==='core'?'#eeaa72':x===5?'#d4d8d5':Math.abs(x-5)>=2?'#667680':'#9aa7ab'}/>{critical==='canopy'?<><rect x="3" width="3" height="20" fill="#c6eff0"/><rect x="14" width="3" height="20" fill="#457788"/>{y===3&&<rect width="20" height="4" fill="#e6f6ee"/>}{y===7&&<path d="M0 16h20v4H0zM0 12h4v4H0zM16 12h4v4h-4z" fill="#457788"/>}</>:<rect x="3" y="3" width="14" height="2" fill="#f5f4f0" opacity=".3"/>}</g>;})}{parts.map(p=><g key={p.id} transform={`translate(${p.x*20} ${p.y*20}) scale(${p.type==='tank'||p.type==='solar'?2:1} ${p.type==='solar'?3:p.type==='tank'||p.type==='engine'?2:1})`}><PartGlyph type={p.type} mask={pipeMask(parts,p.x,p.y)}/></g>)}</g>;
+}
