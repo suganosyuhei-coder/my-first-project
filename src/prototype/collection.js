@@ -1,4 +1,4 @@
-export const BIT_SPEED=80,AUTO_RADIUS=32;
+export const BIT_SPEED=80;
 export const RESOURCE_TYPES={wire:{name:'ワイヤー',bits:1,work:.8},plate:{name:'金属板',bits:1,work:1.2},tank:{name:'タンク',bits:2,work:2},solar:{name:'太陽光パネル',bits:2,work:2.5}};
 export function createBits(position) {return [0,1].map(i=>({id:`bit-${i+1}`,state:'orbiting',position:{x:position.x+(i? -45:45),y:position.y},jobId:null,arrived:false,trail:[]}));}
 export function requestCollection(game,id,mode='click') {
@@ -7,7 +7,7 @@ export function requestCollection(game,id,mode='click') {
   if(!resource||resource.state!=='available')return {ok:false,reason:'回収済み、または回収中です'};
   const distance=Math.hypot(resource.position.x-game.flight.position.x,resource.position.y-game.flight.position.y);
   if(mode==='click'&&(!resource.discovered||distance>game.observation||!inViewport(resource.position,game)))return {ok:false,reason:'観測範囲内で、画面に見えている資材を選択してください'};
-  if(mode==='auto'&&distance>AUTO_RADIUS)return {ok:false,reason:'近接範囲外です'};
+  if(mode==='auto'&&(!resource.discovered||game.observation<=0||distance>game.observation))return {ok:false,reason:'検出済みの観測範囲内素材のみ自動回収できます'};
   const data=RESOURCE_TYPES[resource.type],free=game.bits.filter(b=>b.state==='orbiting');
   if(free.length<data.bits)return {ok:false,reason:`空きビットが不足しています（${data.bits}基必要）`};
   const bits=free.slice(0,data.bits),job={id:`job-${game.nextJob++}`,resourceId:id,type:resource.type,bitIds:bits.map(b=>b.id),stage:'outbound',work:data.work,progress:0,cargo:false,credited:false,estimate:distance/BIT_SPEED*2+data.work,startedAt:game.flight.elapsed};

@@ -2,7 +2,7 @@ import {aimTarget} from './targeting.js';
 import {supplyGraph} from './energy.js';
 import {occupiedCells} from './model.js';
 // Provisional Issue #5 tuning. Not approved final balance. Units: seconds, metres, E.
-export const RAILGUN={maxChargeSeconds:2.4,thresholds:[0,.35,.85],costs:[2,12,32],damage:[10,35,100],damageGrowth:.5,speeds:[180,220,260],ranges:[420,560,700],radii:[2,5,9],initialStored:40,muzzleDistance:48,effectSeconds:.38,beamSeconds:.32,corePort:{x:5,y:9}};
+export const RAILGUN={maxChargeSeconds:2.4,thresholds:[0,.35,.85],costs:[2,12,32],damage:[10,35,100],damageGrowth:.5,speeds:[900,220,260],ranges:[420,560,700],radii:[2,5,9],initialStored:40,muzzleDistance:42,effectSeconds:.38,beamSeconds:.32,flashSeconds:.09,trailSeconds:.1,tracerLength:12,corePort:{x:5,y:9}};
 export function createRailgun(){return {holding:false,heldSeconds:0,charge:0,limit:0,limitStage:0,shots:0,hits:0,nextId:1,projectiles:[],effects:[],lastShot:null,lastHit:null,totalSpent:0,baseGenerated:0};}
 export function railgunTanks(ship){
  const components=supplyGraph(ship.parts),port=RAILGUN.corePort;
@@ -51,18 +51,19 @@ export function segmentHit(from,to,center,radius){
 }
 export function stepProjectiles(game,dt){
  const w=game.weapon;if(game.status!=='running'){w.projectiles=[];w.effects=[];return;}
- w.effects=w.effects.map(e=>({...e,age:e.age+dt})).filter(e=>e.age<(e.type==='beam'?RAILGUN.beamSeconds:RAILGUN.effectSeconds));
- // Resolve a full beam once, then retain its world-space line only as a short visual.
- for(const shot of w.projectiles){
-  const from=shot.origin,direction={x:Math.sin(shot.heading),y:-Math.cos(shot.heading)},end={x:from.x+direction.x*shot.remaining,y:from.y+direction.y*shot.remaining};
+ w.effects=w.effects.map(e=>({...e,age:e.age+dt})).filter(e=>e.age<(e.type==='beam'?RAILGUN.beamSeconds:e.type==='muzzle'?RAILGUN.flashSeconds:e.type==='trail'?RAILGUN.trailSeconds:RAILGUN.effectSeconds));
+ // Small shots travel with swept collision; medium/max preserve their charged beams.
+ w.projectiles=w.projectiles.filter(shot=>{
+  const from=shot.stage===0?{...shot.position}:shot.origin,direction={x:Math.sin(shot.heading),y:-Math.cos(shot.heading)},travel=shot.stage===0?Math.min(Math.hypot(shot.velocity.x,shot.velocity.y)*dt,shot.remaining):shot.remaining,end={x:from.x+direction.x*travel,y:from.y+direction.y*travel};
   let hit=null;
   for(const obstacle of game.hazards.filter(h=>['impact','obstacle'].includes(h.type)&&!game.destroyedRocks.has(h.id))){const t=segmentHit(from,end,obstacle.position,obstacle.radius+shot.radius);if(t!==null&&(!hit||t<hit.t))hit={t,obstacle};}
   const point=hit?{x:from.x+(end.x-from.x)*hit.t,y:from.y+(end.y-from.y)*hit.t}:end;
-  w.effects.push({type:'beam',position:{...from},end:point,heading:shot.heading,stage:shot.stage,radius:shot.radius,age:0});
+  w.effects.push({type:shot.stage===0?'trail':'beam',position:{...from},end:point,heading:shot.heading,stage:shot.stage,radius:shot.radius,age:0});
   if(hit){
    game.destroyedRocks.add(hit.obstacle.id);game.contacts.delete(hit.obstacle.id);game.rockAlerts.delete(hit.obstacle.id);
    w.hits++;w.lastHit={obstacleId:hit.obstacle.id,damage:shot.damage,position:point,destroyed:true};w.effects.push({type:'hit',position:{...hit.obstacle.position},heading:shot.heading,stage:shot.stage,age:0});
   }
- }
- game.hazards=game.hazards.filter(h=>!game.destroyedRocks.has(h.id));w.projectiles=[];
+  if(hit||shot.stage!==0)return false;shot.position=end;shot.remaining-=travel;return shot.remaining>0;
+ });
+ game.hazards=game.hazards.filter(h=>!game.destroyedRocks.has(h.id));
 }

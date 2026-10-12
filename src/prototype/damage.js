@@ -1,3 +1,4 @@
+import {cancelBoost} from './boost.js';
 import {cancelRailgun} from './railgun.js';
 import { cellToWorld, worldToCell, shipCells } from './ship.js';
 export function applyContact(game,event) {
@@ -14,7 +15,7 @@ export function applyContact(game,event) {
  if(target.role){game.ship.critical[target.role]=Math.max(0,game.ship.critical[target.role]-damage);if(game.ship.critical[target.role]<=0)for(const c of game.ship.cells)if(c.role===target.role)c.hp=0;}
  game.ship.revision++;
  if(game.ship.critical.canopy<=0||game.ship.critical.core<=0){
-  game.status='ended';if(game.weapon){cancelRailgun(game.weapon);game.weapon.projectiles=[];game.weapon.effects=[];}game.flight.velocity={x:0,y:0};game.end={reason:event.type,critical:Object.entries(game.ship.critical).filter(([,hp])=>hp<=0).map(([role])=>role),position:{...game.flight.position},maxDistance:game.flight.maxDistance};
+  game.status='ended';if(game.boost)cancelBoost(game.boost,true);if(game.weapon){cancelRailgun(game.weapon);game.weapon.projectiles=[];game.weapon.effects=[];}game.flight.velocity={x:0,y:0};game.end={reason:event.type,critical:Object.entries(game.ship.critical).filter(([,hp])=>hp<=0).map(([role])=>role),position:{...game.flight.position},maxDistance:game.flight.maxDistance};
   for(const job of game.jobs)if(!['complete','cancelled'].includes(job.stage))job.stage='cancelled';
   for(const bit of game.bits){bit.state='disabled';bit.jobId=null;}
   game.notice='重要部分の破壊により航行を終了しました';
