@@ -24,12 +24,12 @@ test('zero energy and destroyed enhancement permit repeated minimum shots, criti
  assert.equal(g.weapon.shots,20);assert.equal(g.weapon.baseGenerated,40);assert.equal(g.weapon.totalSpent,40);assert.equal(g.ship.parts.find(p=>p.type==='tank').stored,0);assert.ok(g.weapon.projectiles.every(p=>p.stage===0));
  for(const role of ['canopy','core']){const h=charged(1);applyContact(h,{type:'impact',position:cellToWorld({x:5,y:role==='core'?9:4},h.flight),damage:100});assert.equal(h.weapon.holding,false);release(h);assert.equal(h.weapon.shots,0);assert.equal(h.weapon.projectiles.length,0);}
 });
-test('release heading determines independent projectile flight with no recoil',()=>{
- const g=charged(2.4);const flight=JSON.stringify(g.flight);release(g,Math.PI/2);assert.equal(JSON.stringify(g.flight),flight);const p=g.weapon.projectiles[0];assert.ok(p.velocity.x>0);assert.ok(Math.abs(p.velocity.y)<1e-8);const x=p.position.x;stepProjectiles(g,.1);assert.ok(p.position.x>x);assert.equal(JSON.stringify(g.flight),flight);
+test('release heading determines a full-range beam without recoil',()=>{
+ const g=charged(2.4);const flight=JSON.stringify(g.flight);release(g,Math.PI/2);assert.equal(JSON.stringify(g.flight),flight);const p=g.weapon.projectiles[0];assert.ok(p.velocity.x>0);assert.ok(Math.abs(p.velocity.y)<1e-8);stepProjectiles(g,.1);const beam=g.weapon.effects.find(e=>e.type==='beam');assert.ok(beam.end.x>beam.position.x+600);assert.equal(g.weapon.projectiles.length,0);assert.equal(JSON.stringify(g.flight),flight);
 });
-test('swept collision hits only nearest rock/obstacle, ignores materials/ship/environment, no destruction or drops',()=>{
+test('beam hits and destroys only nearest rock/obstacle, ignores materials/ship/environment, no drops',()=>{
  const g=charged(2.4);release(g);const p=g.weapon.projectiles[0];g.hazards=[{id:'dust',type:'dustContact',position:{x:0,y:-60},radius:40},{id:'heat',type:'heatContact',position:{x:0,y:-65},radius:40},{id:'near',type:'impact',position:{x:0,y:-100},radius:10},{id:'far',type:'obstacle',position:{x:0,y:-150},radius:10}];g.resources=[{id:'material',position:{x:0,y:-60},state:'available'}];
- const hazards=JSON.stringify(g.hazards),ship=JSON.stringify(g.ship);stepProjectiles(g,.5);assert.equal(g.weapon.hits,1);assert.equal(g.weapon.lastHit.obstacleId,'near');assert.equal(g.weapon.projectiles.length,0);assert.equal(JSON.stringify(g.hazards),hazards);assert.equal(JSON.stringify(g.ship),ship);assert.equal(g.resources[0].state,'available');assert.ok(g.weapon.lastHit.damage===p.damage);
+ const ship=JSON.stringify(g.ship);stepProjectiles(g,.5);assert.equal(g.weapon.hits,1);assert.equal(g.weapon.lastHit.obstacleId,'near');assert.equal(g.weapon.projectiles.length,0);assert.ok(!g.hazards.some(h=>h.id==='near'));assert.ok(g.destroyedRocks.has('near'));assert.ok(g.hazards.some(h=>h.id==='far'));assert.equal(JSON.stringify(g.ship),ship);assert.equal(g.resources[0].state,'available');assert.ok(g.weapon.lastHit.damage===p.damage);
  assert.equal(segmentHit({x:0,y:0},{x:0,y:-200},{x:0,y:-100},1),.495);assert.equal(segmentHit({x:0,y:0},{x:0,y:-200},{x:10,y:-100},1),null);
  const h=charged(0);release(h);h.hazards=[];stepProjectiles(h,100);assert.equal(h.weapon.projectiles.length,0);
 });

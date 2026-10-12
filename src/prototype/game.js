@@ -1,3 +1,4 @@
+import {rockWarnings} from './targeting.js';
 import {createNebula,updateNebula,environmentForFlight,stepNebulaContacts,stepNebulaObservation,requestAnalysis,nebulaSnapshot,NEBULA} from './nebula.js';
 import {createFlight,stepFlight,initialParts,validatePlacement,partAt,shipStats} from './model.js';
 import {createShip} from './ship.js';
@@ -15,9 +16,9 @@ function equipment() {
 export function createGame({seed=NEBULA.seed}={}) {
  const flight=createFlight(),ship=createShip(equipment());
  ship.parts.find(p=>p.type==='tank').stored=RAILGUN.initialStored;
- const game={flight,ship,nebula:createNebula(seed),weapon:createRailgun(),status:'running',bits:createBits(flight.position),resources:initialResources(),jobs:[],inventory:{wire:0,plate:0,tank:0,solar:0},nextJob:1,commands:[],viewport:{width:800,height:600,scale:1.55},energy:null,observation:0,notice:'資材をクリックしてビットへ指示。近距離は自動回収します。',hazards:[],contacts:new Set(),depleted:new Set(),discovered:new Set()};
+ const game={flight,ship,nebula:createNebula(seed),weapon:createRailgun(),status:'running',bits:createBits(flight.position),resources:initialResources(),jobs:[],inventory:{wire:0,plate:0,tank:0,solar:0},nextJob:1,commands:[],viewport:{width:800,height:600,scale:1.55},energy:null,observation:0,notice:'資材をクリックしてビットへ指示。近距離は自動回収します。',hazards:[],destroyedRocks:new Set(),warnedRocks:new Set(),rockAlerts:new Map(),contacts:new Set(),depleted:new Set(),discovered:new Set()};
  game.energy=stepEnergy(ship,0);game.observation=ship.parts.some(p=>p.type==='observer')?TUNING.observation:0;
- updateWorld(game);updateNebula(game);return game;
+ updateWorld(game);rockWarnings(game);updateNebula(game);return game;
 }
 export function applyCommand(game,command) {
  if(game.status!=='running')return;
@@ -39,13 +40,14 @@ export function stepGame(game,steering,dt) {
  for(const command of commands.filter(c=>!['collect','analyze'].includes(c.type)))applyCommand(game,command);
  game.energy=stepEnergy(game.ship,dt);
  stepRailgun(game,commands,dt);
+ stepProjectiles(game,dt); // Instant beams resolve before this tick's rock contacts.
  updateNebula(game);
  const observers=game.ship.parts.filter(p=>p.type==='observer'&&game.energy.active[p.id]).length;
  game.baseObservation=observers?TUNING.observation+(observers-1)*NEBULA.observerBonus:0;
  game.observation=game.baseObservation*game.nebula.field.visibility;
  const engines=game.ship.parts.filter(p=>p.type==='engine'&&game.energy.active[p.id]).length;
  stepFlight(game.flight,steering,dt,Math.min(TUNING.maxSpeed,TUNING.minimumSpeed+engines*12),environmentForFlight(game.nebula.field,game.flight.heading));
- updateWorld(game);updateNebula(game);
+ updateWorld(game);rockWarnings(game);updateNebula(game);
  game.observation=game.baseObservation*game.nebula.field.visibility;
  for(const command of commands.filter(c=>c.type==='analyze'))applyCommand(game,command);
  stepNebulaObservation(game,dt);
@@ -57,7 +59,7 @@ export function stepGame(game,steering,dt) {
  for(const resource of game.resources.filter(r=>r.state==='available').sort((a,b)=>Math.hypot(a.position.x-game.flight.position.x,a.position.y-game.flight.position.y)-Math.hypot(b.position.x-game.flight.position.x,b.position.y-game.flight.position.y)))requestCollection(game,resource.id,'auto');
  checkContacts(game);
  if(game.status==='running')stepCollection(game,dt);
- stepProjectiles(game,dt);if(game.status!=='running')stepRailgun(game,[],0);
+ if(game.status!=='running')stepRailgun(game,[],0);
  return game;
 }
 export function snapshot(game) {

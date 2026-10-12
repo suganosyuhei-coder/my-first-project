@@ -1,3 +1,5 @@
+// Provisional approach lanes give players time to align a beam before collision.
+export const ROCKS={spacing:480,approach:400,laneOffset:18,radius:14};
 export function initialResources() {
  return [
   {id:'resource-wire',type:'wire',position:{x:10,y:-85}},
@@ -22,5 +24,6 @@ export function updateWorld(game) {
  for(let i=hy-1;i<=hy+1;i++)game.hazards.push(
   {id:`dust-${i}`,type:'dustContact',position:{x:-12+Math.sin(i)*60,y:-i*480-260},radius:22},
   {id:`heat-${i}`,type:'heatContact',position:{x:65+Math.cos(i)*15,y:-i*480-320},radius:20},
-  {id:`rock-${i}`,type:'impact',position:{x:i%2?50:0,y:-i*480-570},radius:10});
+  {id:`rock-${i}`,type:'impact',position:{x:(i%3)*ROCKS.laneOffset,y:-i*ROCKS.spacing-ROCKS.approach},radius:ROCKS.radius});
+ game.hazards=game.hazards.filter(h=>!game.destroyedRocks?.has(h.id));
 }

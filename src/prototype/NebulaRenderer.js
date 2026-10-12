@@ -29,9 +29,10 @@ void main(){
  vec3 color=mix(palette*.25,palette*1.4,filaments*1.5+grain*.35);
  color+=vec3(.48,.63,.7)*pow(grain,5.)*(1.-dark);
  float alpha=clamp(d*(.64+grain*.32),0.,.88);
+ color=floor(color*8.+.5)/8.;alpha=floor(alpha*10.+.5)/10.;
  gl_FragColor=vec4(color,alpha);
 }`;
-export const NEBULA_RENDER={high:{scale:.35,interval:80},low:{scale:.2,interval:125}};
+export const NEBULA_RENDER={high:{scale:.125,interval:80},low:{scale:.0833,interval:125}};
 const VERTEX='attribute vec2 point;void main(){gl_Position=vec4(point,0,1);}';
 function compile(gl,type,source){const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const message=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(message);}return shader;}
 export function createNebulaRenderer(){

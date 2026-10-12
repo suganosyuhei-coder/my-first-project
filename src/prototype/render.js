@@ -2,7 +2,7 @@ import {drawRailgun} from './RailEffects.js';
 import { RESOURCE_TYPES } from './collection.js';
 import { worldToScreen } from './model.js';
 const TAU=Math.PI*2;
-function drawGas(ctx,image,width,height,state){const camera=image.worldCamera||state.position;ctx.drawImage(image,(camera.x-state.position.x)*1.55,(camera.y-state.position.y)*1.55,width,height);}
+function drawGas(ctx,image,width,height,state){ctx.save();ctx.imageSmoothingEnabled=false;const camera=image.worldCamera||state.position;ctx.drawImage(image,Math.round((camera.x-state.position.x)*1.55),Math.round((camera.y-state.position.y)*1.55),width,height);ctx.restore();}
 function circle(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke();}
 export function drawFlight(ctx,width,height,state,{observation,reducedMotion,game,nebulaImage}) {
   const scale=1.55,screen=p=>worldToScreen(p,state.position,width,height,scale);
@@ -38,7 +38,13 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
   ctx.strokeStyle='#94a8b12b';ctx.beginPath();ctx.moveTo(center.x-12,center.y);ctx.lineTo(center.x+12,center.y);ctx.moveTo(center.x,center.y-12);ctx.lineTo(center.x,center.y+12);ctx.stroke();
   ctx.save();ctx.translate(center.x,center.y);ctx.rotate(state.heading);ctx.strokeStyle='#79d2df77';ctx.beginPath();ctx.moveTo(0,-105);ctx.lineTo(0,-140);ctx.lineTo(-4,-134);ctx.moveTo(0,-140);ctx.lineTo(4,-134);ctx.stroke();ctx.restore();
   if(game){
-    for(const hazard of game.hazards){const p=screen(hazard.position);ctx.strokeStyle=hazard.type==='dustContact'?'#c5bba255':hazard.type==='heatContact'?'#d9575799':'#aab4ba';ctx.setLineDash(hazard.type==='dustContact'?[1,7]:[]);circle(ctx,p.x,p.y,hazard.radius*scale);ctx.setLineDash([]);ctx.fillStyle=ctx.strokeStyle;ctx.fillText(hazard.type==='dustContact'?'宇宙塵':hazard.type==='heatContact'?'熱領域':'岩',p.x+12,p.y-12);}
+    for(const hazard of game.hazards){const p=screen(hazard.position);
+      if(['impact','obstacle'].includes(hazard.type)){
+        const r=hazard.radius*scale;ctx.fillStyle='#53616a';ctx.strokeStyle='#a8b8bc';ctx.lineWidth=1;ctx.beginPath();
+        for(let i=0;i<7;i++){const angle=i*TAU/7,variation=.78+(i%3)*.11,x=p.x+Math.cos(angle)*r*variation,y=p.y+Math.sin(angle)*r*variation;if(!i)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();
+        ctx.strokeStyle='#7e9097';ctx.beginPath();ctx.moveTo(p.x-r*.6,p.y-r*.25);ctx.lineTo(p.x,p.y-r*.6);ctx.lineTo(p.x+r*.35,p.y-r*.1);ctx.stroke();
+      }else{ctx.strokeStyle=hazard.type==='dustContact'?'#c5bba255':'#d9575799';ctx.setLineDash(hazard.type==='dustContact'?[1,7]:[]);circle(ctx,p.x,p.y,hazard.radius*scale);ctx.setLineDash([]);ctx.fillStyle=ctx.strokeStyle;ctx.fillText(hazard.type==='dustContact'?'宇宙塵':'熱領域',p.x+12,p.y-12);}
+    }
     for(const resource of game.resources){if(!resource.discovered||!['available','reserved'].includes(resource.state))continue;const p=screen(resource.position);ctx.strokeStyle=resource.state==='reserved'?'#eeaa72':'#79d2df';ctx.beginPath();ctx.moveTo(p.x,p.y-8);ctx.lineTo(p.x+8,p.y);ctx.lineTo(p.x,p.y+8);ctx.lineTo(p.x-8,p.y);ctx.closePath();ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.fillText(`${RESOURCE_TYPES[resource.type].name} / ${RESOURCE_TYPES[resource.type].bits}基`,p.x+13,p.y+3);}
     for(const bit of game.bits){ctx.strokeStyle=bit.state==='orbiting'?'#79d2df66':'#79d2df';ctx.beginPath();bit.trail.forEach((point,i)=>{const p=screen(point);if(!i)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();const p=screen(bit.position);ctx.fillStyle='#d1fafb';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();ctx.strokeStyle='#79d2df66';circle(ctx,p.x,p.y,8);}
   }
