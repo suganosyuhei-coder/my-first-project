@@ -1,3 +1,4 @@
+import dialogue from './pilotDialogue.json' with {type:'json'};
 // Presentation-only configuration. Change expression assignments here without
 // touching flight, collection or energy logic. Individual images override sheet.
 export const PILOT_SHEET = {
@@ -5,31 +6,10 @@ export const PILOT_SHEET = {
   columns: 6,
   aspectRatio: '1 / 2',
 };
-export const PILOT_EXPRESSIONS = {
-  neutral: { frame: 0, label: '基本' },
-  thinking: { frame: 1, label: '考え中' },
-  smile: { frame: 2, label: '微笑み' },
-  determined: { frame: 3, label: '決意' },
-  surprised: { frame: 4, label: '驚き' },
-  worried: { frame: 5, label: '不安' },
-};
-// Higher priority wins; durations use simulation seconds, not wall-clock time.
-export const PILOT_ACTIONS = [
-  { id: 'ended', expression: 'worried', label: '航行不能' },
-  { id: 'damage', expression: 'worried', label: '損傷を確認', seconds: 1.5 },
-  { id: 'danger', expression: 'worried', label: '重要部分に損傷' },
-  { id: 'boosting', expression: 'surprised', label: '急加速' },
-  { id: 'fired', expression: 'determined', label: '射撃', seconds: 1 },
-  { id: 'charging', expression: 'determined', label: '射撃チャージ中' },
-  { id: 'boostCharging', expression: 'determined', label: '急加速準備' },
-  { id: 'recovered', expression: 'smile', label: '資材を搬入', seconds: 1.8 },
-  { id: 'analyzed', expression: 'smile', label: '解析完了', seconds: 1.8 },
-  { id: 'analyzing', expression: 'thinking', label: '星雲を解析中' },
-  { id: 'analysisPaused', expression: 'worried', label: '解析を一時停止' },
-  { id: 'collecting', expression: 'thinking', label: 'ビット回収中' },
-  { id: 'cruising', expression: 'neutral', label: '航行中' },
-];
-export const PILOT_TUNING = { criticalWarningHp: 35 };
+export const PILOT_EXPRESSIONS = dialogue.expressions;
+// Ordered JSON conditions choose both the pose and dialogue. First match wins.
+export const PILOT_ACTIONS = dialogue.actions;
+export const PILOT_TUNING = dialogue.tuning;
 
 export function createPilotController(actions = PILOT_ACTIONS) {
   let previous = null;
@@ -55,7 +35,7 @@ export function createPilotController(actions = PILOT_ACTIONS) {
       recovered: previous && current.inventory > previous.inventory,
       analyzed: previous && [...current.analyzed].some(id => !previous.analyzed.has(id)),
     };
-    for (const action of actions) if (action.seconds && events[action.id]) expires[action.id] = time + action.seconds * (telemetry.tuning?.animation.reactionDuration??1);
+    for (const action of actions) if (action.seconds && events[action.condition??action.id]) expires[action.id] = time + action.seconds * (telemetry.tuning?.animation.reactionDuration??1);
     const analyzing = selection && selection.state !== 'analyzed';
     const states = {
       ended: telemetry.status !== 'running',
@@ -66,9 +46,10 @@ export function createPilotController(actions = PILOT_ACTIONS) {
       analyzing: analyzing && telemetry.nebula.observableIds.includes(selection.id),
       analysisPaused: analyzing && !telemetry.nebula.observableIds.includes(selection.id),
       collecting: telemetry.jobs.some(j => !['complete', 'cancelled'].includes(j.stage)),
+      enemyThreat: telemetry.enemies?.units.some(e=>e.hp>0&&e.detected),
       cruising: true,
     };
     previous = current;
-    return actions.find(action => action.seconds ? time < (expires[action.id] ?? -1) : states[action.id]) ?? { id: 'cruising', expression: 'neutral', label: '航行中' };
+    return actions.find(action => action.seconds ? time < (expires[action.id] ?? -1) : states[action.condition??action.id]) ?? { id: 'cruising', expression: 'neutral', label: '航行中' };
   };
 }

@@ -13,8 +13,8 @@ export default function PilotPortrait({ telemetry }) {
     backgroundPosition: standalone ? 'center' : `${expression.frame / (PILOT_SHEET.columns - 1) * 100}% 0`,
     aspectRatio: expression.aspectRatio ?? PILOT_SHEET.aspectRatio,
   };
-  return <figure className="proto-pilot" data-testid="pilot-portrait" data-action={action.id} data-expression={action.expression}>
+  return <div className="proto-pilot-with-dialogue"><figure className="proto-pilot" data-testid="pilot-portrait" data-action={action.id} data-expression={action.expression}>
     <div className="proto-pilot-image" role="img" aria-label={`パイロット：${expression.label}`} style={style}/>
     <figcaption><span className="proto-label">PILOT</span><span>{action.label}</span></figcaption>
-  </figure>;
+  </figure><div className="proto-pilot-dialogue" data-testid="pilot-dialogue"><span className="proto-pilot-channel">PILOT / COMMS</span><p role="status">{action.line??'航路を確認中……。'}</p></div></div>;
 }

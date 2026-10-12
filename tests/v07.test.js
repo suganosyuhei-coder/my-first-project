@@ -8,7 +8,7 @@ import {applyContact} from '../src/prototype/damage.js';
 import {stepFlight} from '../src/prototype/model.js';
 const runUntil=(g,predicate,max=3000)=>{for(let i=0;i<max&&!predicate();i++)stepGame(g,0,1/60);assert.ok(predicate(),'simulation condition did not complete');};
 test('v0.7 initial supply powers observation and propulsion and charges storage',()=>{
- const g=createGame();stepGame(g,0,1/60);assert.equal(g.observation,140);assert.equal(g.energy.active['engine-0'],true);assert.equal(g.flight.velocity.y,-24);assert.ok(g.energy.stored>0);
+ const g=createGame();stepGame(g,0,1/60);assert.equal(g.observation,140);assert.equal(g.energy.active['engine-0'],true);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>23&&Math.hypot(g.flight.velocity.x,g.flight.velocity.y)<25);assert.ok(g.energy.stored>0);
  assert.equal(new Set(g.ship.parts.map(p=>p.id)).size,g.ship.parts.length);
 });
 test('two-bit collection reserves atomically, survives leaving viewport, credits only after both returns',()=>{
@@ -37,8 +37,8 @@ test('energy direct supply works without storage; priority protects observation 
  const ship=createShip([{id:'s',type:'solar',x:0,y:0},{id:'p',type:'pipe',x:2,y:1},{id:'o',type:'observer',x:3,y:1},{id:'e1',type:'engine',x:2,y:2},{id:'e2',type:'engine',x:4,y:2},{id:'p2',type:'pipe',x:4,y:1}]);
  const power=stepEnergy(ship,1);assert.equal(power.active.o,true);assert.equal(power.active.e1,true);assert.equal(power.active.e2,false);assert.equal(power.status.e2,'供給不足');assert.equal(power.stored,0);assert.ok(power.consumption<=power.generation);
  const storage=createShip([{id:'s',type:'solar',x:0,y:0},{id:'p',type:'pipe',x:2,y:1},{id:'t',type:'tank',x:3,y:0}]);
- let state=stepEnergy(storage,5);assert.equal(state.stored,60);storage.parts=storage.parts.filter(p=>p.id!=='p');storage.revision++;state=stepEnergy(storage,5);assert.equal(state.stored,60);
- storage.parts.push({id:'p',type:'pipe',x:2,y:1,hp:100});storage.revision++;state=stepEnergy(storage,5);assert.equal(state.stored,120);
+ let state=stepEnergy(storage,5);assert.equal(state.stored,80);storage.parts=storage.parts.filter(p=>p.id!=='p');storage.revision++;state=stepEnergy(storage,5);assert.equal(state.stored,80);
+ storage.parts.push({id:'p',type:'pipe',x:2,y:1,hp:100});storage.revision++;state=stepEnergy(storage,5);assert.equal(state.stored,160);
  state=stepEnergy(storage,100);assert.equal(state.stored,ENERGY.capacity);
 });
 test('alternative pipe route survives a cut; broken pipes and reconnection update supply',()=>{
@@ -49,7 +49,7 @@ test('alternative pipe route survives a cut; broken pipes and reconnection updat
 });
 test('empty energy maintains minimum flight; either critical part destruction stops and cancels jobs',()=>{
  for(const role of ['canopy','core']){
-  const g=createGame();g.ship.parts=[];g.ship.revision++;stepGame(g,0,1/60);assert.equal(g.flight.velocity.y,-12);assert.equal(g.status,'running');
+  const g=createGame();g.ship.parts=[];g.ship.revision++;stepGame(g,0,1/60);assert.ok(g.flight.velocity.x*Math.sin(g.flight.heading)-g.flight.velocity.y*Math.cos(g.flight.heading)>=12);assert.equal(g.status,'running');
   const r=g.resources[0];r.discovered=true;g.observation=140;requestCollection(g,r.id);assert.ok(g.jobs.length);
   const point=cellToWorld({x:5,y:role==='core'?9:4},g.flight);applyContact(g,{type:'impact',position:point,damage:100});
   assert.equal(g.status,'ended');assert.ok(g.jobs.every(j=>j.stage==='cancelled'));assert.equal(g.ship.critical[role],0);assert.equal(g.ship.critical[role==='core'?'canopy':'core'],100);

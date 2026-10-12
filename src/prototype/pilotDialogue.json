@@ -1,0 +1,135 @@
+{
+  "tuning": {
+    "criticalWarningHp": 35
+  },
+  "expressions": {
+    "neutral": {
+      "frame": 0,
+      "label": "基本"
+    },
+    "thinking": {
+      "frame": 1,
+      "label": "考え中"
+    },
+    "smile": {
+      "frame": 2,
+      "label": "微笑み"
+    },
+    "determined": {
+      "frame": 3,
+      "label": "決意"
+    },
+    "surprised": {
+      "frame": 4,
+      "label": "驚き"
+    },
+    "worried": {
+      "frame": 5,
+      "label": "不安"
+    }
+  },
+  "actions": [
+    {
+      "id": "ended",
+      "condition": "ended",
+      "expression": "worried",
+      "label": "航行不能",
+      "line": "ここまで、か……。次はもっと遠くへ。"
+    },
+    {
+      "id": "damage",
+      "condition": "damage",
+      "expression": "worried",
+      "label": "損傷を確認",
+      "seconds": 1.5,
+      "line": "いま、何か当たった！ 損傷箇所を確認して。"
+    },
+    {
+      "id": "danger",
+      "condition": "danger",
+      "expression": "worried",
+      "label": "重要部分に損傷",
+      "line": "船体がもたない……。これ以上の衝突は避けよう。"
+    },
+    {
+      "id": "boosting",
+      "condition": "boosting",
+      "expression": "surprised",
+      "label": "急加速",
+      "line": "わっ、速い！ このまま一気に抜けよう！"
+    },
+    {
+      "id": "fired",
+      "condition": "fired",
+      "expression": "determined",
+      "label": "射撃",
+      "seconds": 1,
+      "line": "射撃！ 前方の障害物を突破する。"
+    },
+    {
+      "id": "charging",
+      "condition": "charging",
+      "expression": "determined",
+      "label": "射撃チャージ中",
+      "line": "照準を合わせて……。エネルギーを集中。"
+    },
+    {
+      "id": "boostCharging",
+      "condition": "boostCharging",
+      "expression": "determined",
+      "label": "急加速準備",
+      "line": "Shiftを押したまま旋回！ 離した向きへ急加速するよ。"
+    },
+    {
+      "id": "recovered",
+      "condition": "recovered",
+      "expression": "smile",
+      "label": "資材を搬入",
+      "seconds": 1.8,
+      "line": "回収成功！ これで船をもっと強くできるね。"
+    },
+    {
+      "id": "analyzed",
+      "condition": "analyzed",
+      "expression": "smile",
+      "label": "解析完了",
+      "seconds": 1.8,
+      "line": "解析できたよ。星雲の特性を確認しよう。"
+    },
+    {
+      "id": "enemyThreat",
+      "condition": "enemyThreat",
+      "expression": "determined",
+      "label": "敵影を確認",
+      "line": "敵影！ 空いているビットで迎撃するよ。"
+    },
+    {
+      "id": "analyzing",
+      "condition": "analyzing",
+      "expression": "thinking",
+      "label": "星雲を解析中",
+      "line": "この星雲、何かある……。もう少し調べてみよう。"
+    },
+    {
+      "id": "analysisPaused",
+      "condition": "analysisPaused",
+      "expression": "worried",
+      "label": "解析を一時停止",
+      "line": "解析が止まった。観測範囲と供給を確認して。"
+    },
+    {
+      "id": "collecting",
+      "condition": "collecting",
+      "expression": "thinking",
+      "label": "ビット回収中",
+      "line": "ビットが作業中。帰ってくるまで航路を保とう。"
+    },
+    {
+      "id": "cruising",
+      "condition": "cruising",
+      "expression": "neutral",
+      "label": "航行中",
+      "line": "航路よし。この先には、何があるんだろう。"
+    }
+  ]
+}

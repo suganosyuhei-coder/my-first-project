@@ -2,7 +2,7 @@ import {shipCells,cellToWorld} from './ship.js';
 import {applyContact} from './damage.js';
 
 // Issue #4 provisional balance/analysis policy, not final product tuning.
-export const NEBULA={seed:7309,chunk:720,spawnChance:.48,analysisSeconds:4,contactInterval:.5,minimumVisibility:.3,observerBonus:60,drag:8,lateralForce:3,turnRate:.045,damagePerSecond:.4};
+export const NEBULA={seed:7309,chunk:720,spawnChance:.48,analysisSeconds:4,contactInterval:.5,minimumVisibility:.3,observerBonus:60,drag:8,lateralForce:3,turnRate:.045,damagePerSecond:.4,recoveryPerDensity:12};
 export const NEBULA_TYPES=[
  {id:'diffuse',name:'拡散型',color:[.18,.64,.76],density:.5,turbulence:.25,occlusion:.25,heat:0,abrasion:.15},
  {id:'dark',name:'暗黒型',color:[.18,.17,.29],density:.8,turbulence:.4,occlusion:.9,heat:0,abrasion:.3},
@@ -49,7 +49,7 @@ export function environmentAt(regions,point,time){
 }
 export function createNebula(seed=NEBULA.seed){return {seed,regions:[],field:environmentAt([],{x:0,y:0},0),observations:{},selected:null,contactClock:0};}
 export function updateNebula(game){const {width,height,scale}=game.viewport;game.nebula.regions=nebulaRegions(game.nebula.seed,game.flight.position,Math.max(500,Math.hypot(width,height)/scale/2));if(game.tuning)game.nebula.regions=game.nebula.regions.map(r=>({...r,density:r.density*game.tuning.nebula.densityMultiplier}));game.nebula.field=environmentAt(game.nebula.regions,game.flight.position,game.flight.elapsed);}
-export function environmentForFlight(field,heading=0){return {drag:Math.min(NEBULA.drag,field.density*NEBULA.drag),lateral:(field.flow.x*Math.cos(heading)+field.flow.y*Math.sin(heading))*NEBULA.lateralForce,turn:field.turbulence*field.flow.y*NEBULA.turnRate,minimumSpeed:12};}
+export function environmentForFlight(field,heading=0,strength=1){return {drag:Math.min(NEBULA.drag,field.density*NEBULA.drag*strength),lateral:(field.flow.x*Math.cos(heading)+field.flow.y*Math.sin(heading))*NEBULA.lateralForce*strength,turn:field.turbulence*field.flow.y*NEBULA.turnRate*strength,minimumSpeed:12};}
 export function observableRegion(region,game){return game.observation>0&&Math.hypot(region.position.x-game.flight.position.x,region.position.y-game.flight.position.y)<=game.observation+Math.max(region.extent.x,region.extent.y)*1.2;}
 export function requestAnalysis(game,id){const r=game.nebula.regions.find(r=>r.id===id),record=game.nebula.observations[id];if(!r||!record||!observableRegion(r,game))return {ok:false,reason:'解析には稼働中の観測装置と観測範囲内の対象が必要です'};game.nebula.selected=id;return {ok:true,reason:'星雲を解析中です（暫定4秒・範囲外では一時停止）'};}
 export function stepNebulaObservation(game,dt){

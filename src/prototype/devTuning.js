@@ -1,6 +1,18 @@
 // Development settings only. No server write endpoint, Git or deploy integration.
 export const TUNING_KEY = 'shutle.dev-tuning.v1';
 export const TUNING_FIELDS = [
+ ['enemies','speedMultiplier','敵 / 追跡速度倍率',.25,2,.05,1],
+ ['enemies','damageMultiplier','敵 / 攻撃ダメージ倍率',0,2,.1,1],
+ ['enemies','bitDamageMultiplier','ビット / 迎撃威力倍率',.5,2,.1,1],
+ ['environment','galaxyStrength','銀河 / 常時流れの強さ',0,3,.1,1],
+ ['environment','nebulaRecovery','星雲 / 密度1の回復 E/s',0,30,1,12],
+ ['environment','planetStrength','惑星 / 重力流の強さ',0,2,.05,1],
+ ['environment','nebulaStrength','星雲 / 航行影響倍率',0,4,.1,2],
+ ['energy','generation','ソーラー / 1基の生成 E/s',4,32,.5,16],
+ ['energy','tankLinkBonus','タンク / 連結容量ボーナス',0,.5,.05,.25],
+ ['boost','impulseMultiplier','ブースト / 加速倍率',1,3,.05,1.65],
+ ['boost','duration','ブースト / 持続時間 s',.5,2,.05,1.25],
+ ['boost','turnMultiplier','Shift / 急旋回倍率',1,6,.1,3.5],
  ['ship','speedMultiplier','機体 / 前進速度倍率',.5,3,.05,1],
  ['ship','rotationRate','機体 / 旋回速度 rad/s',.05,1.5,.01,.32],
  ['ship','visualScale','機体 / 表示サイズ（判定は不変）',.5,2,.05,1],
@@ -25,10 +37,12 @@ export function validateTuning(input){
  const result=defaultTuning(),groups=Object.keys(result);
  if(Object.keys(input).some(k=>!groups.includes(k)))throw new Error('未知の設定項目があります');
  for(const group of groups.filter(k=>k!=='version')){
+  // Old v1 files omit these newly added categories: retain their other settings.
+  if(input[group]===undefined&&['energy','boost','environment','enemies'].includes(group))continue;
   if(!input[group]||typeof input[group]!=='object'||Array.isArray(input[group]))throw new Error(`${group} の設定が不足しています`);
   const fields=TUNING_FIELDS.filter(f=>f[0]===group);
   if(Object.keys(input[group]).some(k=>!fields.some(f=>f[1]===k)))throw new Error(`${group} に未知の項目があります`);
-  for(const [,key,label,min,max] of fields){const n=input[group][key];if(typeof n!=='number'||!Number.isFinite(n)||n<min||n>max)throw new Error(`${label}: ${min}〜${max} の数値が必要です`);result[group][key]=n;}
+  for(const [,key,label,min,max] of fields){const n=input[group][key];if(n===undefined&&['boost.turnMultiplier','environment.galaxyStrength','environment.nebulaRecovery'].includes(group+'.'+key))continue;if(typeof n!=='number'||!Number.isFinite(n)||n<min||n>max)throw new Error(`${label}: ${min}〜${max} の数値が必要です`);result[group][key]=n;}
  }
  return result;
 }

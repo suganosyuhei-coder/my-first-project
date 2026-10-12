@@ -1,3 +1,4 @@
+import {keepOutsidePlanets} from './planetFlow.js';
 // Prototype tuning only: these values do not fix the final game's balance.
 export const GRID = { columns: 11, rows: 17 };
 export const DEMO = { canopy: 100, core: 100, observation: 140, hullMass: 420, speed: 24, steeringRate: .32 };
@@ -37,6 +38,11 @@ export function validatePlacement(parts,type,x,y) {
 export function pipeMask(parts,x,y) {
   return [[0,-1,1],[1,0,2],[0,1,4],[-1,0,8]].reduce((mask,[dx,dy,bit])=>partAt(parts,x+dx,y+dy)?.type==='pipe'?mask|bit:mask,0);
 }
+// Visual endpoints include device ports; the energy graph remains authoritative.
+export function pipeConnectionMask(parts,x,y) {
+ const live=parts.filter(p=>p.hp===undefined||p.hp>0);
+ return [[0,-1,1],[1,0,2],[0,1,4],[-1,0,8]].reduce((mask,[dx,dy,bit])=>partAt(live,x+dx,y+dy)?mask|bit:mask,0);
+}
 export function initialParts() {
   return [{id:'tank-0',type:'tank',x:3,y:8},{id:'engine-0',type:'engine',x:5,y:12},{id:'solar-0',type:'solar',x:1,y:5},
     {id:'pipe-0',type:'pipe',x:6,y:8},{id:'pipe-1',type:'pipe',x:6,y:9},{id:'pipe-2',type:'pipe',x:7,y:9}];
@@ -50,17 +56,20 @@ export function createFlight() {
   return {position:{x:0,y:0},start:{x:0,y:0},velocity:{x:0,y:-DEMO.speed},heading:0,angularVelocity:0,elapsed:0,maxDistance:0,trail:[{x:0,y:0}]};
 }
 export function stepFlight(state,steering,dt,speed=DEMO.speed,environment=null,impulse=null,steeringRate=DEMO.steeringRate) {
-  const target=Math.max(-1,Math.min(1,steering))*steeringRate;
+  const target=Math.max(-1,Math.min(1,steering))*steeringRate*(environment?.controlFactor??1);
   state.angularVelocity+=(target-state.angularVelocity)*(1-Math.exp(-5*dt));
   state.heading+=(state.angularVelocity+(environment?.turn||0))*dt;
   if(environment)speed=Math.max(environment.minimumSpeed,speed-environment.drag);
   state.velocity={x:Math.sin(state.heading)*speed,y:-Math.cos(state.heading)*speed};
   if(environment){state.velocity.x+=Math.cos(state.heading)*environment.lateral;state.velocity.y+=Math.sin(state.heading)*environment.lateral;}
+  if(environment?.galaxyVelocity){state.velocity.x+=environment.galaxyVelocity.x;state.velocity.y+=environment.galaxyVelocity.y;}
+  if(environment?.flowVelocity){const w=environment.flowMix??0;state.velocity={x:state.velocity.x*(1-w)+environment.flowVelocity.x*w,y:state.velocity.y*(1-w)+environment.flowVelocity.y*w};}
   if(impulse){state.velocity.x+=impulse.x;state.velocity.y+=impulse.y;
     const forward=state.velocity.x*Math.sin(state.heading)-state.velocity.y*Math.cos(state.heading),minimum=environment?.minimumSpeed||0;
     if(forward<minimum){state.velocity.x+=Math.sin(state.heading)*(minimum-forward);state.velocity.y-=Math.cos(state.heading)*(minimum-forward);}
   }
   state.position.x+=state.velocity.x*dt;state.position.y+=state.velocity.y*dt;
+  if(environment?.planets?.length)keepOutsidePlanets(state,environment.planets,environment.hullRadius);
   state.elapsed+=dt;
   state.maxDistance=Math.max(state.maxDistance,Math.hypot(state.position.x-state.start.x,state.position.y-state.start.y));
   const last=state.trail.at(-1);

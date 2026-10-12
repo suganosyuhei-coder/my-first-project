@@ -1,0 +1,9 @@
+{
+  "config": { "perNebula": 3, "maxEnemies": 12, "chaseRange": 600, "maxRange": 1800 },
+  "types": [
+    { "id": "gunner", "name": "射撃型", "hp": 36, "speed": 27, "radius": 7, "color": "#D95757", "shootRange": 200, "shotSpeed": 90, "cooldown": 2.2, "damage": 4, "ramDamage": 0 },
+    { "id": "chaser", "name": "高速追跡型", "hp": 30, "speed": 44, "radius": 6, "color": "#EEAA72", "shootRange": 0, "shotSpeed": 0, "cooldown": 2, "damage": 0, "ramDamage": 3 },
+    { "id": "leader", "name": "静止支援型", "hp": 56, "speed": 0, "radius": 11, "color": "#D6B7F4", "shootRange": 0, "shotSpeed": 0, "cooldown": 0, "damage": 0, "ramDamage": 0, "supportRange": 160, "speedBoost": 1.2, "fireRateBoost": 1.25 }
+  ],
+  "defense": { "range": 160, "damage": 12, "cooldown": 0.65, "beamSeconds": 0.16, "energyCost": 0 }
+}

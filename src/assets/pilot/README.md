@@ -1,9 +1,11 @@
 # パイロット表情素材
 
-`expressions.png` は添付されたキャラクター設定画像をもとに生成した表示用の仮素材です。元画像からの直接切り抜きではありません。横一列の6フレーム（基本・考え中・微笑み・決意・驚き・不安）をCSSで切り替えます。
+`expressions.png` は添付されたキャラクター設定画像をもとに生成した1990年代風の粗いピクセル表現の仮素材です。元画像からの直接切り抜きではありません。横一列の6フレーム（基本・考え中・微笑み・決意・驚き・不安）をCSSで切り替えます。
 
-動作との対応・優先順位・表示時間は `src/prototype/pilotExpressions.js` の `PILOT_ACTIONS`、画像フレームは `PILOT_EXPRESSIONS`、全体の画像は `PILOT_SHEET` で変更できます。配列の先頭ほど優先されます。
+表情・セリフ・表示条件・優先順位・表示時間は `src/prototype/pilotDialogue.json`、全体の画像は `PILOT_SHEET` で変更できます。配列の先頭ほど優先されます。
 
 個別画像に置き換える場合は、その表情に `src: new URL('../assets/pilot/任意の画像.png', import.meta.url).href` を追加してください。必要なら `aspectRatio` も指定できます。ファイルはこのディレクトリに配置し、既存のゲーム処理は変更する必要がありません。
 
 射撃・搬入・解析完了・損傷は一時的なリアクション、それ以外は現在の状態に連動します。時間と判定は表示側だけで管理し、ゲームの航行・エネルギー・回収には影響しません。
+
+JSONの `actions` は上から優先され、`condition` でゲーム状態を選び、`expression` と `line` が同時に切り替わります。使用可能な条件は `pilotExpressions.js` の `events` / `states` を参照してください。画像の拡大表示には `image-rendering: pixelated` を使います。
