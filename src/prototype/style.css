@@ -10,3 +10,6 @@
 .proto-boost{display:flex;align-items:center;gap:12px;font:9px ui-monospace,monospace;color:#b5e7ec}.proto-boost>b{font-weight:500;letter-spacing:1px;width:46px}.proto-boost [role=meter]{height:5px;border:1px solid #829fa8;flex:1;background:#1f3440}.proto-boost [role=meter] i{display:block;height:100%;background:#79d2df}.proto-boost>span{min-width:35px;text-align:right}.proto-boost.is-locked{color:#728791}.proto-boost.is-locked [role=meter]{border-color:#536571}
 
 .proto-resource-actions button{max-width:100%}.proto-boost>span[hidden]{display:none}
+
+/* Pilot reaction is presentation only; existing analysis remains alongside. */
+.proto-pilot-analysis{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;margin-top:12px;align-items:start}.proto-pilot{margin:0;min-width:0}.proto-pilot-image{width:100%;background-color:#101820;background-repeat:no-repeat;image-rendering:pixelated;border:1px solid #276f79}.proto-pilot figcaption{display:flex;flex-direction:column;gap:5px;margin-top:6px;font-size:9px;line-height:1.5}.proto-pilot .proto-label{font-size:9px}.proto-analysis-details{min-width:0}.proto-analysis-details>p:first-child{margin-top:0}@media(max-width:760px){.proto-pilot-analysis{grid-template-columns:76px minmax(0,1fr)}}

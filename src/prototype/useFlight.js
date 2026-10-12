@@ -1,12 +1,13 @@
+import {loadDevTuning} from './devTuning.js';
 import {createBoostInput} from './boostInput.js';
 import {useEffect,useRef,useState,useCallback} from 'react';
 import {createWeaponInput} from './weaponInput.js';
 import {createGame,stepGame,snapshot} from './game.js';
 export default function useFlight() {
- const game=useRef(null);if(!game.current)game.current=createGame();
+ const game=useRef(null);if(!game.current){game.current=createGame();game.current.tuning=loadDevTuning();}
  const keys=useRef(new Set()),weaponInput=useRef(null),boostInput=useRef(null);const [telemetry,setTelemetry]=useState(()=>snapshot(game.current));
  const command=useCallback(action=>game.current.commands.push(action),[]);
- const restart=useCallback(()=>{weaponInput.current?.cancel();boostInput.current?.cancel();const viewport=game.current.viewport;game.current=createGame();game.current.viewport=viewport;keys.current.clear();setTelemetry(snapshot(game.current));},[]);
+ const restart=useCallback(()=>{weaponInput.current?.cancel();boostInput.current?.cancel();const viewport=game.current.viewport,tuning=game.current.tuning;game.current=createGame();game.current.viewport=viewport;game.current.tuning=tuning;keys.current.clear();setTelemetry(snapshot(game.current));},[]);
  useEffect(()=>{
   const input=createWeaponInput({enqueue:action=>game.current.commands.push(action),isRunning:()=>game.current.status==='running',heading:()=>game.current.flight.heading});weaponInput.current=input;
   const burst=createBoostInput({enqueue:action=>game.current.commands.push(action),isRunning:()=>game.current.status==='running',heading:()=>game.current.flight.heading});boostInput.current=burst;

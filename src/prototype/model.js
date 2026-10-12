@@ -49,8 +49,8 @@ export function shipStats(parts) {
 export function createFlight() {
   return {position:{x:0,y:0},start:{x:0,y:0},velocity:{x:0,y:-DEMO.speed},heading:0,angularVelocity:0,elapsed:0,maxDistance:0,trail:[{x:0,y:0}]};
 }
-export function stepFlight(state,steering,dt,speed=DEMO.speed,environment=null,impulse=null) {
-  const target=Math.max(-1,Math.min(1,steering))*DEMO.steeringRate;
+export function stepFlight(state,steering,dt,speed=DEMO.speed,environment=null,impulse=null,steeringRate=DEMO.steeringRate) {
+  const target=Math.max(-1,Math.min(1,steering))*steeringRate;
   state.angularVelocity+=(target-state.angularVelocity)*(1-Math.exp(-5*dt));
   state.heading+=(state.angularVelocity+(environment?.turn||0))*dt;
   if(environment)speed=Math.max(environment.minimumSpeed,speed-environment.drag);

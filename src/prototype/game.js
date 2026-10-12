@@ -46,10 +46,10 @@ export function stepGame(game,steering,dt) {
  stepProjectiles(game,dt); // Instant beams resolve before this tick's rock contacts.
  updateNebula(game);
  const observers=game.ship.parts.filter(p=>p.type==='observer'&&game.energy.active[p.id]).length;
- game.baseObservation=observers?TUNING.observation+(observers-1)*NEBULA.observerBonus:0;
+ game.baseObservation=observers?(game.tuning?.observation.radius??TUNING.observation)+(observers-1)*NEBULA.observerBonus:0;
  game.observation=game.baseObservation*game.nebula.field.visibility;
  const engines=game.ship.parts.filter(p=>p.type==='engine'&&game.energy.active[p.id]).length;
- stepFlight(game.flight,steering,dt,Math.min(TUNING.maxSpeed,TUNING.minimumSpeed+engines*12),environmentForFlight(game.nebula.field,game.flight.heading),game.boost.velocity);
+ stepFlight(game.flight,steering,dt,Math.max(TUNING.minimumSpeed,Math.min(TUNING.maxSpeed,TUNING.minimumSpeed+engines*12)*(game.tuning?.ship.speedMultiplier??1)),environmentForFlight(game.nebula.field,game.flight.heading),game.boost.velocity,game.tuning?.ship.rotationRate);
  decayBoost(game,dt);
  updateWorld(game);rockWarnings(game);updateNebula(game);
  game.observation=game.baseObservation*game.nebula.field.visibility;
@@ -67,5 +67,5 @@ export function stepGame(game,steering,dt) {
  return game;
 }
 export function snapshot(game) {
- return {boost:{...game.boost,velocity:{...game.boost.velocity},lastBurst:game.boost.lastBurst?{...game.boost.lastBurst}:null},nebula:nebulaSnapshot(game.nebula,game),baseObservation:game.baseObservation??game.observation,weapon:{...game.weapon,projectiles:game.weapon.projectiles.map(p=>({...p,position:{...p.position}})),effects:game.weapon.effects.map(e=>({...e}))},flight:{...game.flight,position:{...game.flight.position}},ship:{...game.ship,cells:game.ship.cells.map(c=>({...c,appearance:{...c.appearance}})),parts:game.ship.parts.map(p=>({...p,appearance:{...p.appearance}})),critical:{...game.ship.critical}},stats:{...shipStats(game.ship.parts.filter(p=>p.hp>0)),thrust:game.ship.parts.filter(p=>p.type==='engine'&&game.energy.active[p.id]).length*12},energy:game.energy,observation:game.observation,bits:game.bits.map(b=>({...b,position:{...b.position}})),jobs:game.jobs.map(j=>({...j})),resources:game.resources.map(r=>({...r})),inventory:{...game.inventory},status:game.status,notice:game.notice,end:game.end};
+ return {tuning:game.tuning,boost:{...game.boost,velocity:{...game.boost.velocity},lastBurst:game.boost.lastBurst?{...game.boost.lastBurst}:null},nebula:nebulaSnapshot(game.nebula,game),baseObservation:game.baseObservation??game.observation,weapon:{...game.weapon,projectiles:game.weapon.projectiles.map(p=>({...p,position:{...p.position}})),effects:game.weapon.effects.map(e=>({...e}))},flight:{...game.flight,position:{...game.flight.position}},ship:{...game.ship,cells:game.ship.cells.map(c=>({...c,appearance:{...c.appearance}})),parts:game.ship.parts.map(p=>({...p,appearance:{...p.appearance}})),critical:{...game.ship.critical}},stats:{...shipStats(game.ship.parts.filter(p=>p.hp>0)),thrust:game.ship.parts.filter(p=>p.type==='engine'&&game.energy.active[p.id]).length*12},energy:game.energy,observation:game.observation,bits:game.bits.map(b=>({...b,position:{...b.position}})),jobs:game.jobs.map(j=>({...j})),resources:game.resources.map(r=>({...r})),inventory:{...game.inventory},status:game.status,notice:game.notice,end:game.end};
 }

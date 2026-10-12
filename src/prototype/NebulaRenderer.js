@@ -71,12 +71,12 @@ export function createNebulaRenderer(){
    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const point={x:game.flight.position.x+((x+.5)/w-.5)*screenW/scale,y:game.flight.position.y+((y+.5)/h-.5)*screenH/scale};
     let rgba;
-    if(detail){const coarse={x:origin.x+(Math.floor((point.x-origin.x)/step.x)+.5)*step.x,y:origin.y+(Math.floor((point.y-origin.y)/step.y)+.5)*step.y},weight=observationDetailWeight(point,game.flight.position,game.observation),base=cpuShade(game,coarse,time,false,reducedMotion?0:time),fine=weight?cpuShade(game,point,time,true,reducedMotion?0:time):base;rgba=base.map((v,i)=>v+(fine[i]-v)*weight);}else rgba=cpuShade(game,point,time,false,reducedMotion?0:time);
+    if(detail){const coarse={x:origin.x+(Math.floor((point.x-origin.x)/step.x)+.5)*step.x,y:origin.y+(Math.floor((point.y-origin.y)/step.y)+.5)*step.y},weight=observationDetailWeight(point,game.flight.position,game.observation),base=cpuShade(game,coarse,time,false,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1)),fine=weight?cpuShade(game,point,time,true,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1)):base;rgba=base.map((v,i)=>v+(fine[i]-v)*weight);}else rgba=cpuShade(game,point,time,false,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1));
     const index=(y*w+x)*4;for(let i=0;i<3;i++)image.data[index+i]=rgba[3]?Math.round(rgba[i]/rgba[3]*255):0;image.data[index+3]=Math.round(rgba[3]*255);
    }ctx.putImageData(image,0,0);return;
   }
   canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);gl.disable(gl.SCISSOR_TEST);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(program);gl.enable(gl.BLEND);gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-  gl.uniform2f(uniforms.resolution,w,h);gl.uniform2f(uniforms.worldSize,screenW/scale,screenH/scale);gl.uniform2f(uniforms.camera,game.flight.position.x,game.flight.position.y);gl.uniform1f(uniforms.time,time);gl.uniform1f(uniforms.visualTime,reducedMotion?0:time);gl.uniform1f(uniforms.diagnostic,0);
+  gl.uniform2f(uniforms.resolution,w,h);gl.uniform2f(uniforms.worldSize,screenW/scale,screenH/scale);gl.uniform2f(uniforms.camera,game.flight.position.x,game.flight.position.y);gl.uniform1f(uniforms.time,time);gl.uniform1f(uniforms.visualTime,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1));gl.uniform1f(uniforms.diagnostic,0);
   gl.uniform2f(uniforms.coarseOrigin,origin.x,origin.y);gl.uniform2f(uniforms.coarseStep,step.x,step.y);gl.uniform1f(uniforms.detailPass,detail?1:0);gl.uniform1f(uniforms.observationRadius,game.observation);gl.uniform1f(uniforms.observationFeather,NEBULA_DETAIL.feather);gl.uniform2f(uniforms.colorLevels,NEBULA_DETAIL.coarseLevels,NEBULA_DETAIL.fineLevels);
   for(const r of game.nebula.regions){
    const px=w/2+(r.position.x-game.flight.position.x)*scale*resolutionScale,py=h/2+(r.position.y-game.flight.position.y)*scale*resolutionScale,rx=r.extent.x*1.6*scale*resolutionScale,ry=r.extent.y*1.6*scale*resolutionScale;
@@ -90,10 +90,10 @@ export function createNebulaRenderer(){
   get mode(){return mode;},
   draw(width,height,game,{quality='high',reducedMotion=false}={}){
    if(width<=0||height<=0)return surface;
-   const setting=NEBULA_RENDER[quality]||NEBULA_RENDER.high,key=`${width}/${height}/${game.viewport.scale}/${game.nebula.seed}/${quality}/${reducedMotion}/${Math.round(game.observation)}`,now=performance.now();
+   const setting=NEBULA_RENDER[quality]||NEBULA_RENDER.high,key=`${width}/${height}/${game.viewport.scale}/${game.nebula.seed}/${quality}/${reducedMotion}/${Math.round(game.observation)}/${JSON.stringify(game.tuning)}`,now=performance.now();
    if(signature===key&&now-last<setting.interval)return surface;
    signature=key;const time=game.flight.elapsed,scale=game.viewport.scale;
-   const fallback=mode!=='webgl',coarseScale=fallback?.125:setting.scale,detailScale=fallback?.25:setting.detailScale;
+   const fallback=mode!=='webgl',coarseScale=(fallback?.125:setting.scale)/(game.tuning?.nebula.dotMultiplier??1),detailScale=(fallback?.25:setting.detailScale)/(game.tuning?.nebula.dotMultiplier??1);
    const lowW=Math.max(1,Math.round(width*coarseScale)),lowH=Math.max(1,Math.round(height*coarseScale)),origin={x:game.flight.position.x-width/scale/2,y:game.flight.position.y-height/scale/2},step={x:width/scale/lowW,y:height/scale/lowH};
    pass(game,coarseSurface,width,height,coarseScale,false,time,reducedMotion,origin,step);
    surface.width=Math.max(1,Math.round(width));surface.height=Math.max(1,Math.round(height));const ctx=surface.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(coarseSurface,0,0,width,height);
