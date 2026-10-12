@@ -1,15 +1,18 @@
 import {useEffect,useRef,useState,useCallback} from 'react';
+import {createWeaponInput} from './weaponInput.js';
 import {createGame,stepGame,snapshot} from './game.js';
 export default function useFlight() {
  const game=useRef(null);if(!game.current)game.current=createGame();
- const keys=useRef(new Set());const [telemetry,setTelemetry]=useState(()=>snapshot(game.current));
+ const keys=useRef(new Set()),weaponInput=useRef(null);const [telemetry,setTelemetry]=useState(()=>snapshot(game.current));
  const command=useCallback(action=>game.current.commands.push(action),[]);
- const restart=useCallback(()=>{const viewport=game.current.viewport;game.current=createGame();game.current.viewport=viewport;keys.current.clear();setTelemetry(snapshot(game.current));},[]);
+ const restart=useCallback(()=>{weaponInput.current?.cancel();const viewport=game.current.viewport;game.current=createGame();game.current.viewport=viewport;keys.current.clear();setTelemetry(snapshot(game.current));},[]);
  useEffect(()=>{
+  const input=createWeaponInput({enqueue:action=>game.current.commands.push(action),isRunning:()=>game.current.status==='running',heading:()=>game.current.flight.heading});weaponInput.current=input;
+  const visibility=()=>{if(document.hidden)input.cancel();};
   const allowed=new Set(['KeyA','KeyD','ArrowLeft','ArrowRight']);
-  const down=e=>{if(!allowed.has(e.code)||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;e.preventDefault();keys.current.add(e.code);};
-  const up=e=>keys.current.delete(e.code),clear=()=>keys.current.clear();
-  window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('blur',clear);
+  const down=e=>{input.down(e);if(!allowed.has(e.code)||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;e.preventDefault();keys.current.add(e.code);};
+  const up=e=>{input.up(e);keys.current.delete(e.code);},clear=()=>{keys.current.clear();input.cancel();};
+  window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('blur',clear);window.addEventListener('focusin',input.focus);document.addEventListener('visibilitychange',visibility);
   let frame,last=performance.now(),accumulator=0,report=0;
   const tick=now=>{
    if(document.hidden){last=now;accumulator=0;clear();frame=requestAnimationFrame(tick);return;}
@@ -20,7 +23,7 @@ export default function useFlight() {
    frame=requestAnimationFrame(tick);
   };
   frame=requestAnimationFrame(tick);
-  return()=>{cancelAnimationFrame(frame);window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',clear);};
+  return()=>{cancelAnimationFrame(frame);window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',clear);window.removeEventListener('focusin',input.focus);document.removeEventListener('visibilitychange',visibility);};
  },[]);
  return {game,telemetry,command,restart};
 }

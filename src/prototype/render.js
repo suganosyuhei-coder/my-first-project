@@ -1,3 +1,4 @@
+import {drawRailgun} from './RailEffects.js';
 import { RESOURCE_TYPES } from './collection.js';
 import { worldToScreen } from './model.js';
 const TAU=Math.PI*2;
@@ -39,6 +40,7 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
     for(const resource of game.resources){if(!resource.discovered||!['available','reserved'].includes(resource.state))continue;const p=screen(resource.position);ctx.strokeStyle=resource.state==='reserved'?'#eeaa72':'#79d2df';ctx.beginPath();ctx.moveTo(p.x,p.y-8);ctx.lineTo(p.x+8,p.y);ctx.lineTo(p.x,p.y+8);ctx.lineTo(p.x-8,p.y);ctx.closePath();ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.fillText(`${RESOURCE_TYPES[resource.type].name} / ${RESOURCE_TYPES[resource.type].bits}基`,p.x+13,p.y+3);}
     for(const bit of game.bits){ctx.strokeStyle=bit.state==='orbiting'?'#79d2df66':'#79d2df';ctx.beginPath();bit.trail.forEach((point,i)=>{const p=screen(point);if(!i)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();const p=screen(bit.position);ctx.fillStyle='#d1fafb';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();ctx.strokeStyle='#79d2df66';circle(ctx,p.x,p.y,8);}
   }
+  if(game)drawRailgun(ctx,width,height,game,reducedMotion);
   // Ruler labels correspond to world position; minor marks are 20m apart.
   ctx.strokeStyle='#9cacb74d';ctx.fillStyle='#9cacb7';ctx.font='9px ui-monospace, monospace';
   const left=Math.floor((state.position.x-width/scale/2)/20)*20;

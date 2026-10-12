@@ -3,6 +3,7 @@ import {shipCells} from './ship.js';
 import { GRID, isHull, criticalAt, pipeMask } from './model.js';
 export function PartGlyph({type,mask=0}) {
   if(type==='pipe')return <g fill="none" stroke="#79d2df" strokeWidth="3" strokeLinecap="square"><path d="M10 10h.01"/>{[[1,'M10 10V0'],[2,'M10 10H20'],[4,'M10 10V20'],[8,'M10 10H0']].filter(([b])=>mask&b).map(([b,d])=><path key={b} d={d}/>)}{!mask&&<path d="M7 7h6v6H7z"/>}</g>;
+  if(type==='railgun')return <g><rect x='3' y='2' width='14' height='16' fill='#889ba6'/><path d='M7 1v18M13 1v18' stroke='#d8f8ff' strokeWidth='2'/></g>;
   if(type==='observer')return <g><rect x='2' y='2' width='16' height='16' fill='#bbc5c5'/><circle cx='10' cy='10' r='6' fill='#79d2df' stroke='#151515'/><path d='M10 2v16M2 10h16' stroke='#457788'/></g>;
   if(type==='tank')return <g><path d="M3 3h14v14H3z" fill="#bcbfc1"/><path d="M5 1h10v2H5zM5 17h10v2H5z" fill="#f5f4f0"/><path d="M6 5h2v10H6z" fill="#f5f4f0"/><path d="M12 5h3v10h-3z" fill="#71818a"/></g>;
   if(type==='engine')return <g><path d="M4 1h12v12H4z" fill="#8e999f"/><path d="M6 3h8v6H6z" fill="#151515"/><path d="M3 13h14v4H3z" fill="#eeaa72"/><path d="M7 17h6v3H7z" fill="#79d2df"/></g>;

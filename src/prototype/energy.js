@@ -37,7 +37,7 @@ export function stepEnergy(ship,dt) {
     let surplus=Math.max(0,generated-consumed);
     for(const tank of tanks){const charge=Math.min(ENERGY.capacity-tank.stored,surplus);tank.stored+=charge;surplus-=charge;state.stored+=tank.stored;state.status[tank.id]='蓄積';}
     const supplied=solar.length>0||tanks.some(t=>t.stored>0);
-    for(const p of component){if(p.type==='pipe'){state.active[p.id]=supplied;state.status[p.id]=supplied?'通電':hasSource?'供給不足':'未接続';}if(p.type==='solar'){state.active[p.id]=true;state.status[p.id]='生成';}}
+    for(const p of component){if(p.type==='pipe'){state.active[p.id]=supplied;state.status[p.id]=supplied?'通電':hasSource?'供給不足':'未接続';}if(p.type==='railgun'){state.active[p.id]=supplied;state.status[p.id]=hasSource?'射撃時精算':'未接続';}if(p.type==='solar'){state.active[p.id]=true;state.status[p.id]='生成';}}
     state.generation+=solar.length*ENERGY.generation;state.consumption+=dt?consumed/dt:0;state.components.push(component.map(p=>p.id));
   }
   return state;

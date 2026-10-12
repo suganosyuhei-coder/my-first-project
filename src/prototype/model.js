@@ -5,6 +5,7 @@ export const PARTS = {
   pipe: { name: '配管', label: 'PIPE', width: 1, height: 1, mass: 8, thrust: 0 },
   tank: { name: 'タンク', label: 'TANK', width: 2, height: 2, mass: 60, thrust: 0 },
   engine: { name: 'エンジン', label: 'ENGINE', width: 1, height: 2, mass: 35, thrust: 12 },
+  railgun: { name: '射撃強化装置', label: 'RAIL', width: 1, height: 1, mass: 24, thrust: 0 },
   observer: { name: '観測装置', label: 'SENSOR', width: 1, height: 1, mass: 12, thrust: 0 },
   solar: { name: 'ソーラーパネル', label: 'SOLAR', width: 2, height: 3, mass: 18, thrust: 0 },
 };
