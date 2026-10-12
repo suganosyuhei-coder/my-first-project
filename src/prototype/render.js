@@ -1,7 +1,8 @@
+import { RESOURCE_TYPES } from './collection.js';
 import { worldToScreen } from './model.js';
 const TAU=Math.PI*2;
 function circle(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke();}
-export function drawFlight(ctx,width,height,state,{observation,reducedMotion}) {
+export function drawFlight(ctx,width,height,state,{observation,reducedMotion,game}) {
   const scale=1.55,screen=p=>worldToScreen(p,state.position,width,height,scale);
   ctx.clearRect(0,0,width,height);ctx.fillStyle='#101820';ctx.fillRect(0,0,width,height);
   // A deterministic world lattice supplies stars; the camera never changes world data.
@@ -30,9 +31,14 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion}) {
   ctx.strokeStyle='#79d2df';ctx.lineWidth=1;ctx.setLineDash([2,6]);ctx.beginPath();
   state.trail.forEach((point,i)=>{const p=screen(point);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
   const center=screen(state.position);ctx.lineTo(center.x,center.y);ctx.stroke();ctx.setLineDash([]);
-  if(observation){ctx.strokeStyle='#79d2df44';circle(ctx,center.x,center.y,140*scale);ctx.fillStyle='#79d2df';ctx.fillText('OBSERVATION / 140 m · DEMO',center.x-92,center.y-140*scale-10);}
+  if(observation&&game?.observation>0){ctx.strokeStyle='#79d2df44';circle(ctx,center.x,center.y,game.observation*scale);ctx.fillStyle='#79d2df';ctx.fillText(`OBSERVATION / ${game.observation} m`,center.x-92,center.y-game.observation*scale-10);}
   ctx.strokeStyle='#94a8b12b';ctx.beginPath();ctx.moveTo(center.x-12,center.y);ctx.lineTo(center.x+12,center.y);ctx.moveTo(center.x,center.y-12);ctx.lineTo(center.x,center.y+12);ctx.stroke();
   ctx.save();ctx.translate(center.x,center.y);ctx.rotate(state.heading);ctx.strokeStyle='#79d2df77';ctx.beginPath();ctx.moveTo(0,-105);ctx.lineTo(0,-140);ctx.lineTo(-4,-134);ctx.moveTo(0,-140);ctx.lineTo(4,-134);ctx.stroke();ctx.restore();
+  if(game){
+    for(const hazard of game.hazards){const p=screen(hazard.position);ctx.strokeStyle=hazard.type==='dustContact'?'#c5bba255':hazard.type==='heatContact'?'#d9575799':'#aab4ba';ctx.setLineDash(hazard.type==='dustContact'?[1,7]:[]);circle(ctx,p.x,p.y,hazard.radius*scale);ctx.setLineDash([]);ctx.fillStyle=ctx.strokeStyle;ctx.fillText(hazard.type==='dustContact'?'宇宙塵':hazard.type==='heatContact'?'熱領域':'岩',p.x+12,p.y-12);}
+    for(const resource of game.resources){if(!resource.discovered||!['available','reserved'].includes(resource.state))continue;const p=screen(resource.position);ctx.strokeStyle=resource.state==='reserved'?'#eeaa72':'#79d2df';ctx.beginPath();ctx.moveTo(p.x,p.y-8);ctx.lineTo(p.x+8,p.y);ctx.lineTo(p.x,p.y+8);ctx.lineTo(p.x-8,p.y);ctx.closePath();ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.fillText(`${RESOURCE_TYPES[resource.type].name} / ${RESOURCE_TYPES[resource.type].bits}基`,p.x+13,p.y+3);}
+    for(const bit of game.bits){ctx.strokeStyle=bit.state==='orbiting'?'#79d2df66':'#79d2df';ctx.beginPath();bit.trail.forEach((point,i)=>{const p=screen(point);if(!i)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();const p=screen(bit.position);ctx.fillStyle='#d1fafb';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();ctx.strokeStyle='#79d2df66';circle(ctx,p.x,p.y,8);}
+  }
   // Ruler labels correspond to world position; minor marks are 20m apart.
   ctx.strokeStyle='#9cacb74d';ctx.fillStyle='#9cacb7';ctx.font='9px ui-monospace, monospace';
   const left=Math.floor((state.position.x-width/scale/2)/20)*20;

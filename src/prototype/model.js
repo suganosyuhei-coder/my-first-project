@@ -5,6 +5,7 @@ export const PARTS = {
   pipe: { name: '配管', label: 'PIPE', width: 1, height: 1, mass: 8, thrust: 0 },
   tank: { name: 'タンク', label: 'TANK', width: 2, height: 2, mass: 60, thrust: 0 },
   engine: { name: 'エンジン', label: 'ENGINE', width: 1, height: 2, mass: 35, thrust: 12 },
+  observer: { name: '観測装置', label: 'SENSOR', width: 1, height: 1, mass: 12, thrust: 0 },
   solar: { name: 'ソーラーパネル', label: 'SOLAR', width: 2, height: 3, mass: 18, thrust: 0 },
 };
 export const cellKey = (x,y) => `${x},${y}`;
@@ -47,11 +48,11 @@ export function shipStats(parts) {
 export function createFlight() {
   return {position:{x:0,y:0},start:{x:0,y:0},velocity:{x:0,y:-DEMO.speed},heading:0,angularVelocity:0,elapsed:0,maxDistance:0,trail:[{x:0,y:0}]};
 }
-export function stepFlight(state,steering,dt) {
+export function stepFlight(state,steering,dt,speed=DEMO.speed) {
   const target=Math.max(-1,Math.min(1,steering))*DEMO.steeringRate;
   state.angularVelocity+=(target-state.angularVelocity)*(1-Math.exp(-5*dt));
   state.heading+=state.angularVelocity*dt;
-  state.velocity={x:Math.sin(state.heading)*DEMO.speed,y:-Math.cos(state.heading)*DEMO.speed};
+  state.velocity={x:Math.sin(state.heading)*speed,y:-Math.cos(state.heading)*speed};
   state.position.x+=state.velocity.x*dt;state.position.y+=state.velocity.y*dt;
   state.elapsed+=dt;
   state.maxDistance=Math.max(state.maxDistance,Math.hypot(state.position.x-state.start.x,state.position.y-state.start.y));
