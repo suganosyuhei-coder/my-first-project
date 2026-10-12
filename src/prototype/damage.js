@@ -9,6 +9,7 @@ export function applyContact(game,event) {
  if(event.type==='dustContact')appearance.dust=Math.min(1,(appearance.dust||0)+.25);
  if(event.type==='impact')appearance.scratch=Math.min(1,(appearance.scratch||0)+.4);
  if(event.type==='heatContact')appearance.burn=Math.min(1,(appearance.burn||0)+.35);
+ for(const [channel,amount] of Object.entries(event.appearance||{}))if(['dust','scratch','burn'].includes(channel))appearance[channel]=Math.min(1,(appearance[channel]||0)+Math.max(0,amount));
  const damage=Math.max(0,event.damage||0);owner.hp=Math.max(0,owner.hp-damage);
  if(target.role){game.ship.critical[target.role]=Math.max(0,game.ship.critical[target.role]-damage);if(game.ship.critical[target.role]<=0)for(const c of game.ship.cells)if(c.role===target.role)c.hp=0;}
  game.ship.revision++;

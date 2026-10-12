@@ -2,8 +2,9 @@ import {drawRailgun} from './RailEffects.js';
 import { RESOURCE_TYPES } from './collection.js';
 import { worldToScreen } from './model.js';
 const TAU=Math.PI*2;
+function drawGas(ctx,image,width,height,state){const camera=image.worldCamera||state.position;ctx.drawImage(image,(camera.x-state.position.x)*1.55,(camera.y-state.position.y)*1.55,width,height);}
 function circle(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.stroke();}
-export function drawFlight(ctx,width,height,state,{observation,reducedMotion,game}) {
+export function drawFlight(ctx,width,height,state,{observation,reducedMotion,game,nebulaImage}) {
   const scale=1.55,screen=p=>worldToScreen(p,state.position,width,height,scale);
   ctx.clearRect(0,0,width,height);ctx.fillStyle='#101820';ctx.fillRect(0,0,width,height);
   // A deterministic world lattice supplies stars; the camera never changes world data.
@@ -15,6 +16,7 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
     ctx.fillStyle=hash>.65?'#d0d9dd':'#53636e';ctx.fillRect(p.x,p.y,hash>.85?2:1,hash>.85?2:1);
     if(hash>.8&&!reducedMotion){ctx.strokeStyle='#79d2df22';ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-state.velocity.x*.32,p.y-state.velocity.y*.32);ctx.stroke();}
   }
+  if(nebulaImage)drawGas(ctx,nebulaImage,width,height,state);
   ctx.lineWidth=1;ctx.font='10px ui-monospace, monospace';
   const sector=Math.floor(-state.position.y/420);
   for(let i=sector-2;i<=sector+2;i++){
@@ -32,7 +34,7 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
   ctx.strokeStyle='#79d2df';ctx.lineWidth=1;ctx.setLineDash([2,6]);ctx.beginPath();
   state.trail.forEach((point,i)=>{const p=screen(point);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
   const center=screen(state.position);ctx.lineTo(center.x,center.y);ctx.stroke();ctx.setLineDash([]);
-  if(observation&&game?.observation>0){ctx.strokeStyle='#79d2df44';circle(ctx,center.x,center.y,game.observation*scale);ctx.fillStyle='#79d2df';ctx.fillText(`OBSERVATION / ${game.observation} m`,center.x-92,center.y-game.observation*scale-10);}
+  if(observation&&game?.observation>0){ctx.strokeStyle='#79d2df44';circle(ctx,center.x,center.y,game.observation*scale);ctx.fillStyle='#79d2df';ctx.fillText(`OBSERVATION / ${game.observation.toFixed(0)} m`,center.x-92,center.y-game.observation*scale-10);}
   ctx.strokeStyle='#94a8b12b';ctx.beginPath();ctx.moveTo(center.x-12,center.y);ctx.lineTo(center.x+12,center.y);ctx.moveTo(center.x,center.y-12);ctx.lineTo(center.x,center.y+12);ctx.stroke();
   ctx.save();ctx.translate(center.x,center.y);ctx.rotate(state.heading);ctx.strokeStyle='#79d2df77';ctx.beginPath();ctx.moveTo(0,-105);ctx.lineTo(0,-140);ctx.lineTo(-4,-134);ctx.moveTo(0,-140);ctx.lineTo(4,-134);ctx.stroke();ctx.restore();
   if(game){
@@ -41,6 +43,7 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
     for(const bit of game.bits){ctx.strokeStyle=bit.state==='orbiting'?'#79d2df66':'#79d2df';ctx.beginPath();bit.trail.forEach((point,i)=>{const p=screen(point);if(!i)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();const p=screen(bit.position);ctx.fillStyle='#d1fafb';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();ctx.strokeStyle='#79d2df66';circle(ctx,p.x,p.y,8);}
   }
   if(game)drawRailgun(ctx,width,height,game,reducedMotion);
+  if(nebulaImage){ctx.save();ctx.globalAlpha=.08;drawGas(ctx,nebulaImage,width,height,state);ctx.restore();}
   // Ruler labels correspond to world position; minor marks are 20m apart.
   ctx.strokeStyle='#9cacb74d';ctx.fillStyle='#9cacb7';ctx.font='9px ui-monospace, monospace';
   const left=Math.floor((state.position.x-width/scale/2)/20)*20;
