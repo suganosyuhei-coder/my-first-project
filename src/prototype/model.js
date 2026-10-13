@@ -1,4 +1,4 @@
-import {keepOutsidePlanets} from './planetFlow.js';
+import {updatePlanetDive} from './planetFlow.js';
 // Prototype tuning only: these values do not fix the final game's balance.
 export const GRID = { columns: 11, rows: 17 };
 export const DEMO = { canopy: 100, core: 100, observation: 140, hullMass: 420, speed: 24, steeringRate: .32 };
@@ -7,8 +7,9 @@ export const PARTS = {
   tank: { name: 'タンク', label: 'TANK', width: 2, height: 2, mass: 60, thrust: 0 },
   engine: { name: 'エンジン', label: 'ENGINE', width: 1, height: 2, mass: 35, thrust: 12 },
   railgun: { name: '射撃強化装置', label: 'RAIL', width: 1, height: 1, mass: 24, thrust: 0 },
+  missile: { name: 'ミサイル', label: 'MISSILE', width: 1, height: 2, mass: 30, thrust: 0 },
   observer: { name: '観測装置', label: 'SENSOR', width: 1, height: 1, mass: 12, thrust: 0 },
-  solar: { name: 'ソーラーパネル', label: 'SOLAR', width: 2, height: 3, mass: 18, thrust: 0 },
+  solar: { name: 'パネル', label: 'PANEL', width: 2, height: 3, mass: 24, thrust: 0 },
 };
 export const cellKey = (x,y) => `${x},${y}`;
 export function isHull(x,y) {
@@ -69,7 +70,7 @@ export function stepFlight(state,steering,dt,speed=DEMO.speed,environment=null,i
     if(forward<minimum){state.velocity.x+=Math.sin(state.heading)*(minimum-forward);state.velocity.y-=Math.cos(state.heading)*(minimum-forward);}
   }
   state.position.x+=state.velocity.x*dt;state.position.y+=state.velocity.y*dt;
-  if(environment?.planets?.length)keepOutsidePlanets(state,environment.planets,environment.hullRadius);
+  updatePlanetDive(state,environment?.planets??[],environment?.hullRadius??50);
   state.elapsed+=dt;
   state.maxDistance=Math.max(state.maxDistance,Math.hypot(state.position.x-state.start.x,state.position.y-state.start.y));
   const last=state.trail.at(-1);

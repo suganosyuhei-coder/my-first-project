@@ -1,8 +1,12 @@
+import {renderCamera} from './camera.js';
+import {repairFromPickup} from './repair.js';
+import {installRecoveredPart} from './autoInstall.js';
 export const BIT_SPEED=80;
-export const RESOURCE_TYPES={wire:{name:'ワイヤー',bits:1,work:.8},plate:{name:'金属板',bits:1,work:1.2},tank:{name:'タンク',bits:2,work:2},solar:{name:'太陽光パネル',bits:2,work:2.5}};
-export function createBits(position) {return [0,1].map(i=>({id:`bit-${i+1}`,state:'orbiting',position:{x:position.x+(i? -45:45),y:position.y},jobId:null,arrived:false,trail:[]}));}
+export const RESOURCE_TYPES={missile:{name:'ミサイル',bits:2,work:2},wire:{name:'ワイヤー',bits:1,work:.8},plate:{name:'金属板',bits:1,work:1.2},tank:{name:'タンク',bits:2,work:2},solar:{name:'パネル',bits:2,work:2.5},engine:{name:'エンジン',bits:2,work:2},observer:{name:'観測装置',bits:1,work:1.5},railgun:{name:'射撃強化装置',bits:1,work:1.5},pipe:{name:'配管',bits:1,work:.8}};
+export function createBits(position) {return [0,1,2].map(i=>({id:`bit-${i+1}`,state:'orbiting',position:{x:position.x+Math.cos(i*Math.PI*2/3)*45,y:position.y+Math.sin(i*Math.PI*2/3)*62},jobId:null,arrived:false,trail:[]}));}
 export function requestCollection(game,id,mode='click') {
   const resource=game.resources.find(r=>r.id===id);
+  if(resource?.type==='pipe')return {ok:false,reason:'配管は無制限のため回収不要です'};
   if(game.status!=='running')return {ok:false,reason:'航行は終了しています'};
   if(!resource||resource.state!=='available')return {ok:false,reason:'回収済み、または回収中です'};
   const distance=Math.hypot(resource.position.x-game.flight.position.x,resource.position.y-game.flight.position.y);
@@ -17,16 +21,16 @@ export function requestCollection(game,id,mode='click') {
 }
 export function inViewport(point,game) {
   const {width,height,scale}=game.viewport;
-  return Math.abs(point.x-game.flight.position.x)*scale<width/2-12&&Math.abs(point.y-game.flight.position.y)*scale<height/2-12;
+  return Math.abs(point.x-renderCamera(game).x)*scale<width/2-12&&Math.abs(point.y-renderCamera(game).y)*scale<height/2-12;
 }
-function move(bit,target,dt) {
-  const dx=target.x-bit.position.x,dy=target.y-bit.position.y,distance=Math.hypot(dx,dy),step=BIT_SPEED*dt;
+function move(bit,target,dt,speed=BIT_SPEED) {
+  const dx=target.x-bit.position.x,dy=target.y-bit.position.y,distance=Math.hypot(dx,dy),step=speed*dt;
   if(distance<=Math.max(2,step)){bit.position={...target};return true;}
   bit.position.x+=dx/distance*step;bit.position.y+=dy/distance*step;return false;
 }
 export function stepCollection(game,dt) {
   for(const bit of game.bits){
-    if(bit.state==='orbiting'){const angle=game.flight.elapsed*.8+(bit.id==='bit-1'?0:Math.PI);move(bit,{x:game.flight.position.x+Math.cos(angle)*45,y:game.flight.position.y+Math.sin(angle)*62},dt);}
+    if(bit.state==='orbiting'){const angle=game.flight.elapsed*.8+game.bits.indexOf(bit)*Math.PI*2/game.bits.length;bit.position={x:game.flight.position.x+Math.cos(angle)*45,y:game.flight.position.y+Math.sin(angle)*62};}
     bit.trail.push({...bit.position});if(bit.trail.length>15)bit.trail.shift();
   }
   for(const job of game.jobs){
@@ -40,9 +44,10 @@ export function stepCollection(game,dt) {
       job.progress=Math.min(1,job.progress+dt/job.work);
       if(job.progress>=1){job.cargo=true;resource.state='captured';job.stage='returning';for(const bit of bits){bit.state='returning';bit.arrived=false;}}
     }else if(job.stage==='returning'){
-      for(const bit of bits){if(bit.arrived)bit.position={...game.flight.position};else bit.arrived=move(bit,game.flight.position,dt);}
+      for(const bit of bits){if(bit.arrived)bit.position={...game.flight.position};else bit.arrived=move(bit,game.flight.position,dt,BIT_SPEED+Math.hypot(game.flight.velocity?.x??0,game.flight.velocity?.y??0));}
       if(bits.every(b=>b.arrived)){
-        if(job.cargo&&!job.credited){game.inventory[job.type]=(game.inventory[job.type]||0)+1;job.credited=true;game.notice=`${RESOURCE_TYPES[job.type].name} ×1 を搬入しました`;}
+        if(job.cargo&&!job.credited){game.inventory[job.type]=(game.inventory[job.type]||0)+1;job.credited=true;game.recoveredCount=(game.recoveredCount??0)+1;const installed=installRecoveredPart(game,job.type);job.installedPartId=installed?.id??null;if(installed)game.inventory[job.type]--;game.notice=installed?`${RESOURCE_TYPES[job.type].name}を X${installed.x} Y${installed.y} に自動設置しました`:`${RESOURCE_TYPES[job.type].name} ×1 を搬入しました${['tank','solar','engine','observer','railgun','missile','pipe'].includes(job.type)?'（配置場所がないため保管）':''}`;}
+        if(job.cargo&&job.credited&&!job.repairApplied){job.repairApplied=true;const repaired=repairFromPickup(game,job.type);if(repaired.length)game.notice+=' / 船体を修復しました';}
         job.stage=job.cargo?'complete':'cancelled';if(resource)resource.state=job.cargo?'collected':'vanished';
         for(const bit of bits){bit.state='orbiting';bit.jobId=null;bit.arrived=false;}
       }

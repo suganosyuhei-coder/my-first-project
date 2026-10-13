@@ -1,6 +1,12 @@
 {
   "tuning": {
-    "criticalWarningHp": 35
+    "criticalWarningHp": 35,
+    "enemyFamiliarSeconds": 20,
+    "enemyFamiliarEncounters": 3,
+    "charactersPerSecond": 22,
+    "minimumLineSeconds": 4,
+    "lineRestSeconds": 2,
+    "idleIntervalSeconds": 14
   },
   "expressions": {
     "neutral": {
@@ -8,27 +14,139 @@
       "label": "基本"
     },
     "thinking": {
-      "frame": 1,
+      "frame": 3,
       "label": "考え中"
     },
     "smile": {
-      "frame": 2,
+      "frame": 9,
       "label": "微笑み"
     },
     "determined": {
-      "frame": 3,
+      "frame": 15,
       "label": "決意"
     },
     "surprised": {
-      "frame": 4,
+      "frame": 2,
       "label": "驚き"
     },
     "worried": {
+      "frame": 1,
+      "label": "少し不安げ"
+    },
+    "stoic": {
+      "frame": 20,
+      "label": "無表情"
+    },
+    "confused": {
+      "frame": 4,
+      "label": "困惑"
+    },
+    "questioning": {
       "frame": 5,
-      "label": "不安"
+      "label": "疑問"
+    },
+    "averted": {
+      "frame": 6,
+      "label": "目をそらす"
+    },
+    "sad": {
+      "frame": 7,
+      "label": "悲しみ"
+    },
+    "embarrassed": {
+      "frame": 8,
+      "label": "照れ"
+    },
+    "wrySmile": {
+      "frame": 10,
+      "label": "苦笑い"
+    },
+    "wink": {
+      "frame": 11,
+      "label": "ウインク"
+    },
+    "panicked": {
+      "frame": 12,
+      "label": "焦り"
+    },
+    "shaken": {
+      "frame": 13,
+      "label": "動揺"
+    },
+    "exasperated": {
+      "frame": 14,
+      "label": "呆れ"
+    },
+    "lonely": {
+      "frame": 16,
+      "label": "寂しげ"
+    },
+    "eyesClosed": {
+      "frame": 17,
+      "label": "目を閉じる"
+    },
+    "shocked": {
+      "frame": 18,
+      "label": "驚き（強）"
+    },
+    "tearful": {
+      "frame": 19,
+      "label": "泣きそう"
+    },
+    "satisfied": {
+      "frame": 0,
+      "label": "満足"
+    },
+    "pain": {
+      "frame": 0,
+      "label": "苦痛"
+    },
+    "angry": {
+      "frame": 0,
+      "label": "怒り"
+    },
+    "sneer": {
+      "frame": 0,
+      "label": "冷笑"
+    },
+    "alert": {
+      "frame": 0,
+      "label": "警戒"
+    },
+    "tired": {
+      "frame": 0,
+      "label": "疲労"
+    },
+    "softSmile": {
+      "frame": 0,
+      "label": "柔らかな笑顔"
+    },
+    "selfMocking": {
+      "frame": 0,
+      "label": "自嘲"
+    },
+    "hesitant": {
+      "frame": 0,
+      "label": "戸惑い"
+    },
+    "admiring": {
+      "frame": 0,
+      "label": "見とれる"
+    },
+    "blink": {
+      "frame": 0,
+      "label": "瞬き"
     }
   },
   "actions": [
+    {
+      "id": "cleared",
+      "condition": "cleared",
+      "expression": "softSmile",
+      "label": "作戦完了",
+      "line": "帰投します。整備班、まだいる？",
+      "scene": "return"
+    },
     {
       "id": "ended",
       "condition": "ended",
@@ -39,24 +157,27 @@
     {
       "id": "damage",
       "condition": "damage",
-      "expression": "worried",
+      "expression": "pain",
       "label": "損傷を確認",
       "seconds": 1.5,
-      "line": "いま、何か当たった！ 損傷箇所を確認して。"
+      "line": "っ……損傷、確認。",
+      "scene": "pain"
     },
     {
       "id": "danger",
       "condition": "danger",
-      "expression": "worried",
+      "expression": "panicked",
       "label": "重要部分に損傷",
-      "line": "船体がもたない……。これ以上の衝突は避けよう。"
+      "line": "退路がない……作るしかない。",
+      "scene": "danger"
     },
     {
       "id": "boosting",
       "condition": "boosting",
-      "expression": "surprised",
+      "expression": "smile",
       "label": "急加速",
-      "line": "わっ、速い！ このまま一気に抜けよう！"
+      "line": "スラスター。私と同じ名前だから、ちょっと好き。",
+      "scene": "thruster"
     },
     {
       "id": "fired",
@@ -64,21 +185,24 @@
       "expression": "determined",
       "label": "射撃",
       "seconds": 1,
-      "line": "射撃！ 前方の障害物を突破する。"
+      "line": "見えた。そこね。",
+      "scene": "combat"
     },
     {
       "id": "charging",
       "condition": "charging",
       "expression": "determined",
       "label": "射撃チャージ中",
-      "line": "照準を合わせて……。エネルギーを集中。"
+      "line": "見えた。そこね。",
+      "scene": "combat"
     },
     {
       "id": "boostCharging",
       "condition": "boostCharging",
-      "expression": "determined",
+      "expression": "smile",
       "label": "急加速準備",
-      "line": "Shiftを押したまま旋回！ 離した向きへ急加速するよ。"
+      "line": "スラスター。私と同じ名前だから、ちょっと好き。",
+      "scene": "thruster"
     },
     {
       "id": "recovered",
@@ -86,50 +210,304 @@
       "expression": "smile",
       "label": "資材を搬入",
       "seconds": 1.8,
-      "line": "回収成功！ これで船をもっと強くできるね。"
+      "line": "使えそう。拾っておく。",
+      "scene": "item"
     },
     {
       "id": "analyzed",
       "condition": "analyzed",
-      "expression": "smile",
+      "expression": "admiring",
       "label": "解析完了",
       "seconds": 1.8,
-      "line": "解析できたよ。星雲の特性を確認しよう。"
+      "line": "……きれい。少しだけ、速度を落としていい？",
+      "scene": "nebula"
+    },
+    {
+      "id": "enemyHappy",
+      "condition": "enemyHappy",
+      "expression": "smile",
+      "label": "敵影・慣れてきた",
+      "line": "大きいね。狙う場所には困らない。",
+      "scene": "confident"
     },
     {
       "id": "enemyThreat",
       "condition": "enemyThreat",
-      "expression": "determined",
+      "expression": "stoic",
       "label": "敵影を確認",
-      "line": "敵影！ 空いているビットで迎撃するよ。"
+      "line": "見えた。そこね。",
+      "scene": "combat"
     },
     {
       "id": "analyzing",
       "condition": "analyzing",
-      "expression": "thinking",
+      "expression": "admiring",
       "label": "星雲を解析中",
-      "line": "この星雲、何かある……。もう少し調べてみよう。"
+      "line": "……きれい。少しだけ、速度を落としていい？",
+      "scene": "nebula"
     },
     {
       "id": "analysisPaused",
       "condition": "analysisPaused",
       "expression": "worried",
       "label": "解析を一時停止",
-      "line": "解析が止まった。観測範囲と供給を確認して。"
+      "line": "静かすぎる。……まだ撃たないで。",
+      "scene": "search"
     },
     {
       "id": "collecting",
       "condition": "collecting",
-      "expression": "thinking",
+      "expression": "smile",
       "label": "ビット回収中",
-      "line": "ビットが作業中。帰ってくるまで航路を保とう。"
+      "line": "使えそう。拾っておく。",
+      "scene": "item"
     },
     {
       "id": "cruising",
       "condition": "cruising",
       "expression": "neutral",
       "label": "航行中",
-      "line": "航路よし。この先には、何があるんだろう。"
+      "line": "エンジェルさん。今日は静かだね。",
+      "scene": "idle"
     }
-  ]
+  ],
+  "scenes": {
+    "departure": {
+      "expression": "neutral",
+      "label": "通常／出撃",
+      "lines": [
+        "スー・S・スラスター。出ます。",
+        "エンジェルバック、同期開始。",
+        "……帰りの航路も、残しておいて。",
+        "前線基地を叩く。長居はしない。"
+      ]
+    },
+    "search": {
+      "expression": "worried",
+      "label": "不安／索敵",
+      "lines": [
+        "静かすぎる。……まだ撃たないで。",
+        "計器には何も出てない。でも、何かいる。",
+        "この航路、本当に空いてる？",
+        "……大丈夫。手順どおりに。"
+      ]
+    },
+    "combat": {
+      "expression": "determined",
+      "label": "集中／戦闘",
+      "lines": [
+        "見えた。そこね。",
+        "射線、通す。",
+        "追わない。向こうから来る。",
+        "今。波動砲、解放。"
+      ]
+    },
+    "item": {
+      "expression": "smile",
+      "label": "微笑み／アイテム取得",
+      "lines": [
+        "使えそう。拾っておく。",
+        "いいね。まだ強くなれる。",
+        "これで少し、帰りやすくなった。",
+        "……こういう拾い物は好き。"
+      ]
+    },
+    "upgrade": {
+      "expression": "satisfied",
+      "label": "満足／自機強化",
+      "lines": [
+        "出力上昇。反動も確認。",
+        "機体が軽い。……私の腕が重いのか。",
+        "うん。この応答なら、いける。",
+        "頼もしくなったね。置いていかないでよ。"
+      ]
+    },
+    "mutation": {
+      "expression": "surprised",
+      "label": "驚き／敵の変異",
+      "lines": [
+        "待って。今、形が変わった。",
+        "撃破したはず……！",
+        "残骸じゃない。まだ動いてる。",
+        "エンジェルバック？　何を拾ったの？"
+      ]
+    },
+    "pain": {
+      "expression": "pain",
+      "label": "苦痛／被弾",
+      "lines": [
+        "っ……損傷、確認。",
+        "右腕の感覚がない。操縦は続ける。",
+        "痛覚、落として。警告は残して。",
+        "大丈夫。まだ、動かせる。"
+      ]
+    },
+    "danger": {
+      "expression": "panicked",
+      "label": "焦り／危機",
+      "lines": [
+        "退路がない……作るしかない。",
+        "お願い。あと一発だけ。",
+        "今止まったら、全部ここに残る。",
+        "エンジェルバック、私の操作を優先して。"
+      ]
+    },
+    "counter": {
+      "expression": "angry",
+      "label": "怒り／反撃",
+      "lines": [
+        "そこから先は、通さない。",
+        "私の機体に、触らないで。",
+        "……まだ終わってない。",
+        "返すよ。さっきの分。"
+      ]
+    },
+    "confident": {
+      "expression": "sneer",
+      "label": "冷笑／余裕",
+      "lines": [
+        "大きいね。狙う場所には困らない。",
+        "歓迎にしては、少し乱暴。",
+        "その動き、もう見た。",
+        "弾は多いけど。隙間もある。"
+      ]
+    },
+    "mainFleet": {
+      "expression": "alert",
+      "label": "警戒／バイド本隊",
+      "lines": [
+        "前線とは密度が違う。ここが本隊ね。",
+        "装甲の内側まで、生きてる……。",
+        "攻撃周期を探す。見た目に惑わされないで。",
+        "近づくほど、機体の応答が変わる。"
+      ]
+    },
+    "afterBattle": {
+      "expression": "tired",
+      "label": "疲労／戦闘後",
+      "lines": [
+        "……終わった？　少し、静かにして。",
+        "損傷記録は後で。先に帰ろう。",
+        "手が震えてる。機械の方なのに。",
+        "勝ったんだよね。……実感、遅いな。"
+      ]
+    },
+    "return": {
+      "expression": "softSmile",
+      "label": "柔らかな笑顔／帰還",
+      "lines": [
+        "帰投します。整備班、まだいる？",
+        "ただいま。今回も、修理で済んだ。",
+        "脚の調整、お願い。歩いて帰りたい。",
+        "……うん。帰ってこられた。"
+      ]
+    },
+    "pow": {
+      "expression": "confused",
+      "label": "PAWアーマーを見た時／安心・少し不満",
+      "lines": [
+        "またあなた。何度も頭ぶつけてるのに、見ると安心するんだよね。",
+        "その形、落ち着く。……角はちょっと、どうにかしてほしいけど。",
+        "ここでも会えたね。……ここでも、って何だろう。"
+      ]
+    },
+    "part": {
+      "expression": "smile",
+      "label": "強化パーツを取得／小さな喜び",
+      "lines": [
+        "これ、使えるね。エンジェルさん、付けてみようか。",
+        "少し余裕ができた。……欲張らないようにしないと。",
+        "これを拾うの、前にも……。テストの時だったかな。"
+      ]
+    },
+    "thruster": {
+      "expression": "smile",
+      "label": "スラスターで移動／微笑み",
+      "lines": [
+        "スラスター。私と同じ名前だから、ちょっと好き。",
+        "同じ名前だもの。息、合わせてね。",
+        "スラスター、良好。……私の方も、たぶん。"
+      ]
+    },
+    "multiKill": {
+      "expression": "satisfied",
+      "label": "拡散波動砲で一度に撃破／驚き・満足",
+      "lines": [
+        "……まとめていけた。少し、気持ちいい。",
+        "射線、ぴったり。もう一度やれって言われても困るけど。",
+        "今の、見てた？　エンジェルさん。",
+        "……この光、覚えてる。次に何が来るかも。"
+      ]
+    },
+    "idle": {
+      "expression": "neutral",
+      "label": "何もない飛行中／独り言",
+      "lines": [
+        "エンジェルさん。今日は静かだね。",
+        "返事がないの、知ってるよ。……名前を呼びたくなっただけ。",
+        "また頭の中のテストなのかな。今回は、ずいぶん長いね。",
+        "これ、帰ったら覚えてるかな。……帰ったらって、どこに？",
+        "何も来ない時間って、こんなに長かったっけ。"
+      ]
+    },
+    "boss": {
+      "expression": "alert",
+      "label": "ボス出現／警戒・疑念",
+      "lines": [
+        "……また、あなた。テストで見たはずなのに。",
+        "同じ場所に戻されてる？　私だけじゃなく、この空間ごと。",
+        "このループ……あなたが次元を曲げてるの？",
+        "私の頭の中だと思ってた。……そう思わせてるの？"
+      ]
+    },
+    "human": {
+      "expression": "sad",
+      "label": "人間への悲観／沈んだ表情",
+      "lines": [
+        "これを作った人たちは、完成した時、喜んだのかな。",
+        "バイドが怖いのか、これを必要とした人間が怖いのか……。",
+        "私の身体をこうした人も、必要だって言ってた。",
+        "……帰る場所にも、人間はいるんだよね。"
+      ]
+    },
+    "nebula": {
+      "expression": "admiring",
+      "label": "綺麗な星雲／見とれる・柔らかな笑顔",
+      "lines": [
+        "……きれい。少しだけ、速度を落としていい？",
+        "エンジェルさん、見える？　……私は、見てるよ。",
+        "こんな色、テストにもあったかな。",
+        "これが頭の中なら、私、案外いい景色を作れるんだね。",
+        "本物だったらいいな。……この景色は。"
+      ]
+    },
+    "age": {
+      "expression": "selfMocking",
+      "label": "幼体固定／自嘲",
+      "lines": [
+        "十六に見える？　……その倍は生きてる。",
+        "顔は変わらないのに、癖だけ増える。",
+        "この顔で、何度帰還報告をしたかな。"
+      ]
+    },
+    "limbs": {
+      "expression": "hesitant",
+      "label": "四肢／静かな戸惑い",
+      "lines": [
+        "新しい指、まだ私の動きじゃない。",
+        "交換した部品の数なら、覚えてる。",
+        "痛くないのが、安心とは限らない。"
+      ]
+    },
+    "bydo": {
+      "expression": "questioning",
+      "label": "バイド／疑念",
+      "lines": [
+        "人間と同じ二重螺旋。……それだけで仲間とは思えない。",
+        "私たちは、これを調べて、ここまで来た。",
+        "この機体のどこまでが、人間の技術なんだろう。",
+        "撃つたびに、理解が進む。……嫌な仕組み。"
+      ]
+    }
+  }
 }

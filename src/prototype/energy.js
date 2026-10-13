@@ -1,3 +1,4 @@
+import {multipleBonus,pipeEfficiency} from './equipment.js';
 import { occupiedCells } from './model.js';
 // Adjustable prototype values; E is the one shared energy unit, never a crafting material.
 export const ENERGY={nebulaPort:{x:5,y:9},generation:16,capacity:160,tankLinkBonus:.25,observationCost:3,engineCost:8};
@@ -39,10 +40,11 @@ export function stepEnergy(ship,dt,config={}) {
     for(const p of component)state.connected[p.id]=component.length>1;
     for(const tank of tanks){const info=tankCapacity(tank,ship.parts,config);state.tanks[tank.id]=info;state.overflow+=Math.max(0,(tank.stored||0)-info.capacity);tank.stored=Math.max(0,Math.min(info.capacity,tank.stored||0));state.capacity+=info.capacity;}
     const nebula=harvest.includes(component)?Math.max(0,config.nebulaRate??0)/harvest.length:0;state.nebulaGeneration+=nebula;
-    let generated=(solar.length*generation+nebula)*dt,available=generated+tanks.reduce((a,p)=>a+p.stored,0),consumed=0;
+    const solarRate=solar.length*generation*(1+multipleBonus(solar.length)),saving=pipeEfficiency(component);
+    let generated=(solarRate+nebula)*dt,available=generated+tanks.reduce((a,p)=>a+p.stored,0),consumed=0;
     const hasSource=solar.length>0||tanks.length>0;
     const consumers=component.filter(p=>p.type==='observer'||p.type==='engine').sort((a,b)=>(a.type==='observer'?0:1)-(b.type==='observer'?0:1)||a.id.localeCompare(b.id));
-    for(const p of consumers){const demand=(p.type==='observer'?ENERGY.observationCost:ENERGY.engineCost)*dt;const active=hasSource&&available+1e-9>=demand;
+    for(const p of consumers){const demand=(p.type==='observer'?ENERGY.observationCost:ENERGY.engineCost)*(1-saving)*dt;const active=hasSource&&available+1e-9>=demand;
       state.active[p.id]=active;state.status[p.id]=active?'稼働':hasSource?'供給不足':'未接続';if(active){available-=demand;consumed+=demand;}}
     let deficit=Math.max(0,consumed-generated);
     for(const tank of tanks){const take=Math.min(tank.stored,deficit);tank.stored-=take;deficit-=take;}
@@ -50,7 +52,7 @@ export function stepEnergy(ship,dt,config={}) {
     for(const tank of tanks){const charge=Math.min(state.tanks[tank.id].capacity-tank.stored,surplus);tank.stored+=charge;surplus-=charge;state.stored+=tank.stored;state.status[tank.id]=state.tanks[tank.id].linked?'連結・蓄積':'蓄積';}
     const supplied=solar.length>0||nebula>0||tanks.some(t=>t.stored>0);
     for(const p of component){if(p.type==='pipe'){state.active[p.id]=supplied;state.status[p.id]=supplied?'通電':hasSource?'供給不足':'未接続';}if(p.type==='railgun'){state.active[p.id]=supplied;state.status[p.id]=hasSource?'射撃時精算':'未接続';}if(p.type==='solar'){state.active[p.id]=true;state.status[p.id]=component.length>1?'生成':'生成・未接続';}}
-    state.generation+=solar.length*generation+nebula;state.consumption+=dt?consumed/dt:0;state.components.push(component.map(p=>p.id));
+    state.generation+=solarRate+nebula;state.consumption+=dt?consumed/dt:0;state.components.push(component.map(p=>p.id));
   }
   return state;
 }

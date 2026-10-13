@@ -1,9 +1,10 @@
+import {renderCamera,flightAnchor} from './camera.js';
 import {regionDensity,noise} from './nebula.js';
 import {NEBULA_DETAIL,observationDetailWeight,observationCrop} from './nebulaDetail.js';
 // Pure 2D WebGL overlay: no 3D library, asset, or framebuffer readback in gameplay.
 export const NEBULA_FRAGMENT=`
 precision highp float;
-uniform vec2 resolution,worldSize,camera,center,extent,coarseOrigin,coarseStep,colorLevels;
+uniform vec2 resolution,worldSize,camera,observationCenter,center,extent,coarseOrigin,coarseStep,colorLevels;
 uniform float time,visualTime,seed,shape,density,dark,diagnostic,detailPass,observationRadius,observationFeather;
 uniform vec3 palette;
 float hash(vec2 p,float s){float a=mod(p.x+mod(s,241.),289.);float b=mod(p.y,289.);float q=mod((a*34.+1.)*a+b,289.);return mod((q*34.+1.)*q,289.)/289.;}
@@ -30,7 +31,7 @@ vec4 shade(vec2 world,float detail){
  float alpha=clamp(d*(.64+grain*.32),0.,.88),levels=mix(colorLevels.x,colorLevels.y,detail);
  return vec4(floor(color*levels+.5)/levels,floor(alpha*levels+.5)/levels);
 }
-float detailWeight(vec2 world){if(observationRadius<=0.)return 0.;return 1.-smoothstep(max(0.,observationRadius-observationFeather),observationRadius,length(world-camera));}
+float detailWeight(vec2 world){if(observationRadius<=0.)return 0.;return 1.-smoothstep(max(0.,observationRadius-observationFeather),observationRadius,length(world-observationCenter));}
 void main(){
  vec2 uv=gl_FragCoord.xy/resolution;uv.y=1.-uv.y;
  vec2 world=camera+(uv-.5)*worldSize;
@@ -53,7 +54,7 @@ export function createNebulaRenderer(){
   program=gl.createProgram();gl.attachShader(program,vertex);gl.attachShader(program,fragment);gl.linkProgram(program);gl.deleteShader(vertex);gl.deleteShader(fragment);
   if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
-  for(const name of ['resolution','worldSize','camera','center','extent','time','visualTime','seed','shape','density','dark','diagnostic','coarseOrigin','coarseStep','detailPass','observationRadius','observationFeather','colorLevels'])uniforms[name]=gl.getUniformLocation(program,name);
+  for(const name of ['resolution','worldSize','camera','observationCenter','center','extent','time','visualTime','seed','shape','density','dark','diagnostic','coarseOrigin','coarseStep','detailPass','observationRadius','observationFeather','colorLevels'])uniforms[name]=gl.getUniformLocation(program,name);
   uniforms.palette=gl.getUniformLocation(program,'palette');
   gl.useProgram(program);const attribute=gl.getAttribLocation(program,'point');gl.enableVertexAttribArray(attribute);gl.vertexAttribPointer(attribute,2,gl.FLOAT,false,0,0);mode='webgl';lost=false;last=-Infinity;
  }catch(error){mode='fallback';console.warn('SHuTLe: 星雲を低負荷代替描画に切り替えます',error.message);}};
@@ -64,22 +65,22 @@ export function createNebulaRenderer(){
   }return [...color,alpha];
  }
  function pass(game,target,screenW,screenH,resolutionScale,detail,time,reducedMotion,origin,step){
-  const w=Math.max(1,Math.round(screenW*resolutionScale)),h=Math.max(1,Math.round(screenH*resolutionScale)),scale=game.viewport.scale;
+  const w=Math.max(1,Math.round(screenW*resolutionScale)),h=Math.max(1,Math.round(screenH*resolutionScale)),scale=game.viewport.scale,camera=detail?game.flight.position:renderCamera(game);
   target.width=w;target.height=h;
   if(!gl||lost||mode!=='webgl'){
    const ctx=target.getContext('2d'),image=ctx.createImageData(w,h);
    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-    const point={x:game.flight.position.x+((x+.5)/w-.5)*screenW/scale,y:game.flight.position.y+((y+.5)/h-.5)*screenH/scale};
+    const point={x:camera.x+((x+.5)/w-.5)*screenW/scale,y:camera.y+((y+.5)/h-.5)*screenH/scale};
     let rgba;
     if(detail){const coarse={x:origin.x+(Math.floor((point.x-origin.x)/step.x)+.5)*step.x,y:origin.y+(Math.floor((point.y-origin.y)/step.y)+.5)*step.y},weight=observationDetailWeight(point,game.flight.position,game.observation),base=cpuShade(game,coarse,time,false,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1)),fine=weight?cpuShade(game,point,time,true,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1)):base;rgba=base.map((v,i)=>v+(fine[i]-v)*weight);}else rgba=cpuShade(game,point,time,false,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1));
     const index=(y*w+x)*4;for(let i=0;i<3;i++)image.data[index+i]=rgba[3]?Math.round(rgba[i]/rgba[3]*255):0;image.data[index+3]=Math.round(rgba[3]*255);
    }ctx.putImageData(image,0,0);return;
   }
   canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);gl.disable(gl.SCISSOR_TEST);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(program);gl.enable(gl.BLEND);gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
-  gl.uniform2f(uniforms.resolution,w,h);gl.uniform2f(uniforms.worldSize,screenW/scale,screenH/scale);gl.uniform2f(uniforms.camera,game.flight.position.x,game.flight.position.y);gl.uniform1f(uniforms.time,time);gl.uniform1f(uniforms.visualTime,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1));gl.uniform1f(uniforms.diagnostic,0);
+  gl.uniform2f(uniforms.resolution,w,h);gl.uniform2f(uniforms.worldSize,screenW/scale,screenH/scale);gl.uniform2f(uniforms.camera,camera.x,camera.y);gl.uniform2f(uniforms.observationCenter,game.flight.position.x,game.flight.position.y);gl.uniform1f(uniforms.time,time);gl.uniform1f(uniforms.visualTime,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1));gl.uniform1f(uniforms.diagnostic,0);
   gl.uniform2f(uniforms.coarseOrigin,origin.x,origin.y);gl.uniform2f(uniforms.coarseStep,step.x,step.y);gl.uniform1f(uniforms.detailPass,detail?1:0);gl.uniform1f(uniforms.observationRadius,game.observation);gl.uniform1f(uniforms.observationFeather,NEBULA_DETAIL.feather);gl.uniform2f(uniforms.colorLevels,NEBULA_DETAIL.coarseLevels,NEBULA_DETAIL.fineLevels);
   for(const r of game.nebula.regions){
-   const px=w/2+(r.position.x-game.flight.position.x)*scale*resolutionScale,py=h/2+(r.position.y-game.flight.position.y)*scale*resolutionScale,rx=r.extent.x*1.6*scale*resolutionScale,ry=r.extent.y*1.6*scale*resolutionScale;
+   const px=w/2+(r.position.x-camera.x)*scale*resolutionScale,py=h/2+(r.position.y-camera.y)*scale*resolutionScale,rx=r.extent.x*1.6*scale*resolutionScale,ry=r.extent.y*1.6*scale*resolutionScale;
    const left=Math.max(0,Math.floor(px-rx)),bottom=Math.max(0,Math.floor(h-py-ry)),right=Math.min(w,Math.ceil(px+rx)),top=Math.min(h,Math.ceil(h-py+ry));if(right<=left||top<=bottom)continue;
    gl.enable(gl.SCISSOR_TEST);gl.scissor(left,bottom,right-left,top-bottom);
    gl.uniform2f(uniforms.center,r.position.x,r.position.y);gl.uniform2f(uniforms.extent,r.extent.x,r.extent.y);gl.uniform1f(uniforms.seed,r.seed);gl.uniform1f(uniforms.shape,r.shape);gl.uniform1f(uniforms.density,r.density);gl.uniform1f(uniforms.dark,r.type==='dark'?1:0);gl.uniform3fv(uniforms.palette,r.color);gl.drawArrays(gl.TRIANGLES,0,6);
@@ -94,15 +95,15 @@ export function createNebulaRenderer(){
    if(signature===key&&now-last<setting.interval)return surface;
    signature=key;const time=game.flight.elapsed,scale=game.viewport.scale;
    const fallback=mode!=='webgl',coarseScale=(fallback?.125:setting.scale)/(game.tuning?.nebula.dotMultiplier??1),detailScale=(fallback?.25:setting.detailScale)/(game.tuning?.nebula.dotMultiplier??1);
-   const lowW=Math.max(1,Math.round(width*coarseScale)),lowH=Math.max(1,Math.round(height*coarseScale)),origin={x:game.flight.position.x-width/scale/2,y:game.flight.position.y-height/scale/2},step={x:width/scale/lowW,y:height/scale/lowH};
+   const lowW=Math.max(1,Math.round(width*coarseScale)),lowH=Math.max(1,Math.round(height*coarseScale)),origin={x:renderCamera(game).x-width/scale/2,y:renderCamera(game).y-height/scale/2},step={x:width/scale/lowW,y:height/scale/lowH};
    pass(game,coarseSurface,width,height,coarseScale,false,time,reducedMotion,origin,step);
    surface.width=Math.max(1,Math.round(width));surface.height=Math.max(1,Math.round(height));const ctx=surface.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(coarseSurface,0,0,width,height);
    if(game.observation>0){
-    const crop=observationCrop(width,height,scale,game.observation);pass(game,detailSurface,crop.width,crop.height,detailScale,true,time,reducedMotion,origin,step);
+    const crop=observationCrop(width,height,scale,game.observation),anchor=flightAnchor(game,width,height);crop.left=anchor.x-crop.width/2;crop.top=anchor.y-crop.height/2;pass(game,detailSurface,crop.width,crop.height,detailScale,true,time,reducedMotion,origin,step);
     // Copy replaces coarse gas in the crop; the shader returns the identical coarse field outside the circle.
     ctx.save();ctx.beginPath();ctx.rect(crop.left,crop.top,crop.width,crop.height);ctx.clip();ctx.globalCompositeOperation='copy';ctx.drawImage(detailSurface,crop.left,crop.top,crop.width,crop.height);ctx.restore();
    }
-   surface.worldCamera={...game.flight.position};surface.detailRadius=game.observation;surface.coarsePixel=1/coarseScale;surface.finePixel=1/detailScale;last=performance.now();return surface;
+   surface.worldCamera=renderCamera(game);surface.detailRadius=game.observation;surface.coarsePixel=1/coarseScale;surface.finePixel=1/detailScale;last=performance.now();return surface;
   },
   dispose(){disposed=true;canvas.removeEventListener('webglcontextlost',onLost);canvas.removeEventListener('webglcontextrestored',onRestore);if(gl){gl.deleteBuffer(buffer);gl.deleteProgram(program);gl.getExtension('WEBGL_lose_context')?.loseContext();}},
  };

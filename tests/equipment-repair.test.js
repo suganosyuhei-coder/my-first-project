@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createGame} from '../src/prototype/game.js';import {grantPart,grantRareParts} from '../src/prototype/spaceLoot.js';import {repairFromPickup} from '../src/prototype/repair.js';import {stepCollection} from '../src/prototype/collection.js';import {stepForceContact} from '../src/prototype/forceContact.js';import {forceBody} from '../src/prototype/force.js';
+function setup(){const g=createGame({campaign:false,initialEquipment:false});g.ship.parts=[];g.enemies.units=[];g.hazards=[];for(const y of [7,8,9])g.ship.cells.find(c=>c.x===2&&c.y===y).hp=y===8?10:40;return g;}
+const health=g=>[8,7,9].map(y=>g.ship.cells.find(c=>c.x===2&&c.y===y).hp);
+test('each equipment reward repairs 8/4/4, pipe grants do not repair',()=>{for(const type of ['tank','engine','railgun','solar','observer']){const g=setup();grantPart(g,type);assert.deepEqual(health(g),[18,44,44]);assert.deepEqual(g.repairEffects.map(e=>e.amount),[8,4,4]);}const g=setup();grantPart(g,'pipe');assert.deepEqual(health(g),[10,40,40]);});
+test('returned and Force-collected equipment repair once on actual receipt',()=>{
+ const g=setup();g.resources=[{id:'r',type:'railgun',state:'captured'}];g.jobs=[{id:'j',resourceId:'r',type:'railgun',bitIds:[g.bits[0].id],cargo:true,credited:false,stage:'returning',startedAt:0}];g.bits[0].position={...g.flight.position};g.bits[0].state='returning';stepCollection(g,.1);assert.deepEqual(health(g),[18,44,44]);stepCollection(g,.1);assert.deepEqual(health(g),[18,44,44]);
+ const h=setup();h.resources=[{id:'f',type:'engine',state:'available',position:{...forceBody(h).position}}];stepForceContact(h);assert.deepEqual(health(h),[18,44,44]);stepForceContact(h);assert.deepEqual(health(h),[18,44,44]);
+});
+test('rare reward repairs once per equipment; materials retain their existing repair rates',()=>{const g=setup();grantRareParts(g);assert.deepEqual(health(g),[42,56,56]);const h=setup();repairFromPickup(h,'wire');assert.deepEqual(health(h),[18,45,45]);});

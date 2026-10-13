@@ -1,3 +1,4 @@
+import {createEquippedGame} from './helpers/equippedGame.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createShip} from '../src/prototype/ship.js';
@@ -13,7 +14,7 @@ function manifold(){return createShip([{id:'a',type:'tank',x:0,y:0},{id:'b',type
 function liveStep(g,seconds){for(let t=0;t<seconds-1e-9;t+=1/60)stepGame(g,0,1/60);}
 
 test('side-adjacent tanks get one bounded capacity bonus and supply via their shared manifold',()=>{
- const s=manifold(),state=stepEnergy(s,1);assert.equal(state.capacity,400);assert.equal(state.tanks.a.linked,true);assert.equal(state.tanks.b.linked,true);assert.equal(state.active.e,true);assert.equal(state.stored,8);assert.equal(state.generation,16);assert.equal(state.consumption,8);
+ const s=manifold(),state=stepEnergy(s,1);assert.equal(state.capacity,400);assert.equal(state.tanks.a.linked,true);assert.equal(state.tanks.b.linked,true);assert.equal(state.active.e,true);assert.equal(state.stored,8.16);assert.equal(state.generation,16);assert.equal(state.consumption,7.84);
  assert.ok(supplyGraph(s.parts).some(c=>['a','b','s','e'].every(id=>c.some(p=>p.id===id))));
  const corner=createShip([{id:'a',type:'tank',x:0,y:0},{id:'b',type:'tank',x:2,y:2}]);assert.equal(stepEnergy(corner,1).capacity,320);
  s.parts.push({id:'c',type:'tank',x:4,y:0,hp:100,stored:0});s.revision++;assert.equal(tankCapacity(s.parts[1],s.parts).capacity,200);
@@ -30,26 +31,26 @@ test('pipe endpoints include all valid device ports; cuts and damaged parts remo
  s.parts.find(p=>p.id==='q').hp=100;s.revision++;assert.equal(stepEnergy(s,1).active.e,true);
 });
 test('additional connected solar generation scales, replenishes shot energy during movement, and permits another max shot',()=>{
- const g=createGame();g.ship.parts.find(p=>p.type==='tank').stored=40;
- stepRailgun(g,[{type:'weapon-press'}],RAILGUN.maxChargeSeconds);stepRailgun(g,[{type:'weapon-release'}],0);assert.equal(g.weapon.lastShot.stage,2);
+ const g=createEquippedGame();g.bits=[];g.ship.parts.find(p=>p.type==='tank').stored=40;
+ stepRailgun(g,[{type:'weapon-press'}],RAILGUN.maxChargeSeconds);stepRailgun(g,[{type:'weapon-release'}],0);assert.equal(g.weapon.lastShot.stage,3);g.weapon.projectiles=[];
  const elapsed=g.flight.elapsed,position={...g.flight.position};applyCommand(g,{type:'place',partType:'solar',x:0,y:8,id:'solar-extra'});applyCommand(g,{type:'place',partType:'pipe',x:2,y:8,id:'solar-port'});
- liveStep(g,2);assert.equal(g.energy.generation,32);assert.ok(g.flight.elapsed>elapsed);assert.notDeepEqual(g.flight.position,position);assert.ok(g.energy.stored>=32);
- stepRailgun(g,[{type:'weapon-press'}],RAILGUN.maxChargeSeconds);stepRailgun(g,[{type:'weapon-release'}],0);assert.equal(g.weapon.lastShot.stage,2);assert.equal(g.weapon.shots,2);
+ liveStep(g,2);assert.equal(g.energy.generation,33.6);assert.ok(g.flight.elapsed>elapsed);assert.notDeepEqual(g.flight.position,position);assert.ok(g.energy.stored>=32);
+ stepRailgun(g,[{type:'weapon-press'}],RAILGUN.maxChargeSeconds);stepRailgun(g,[{type:'weapon-release'}],0);assert.equal(g.weapon.lastShot.stage,3);assert.equal(g.weapon.shots,2);
  const isolated=createShip([{id:'s',type:'solar',x:0,y:0},{id:'t',type:'tank',x:5,y:5}]);assert.equal(stepEnergy(isolated,5).stored,0);
 });
 test('added powered engines change thrust and travel, loss of supply keeps only minimum flight',()=>{
- const g=createGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;stepGame(g,0,1/60);assert.equal(g.energy.active.extra,true);assert.equal(snapshot(g).stats.thrust,24);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>34);
+ const g=createEquippedGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;stepGame(g,0,1/60);assert.equal(g.energy.active.extra,true);assert.ok(Math.abs(snapshot(g).stats.thrust-25.2)<1e-9);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>34);
  applyCommand(g,{type:'remove',x:6,y:11});stepGame(g,0,1/60);assert.equal(g.energy.active.extra,false);assert.equal(snapshot(g).stats.thrust,0);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>=12);
 });
 test('boost tuning increases actual impulse without extra energy, retains eligibility and resets',()=>{
- const g=createGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;g.energy=stepEnergy(g.ship,1/60);
- stepBoost(g,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(g,[{type:'boost-release'}],0);assert.equal(g.boost.lastBurst.impulse,132);assert.equal(g.boost.lastBurst.cost,20);
- const h=createGame();h.tuning=defaultTuning();h.tuning.boost.impulseMultiplier=2;h.tuning.boost.duration=1.5;applyCommand(h,{type:'place',partType:'engine',x:7,y:11,id:'extra'});h.ship.parts.find(p=>p.type==='tank').stored=160;h.energy=stepEnergy(h.ship,1/60);stepBoost(h,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(h,[{type:'boost-release'}],0);assert.equal(h.boost.lastBurst.impulse,160);assert.equal(h.boost.remaining,1.5);assert.equal(h.boost.lastBurst.cost,20);
+ const g=createEquippedGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;g.energy=stepEnergy(g.ship,1/60);
+ stepBoost(g,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(g,[{type:'boost-release'}],0);assert.equal(g.boost.lastBurst.impulse,132);assert.equal(g.boost.lastBurst.cost,0);
+ const h=createEquippedGame();h.tuning=defaultTuning();h.tuning.boost.impulseMultiplier=2;h.tuning.boost.duration=1.5;applyCommand(h,{type:'place',partType:'engine',x:7,y:11,id:'extra'});h.ship.parts.find(p=>p.type==='tank').stored=160;h.energy=stepEnergy(h.ship,1/60);stepBoost(h,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(h,[{type:'boost-release'}],0);assert.equal(h.boost.lastBurst.impulse,160);assert.equal(h.boost.remaining,1.5);assert.equal(h.boost.lastBurst.cost,0);
 });
 test('previous v1 JSON settings migrate without losing adjusted values; invalid new values reject',()=>{
  const old=defaultTuning();delete old.energy;delete old.boost;old.camera.zoom=1.4;const migrated=validateTuning(old);assert.equal(migrated.camera.zoom,1.4);assert.equal(migrated.boost.impulseMultiplier,1.65);assert.equal(migrated.energy.generation,16);migrated.boost.duration=99;assert.throws(()=>validateTuning(migrated));
 });
 test('pilot JSON supplies poses, priority, conditions and dialogue; a custom known condition is usable',()=>{
  for(const a of PILOT_ACTIONS){assert.ok(PILOT_EXPRESSIONS[a.expression]);assert.equal(typeof a.line,'string');assert.ok(a.line.length);assert.equal(typeof a.condition,'string');}
- const select=createPilotController([{id:'new-speech',condition:'charging',expression:'thinking',line:'準備中'}]);const t=snapshot(createGame());t.weapon.holding=true;assert.equal(select(t).line,'準備中');assert.equal(select(t).expression,'thinking');
+ const select=createPilotController([{id:'new-speech',condition:'charging',expression:'thinking',line:'準備中'}]);const t=snapshot(createEquippedGame());t.weapon.holding=true;assert.equal(select(t).line,'準備中');assert.equal(select(t).expression,'thinking');
 });

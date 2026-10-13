@@ -2,12 +2,12 @@ import {shipCells,cellToWorld} from './ship.js';
 import {applyContact} from './damage.js';
 
 // Issue #4 provisional balance/analysis policy, not final product tuning.
-export const NEBULA={seed:7309,chunk:720,spawnChance:.48,analysisSeconds:4,contactInterval:.5,minimumVisibility:.3,observerBonus:60,drag:8,lateralForce:3,turnRate:.045,damagePerSecond:.4,recoveryPerDensity:12};
+export const NEBULA={seed:7309,chunk:720,spawnChance:.48,analysisSeconds:4,contactInterval:.5,minimumVisibility:.3,observerBonus:60,drag:8,lateralForce:3,turnRate:.045,damagePerSecond:.04,recoveryPerDensity:12};
 export const NEBULA_TYPES=[
- {id:'diffuse',name:'拡散型',color:[.18,.64,.76],density:.5,turbulence:.25,occlusion:.25,heat:0,abrasion:.15},
- {id:'dark',name:'暗黒型',color:[.18,.17,.29],density:.8,turbulence:.4,occlusion:.9,heat:0,abrasion:.3},
- {id:'energetic',name:'高エネルギー型',color:[.94,.34,.12],density:.7,turbulence:.6,occlusion:.45,heat:1,abrasion:.3},
- {id:'dense',name:'高密度型',color:[.53,.37,.64],density:1,turbulence:.9,occlusion:.65,heat:.15,abrasion:1},
+ {id:'diffuse',name:'拡散型（安全）',color:[.12,.48,1],density:.5,turbulence:.25,occlusion:.25,heat:0,abrasion:.15},
+ {id:'dark',name:'暗黒型（不安定）',color:[1,.85,.12],density:.8,turbulence:.4,occlusion:.9,heat:0,abrasion:.3},
+ {id:'energetic',name:'高エネルギー型（危険）',color:[1,.12,.16],density:.7,turbulence:.6,occlusion:.45,heat:1,abrasion:.3},
+ {id:'dense',name:'高密度型（不安定）',color:[1,.46,.08],density:1,turbulence:.9,occlusion:.65,heat:.15,abrasion:1},
 ];
 export const clamp=(v,lo=0,hi=1)=>Math.max(lo,Math.min(hi,v));
 const mix=(a,b,t)=>a+(b-a)*t,mod=(v,n)=>((v%n)+n)%n;
@@ -41,14 +41,31 @@ export function regionDensity(region,point,time){
 }
 export function environmentAt(regions,point,time){
  const field={density:0,turbulence:0,occlusion:0,heat:0,abrasion:0,flow:{x:0,y:0}};
- for(const r of regions){const d=regionDensity(r,point,time);if(d===0)continue;const x=(point.x-r.position.x)/r.extent.x,y=(point.y-r.position.y)/r.extent.y,t=time*.03;
+ for(const r of regions){if(r.decorative)continue;const d=regionDensity(r,point,time);if(d===0)continue;const x=(point.x-r.position.x)/r.extent.x,y=(point.y-r.position.y)/r.extent.y,t=time*.03;
   field.density+=d;field.turbulence+=d*r.turbulence;field.occlusion+=d*r.occlusion;field.heat+=d*r.heat;field.abrasion+=d*r.abrasion;
   field.flow.x+=d*(noise(x*4+t,y*4,r.seed+73)*2-1);field.flow.y+=d*(noise(x*4,y*4-t,r.seed+97)*2-1);
  }
  field.visibility=Math.max(NEBULA.minimumVisibility,1-clamp(field.occlusion));return field;
 }
 export function createNebula(seed=NEBULA.seed){return {seed,regions:[],field:environmentAt([],{x:0,y:0},0),observations:{},selected:null,contactClock:0};}
-export function updateNebula(game){const {width,height,scale}=game.viewport;game.nebula.regions=nebulaRegions(game.nebula.seed,game.flight.position,Math.max(500,Math.hypot(width,height)/scale/2));if(game.tuning)game.nebula.regions=game.nebula.regions.map(r=>({...r,density:r.density*game.tuning.nebula.densityMultiplier}));game.nebula.field=environmentAt(game.nebula.regions,game.flight.position,game.flight.elapsed);}
+// Fixed world clouds increase coverage towards enemy positions without camera-dependent physics.
+export function campaignNebulaRegions(campaign,position,radius){
+ const out=[];
+ for(const [siteIndex,site] of (campaign?.sites??[]).entries()){
+  if(Math.hypot(position.x-site.position.x,position.y-site.position.y)>radius+1400)continue;
+  const add=(index,typeIndex,offset,extent,density)=>{const type=NEBULA_TYPES[typeIndex];out.push({id:`campaign-nebula-${site.id}-${index}`,campaignSite:site.id,seed:(siteIndex*31+index*17)%240,position:{x:site.position.x+offset.x,y:site.position.y+offset.y},extent:{x:extent,y:extent*.85},shape:2,type:type.id,color:[...type.color],density,turbulence:type.turbulence,occlusion:type.occlusion,heat:type.heat,abrasion:type.abrasion});};
+  add(0,0,{x:0,y:0},1000,.16);
+  for(let i=0;i<4;i++){const angle=i*Math.PI/2;add(i+1,i%2?1:3,{x:Math.cos(angle)*300,y:Math.sin(angle)*300},340,.25);}
+  add(5,2,{x:0,y:0},260,.55);
+ }
+ for(const [index,group] of (campaign?.mossGroups??[]).entries()){
+  if(!campaign.units.some(e=>e.clusterId===group.id&&e.hp>0)||Math.hypot(position.x-group.position.x,position.y-group.position.y)>radius+800)continue;
+  out.push({id:`moss-nebula-${group.id}`,campaignSite:group.id,decorative:true,seed:90+index*37,position:{...group.position},extent:{x:420,y:360},shape:3,type:'energetic',color:[1,.06,.12],density:.65,turbulence:0,occlusion:0,heat:0,abrasion:0});
+ }
+ return out;
+}
+export function updateNebula(game){const {width,height,scale}=game.viewport,radius=Math.max(500,Math.hypot(width,height)/scale/2);game.nebula.regions=[...nebulaRegions(game.nebula.seed,game.flight.position,radius),...campaignNebulaRegions(game.campaign,game.flight.position,radius)];if(game.tuning)game.nebula.regions=game.nebula.regions.map(r=>({...r,density:r.density*game.tuning.nebula.densityMultiplier}));game.nebula.field=environmentAt(game.nebula.regions,game.flight.position,game.flight.elapsed);}
+
 export function environmentForFlight(field,heading=0,strength=1){return {drag:Math.min(NEBULA.drag,field.density*NEBULA.drag*strength),lateral:(field.flow.x*Math.cos(heading)+field.flow.y*Math.sin(heading))*NEBULA.lateralForce*strength,turn:field.turbulence*field.flow.y*NEBULA.turnRate*strength,minimumSpeed:12};}
 export function observableRegion(region,game){return game.observation>0&&Math.hypot(region.position.x-game.flight.position.x,region.position.y-game.flight.position.y)<=game.observation+Math.max(region.extent.x,region.extent.y)*1.2;}
 export function requestAnalysis(game,id){const r=game.nebula.regions.find(r=>r.id===id),record=game.nebula.observations[id];if(!r||!record||!observableRegion(r,game))return {ok:false,reason:'解析には稼働中の観測装置と観測範囲内の対象が必要です'};game.nebula.selected=id;return {ok:true,reason:'星雲を解析中です（暫定4秒・範囲外では一時停止）'};}
@@ -63,12 +80,16 @@ export function stepNebulaObservation(game,dt){
 }
 export function stepNebulaContacts(game,dt){
  const state=game.nebula;state.contactClock+=dt;if(state.contactClock+1e-9<NEBULA.contactInterval)return;const duration=state.contactClock;state.contactClock=0;
- const touched=new Set();
- for(const cell of shipCells(game.ship)){
+ const touched=new Set(),live=shipCells(game.ship),occupied=new Set(live.map(c=>`${c.x},${c.y}`));let hottest=null;
+ for(const cell of live){
   const point=cellToWorld(cell,game.flight),field=environmentAt(state.regions,point,game.flight.elapsed);if(field.density<.15)continue;
+  const surface=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>!occupied.has(`${cell.x+dx},${cell.y+dy}`));
+  if(surface&&field.density>.5&&field.heat>0&&(!hottest||field.heat>hottest.heat))hottest={point,heat:field.heat};
   const key=cell.role||cell.part?.id||`${cell.x},${cell.y}`;if(touched.has(key))continue;touched.add(key);
-  applyContact(game,{type:'nebulaContact',position:point,appearance:{dust:field.density*.055*duration,scratch:field.abrasion*.035*duration,burn:field.heat*.045*duration},damage:field.density>.5?field.heat*NEBULA.damagePerSecond*duration:0});
+  applyContact(game,{type:'nebulaContact',position:point,appearance:{dust:field.density*.055*duration,scratch:field.abrasion*.035*duration,burn:field.heat*.045*duration},damage:0});
   if(game.status!=='running')break;
  }
+ if(hottest&&game.status==='running')applyContact(game,{type:'nebulaContact',position:hottest.point,damage:hottest.heat*NEBULA.damagePerSecond*duration});
 }
-export function nebulaSnapshot(state,game){return {seed:state.seed,field:{...state.field,flow:{...state.field.flow}},selected:state.selected,observations:Object.values(state.observations).sort((a,b)=>b.lastSeen-a.lastSeen).slice(0,8).map(record=>({...record,position:{...record.position},details:record.details?{...record.details}:undefined})),observableIds:state.regions.filter(r=>observableRegion(r,game)).map(r=>r.id)};}
+
+export function nebulaSnapshot(state,game){return {visibleClouds:state.regions.filter(r=>observableRegion(r,game)).map(r=>({id:r.id,shape:r.shape})),seed:state.seed,field:{...state.field,flow:{...state.field.flow}},selected:state.selected,observations:Object.values(state.observations).sort((a,b)=>b.lastSeen-a.lastSeen).slice(0,8).map(record=>({...record,position:{...record.position},details:record.details?{...record.details}:undefined})),observableIds:state.regions.filter(r=>observableRegion(r,game)).map(r=>r.id)};}

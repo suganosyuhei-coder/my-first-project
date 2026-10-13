@@ -1,0 +1,1481 @@
+[
+  {
+    "trigger": "flightStart",
+    "portrait": "normal-01",
+    "scene": "飛行開始",
+    "line": "エンジェルさん、機体は大丈夫そう。……あとは私ね。",
+    "enabled": true
+  },
+  {
+    "trigger": "powDiscovered",
+    "portrait": "normal-01",
+    "scene": "PAWアーマー発見",
+    "line": "あ、いた。相変わらずの形ね。……ちょっと安心した。",
+    "enabled": true
+  },
+  {
+    "trigger": "quietAfterBattle",
+    "portrait": "normal-01",
+    "scene": "戦闘後の静かな航路",
+    "line": "今のうちに息を整えよう。次も、ちゃんと見ておきたい。",
+    "enabled": true
+  },
+  {
+    "trigger": "nebulaVisible",
+    "portrait": "normal-01",
+    "scene": "星雲が見える",
+    "line": "あの星雲まで、何も来ないといいね。少し眺めていたい。",
+    "enabled": true
+  },
+  {
+    "trigger": "unfamiliarSpace",
+    "portrait": "normal-03",
+    "scene": "見知らぬ空域へ",
+    "line": "目的地は前方。……ここに来た経緯は、まだ曖昧だけど。",
+    "enabled": true
+  },
+  {
+    "trigger": "enemyDetected",
+    "portrait": "normal-03",
+    "scene": "敵の反応を検知",
+    "line": "反応あり。まずは距離を取って、動きを見よう。",
+    "enabled": true
+  },
+  {
+    "trigger": "partFound",
+    "portrait": "normal-03",
+    "scene": "強化パーツ発見",
+    "line": "回収できそう。先に周囲を確認しておこう。",
+    "enabled": true
+  },
+  {
+    "trigger": "familiarRoute",
+    "portrait": "normal-03",
+    "scene": "見覚えのある航路",
+    "line": "この航路、覚えてる。テストで飛んだ場所だったかな。",
+    "enabled": true
+  },
+  {
+    "trigger": "powMemory",
+    "portrait": "normal-02",
+    "scene": "PAWに頭をぶつけた記憶",
+    "line": "あの角、また思い出した。安心する形なのに、頭には優しくない。",
+    "enabled": true
+  },
+  {
+    "trigger": "cargoLost",
+    "portrait": "normal-02",
+    "scene": "パーツを取り逃す",
+    "line": "あ、流れていった。……今のは拾えると思ったんだけど。",
+    "enabled": true
+  },
+  {
+    "trigger": "repeatedFormation",
+    "portrait": "normal-02",
+    "scene": "再び同じ敵が出現",
+    "line": "またこの編隊。別のテスト項目はないの？",
+    "enabled": true
+  },
+  {
+    "trigger": "nebulaInterrupted",
+    "portrait": "normal-02",
+    "scene": "休息を敵に遮られる",
+    "line": "星雲、もう少し見たかったのに。……はいはい、戦闘ね。",
+    "enabled": true
+  },
+  {
+    "trigger": "upgradedTrial",
+    "portrait": "normal-04",
+    "scene": "強化後の試射",
+    "line": "うん、この応答ならいける。狙いを少し変えてみよう。",
+    "enabled": true
+  },
+  {
+    "trigger": "knownFormation",
+    "portrait": "normal-04",
+    "scene": "既知の敵編隊",
+    "line": "この編隊は覚えた。正面を空けて、横から抜ける。",
+    "enabled": true
+  },
+  {
+    "trigger": "previousHitPosition",
+    "portrait": "normal-04",
+    "scene": "前回の被弾地点",
+    "line": "前はここで当たった。今回は、同じようには飛ばない。",
+    "enabled": false
+  },
+  {
+    "trigger": "coreApproach",
+    "portrait": "normal-04",
+    "scene": "コアへ接近",
+    "line": "まだ正体は分からない。でも、調べる場所は決まった。",
+    "enabled": true
+  },
+  {
+    "trigger": "intenseBattle",
+    "portrait": "yatta-01",
+    "scene": "激しい戦闘を突破",
+    "line": "……抜けた。今のは、少し肩に力が入った。",
+    "enabled": true
+  },
+  {
+    "trigger": "diffusionBreak",
+    "portrait": "yatta-01",
+    "scene": "拡散波動砲で包囲を崩す",
+    "line": "一度に崩せた。待って撃った甲斐はあったね。",
+    "enabled": true
+  },
+  {
+    "trigger": "baseCleared",
+    "portrait": "yatta-01",
+    "scene": "基地の防衛線を突破",
+    "line": "ここまで来られた。装甲も残ってる。上出来かな。",
+    "enabled": true
+  },
+  {
+    "trigger": "previousFailureCleared",
+    "portrait": "yatta-01",
+    "scene": "前回失敗した区間を突破",
+    "line": "今度は通れた。覚えていたこと、無駄じゃなかった。",
+    "enabled": false
+  },
+  {
+    "trigger": "damagedKill",
+    "portrait": "yatta-02",
+    "scene": "損傷状態で敵を撃破",
+    "line": "……止まった。こっちも止まるところだったけど。",
+    "enabled": true
+  },
+  {
+    "trigger": "passageEscape",
+    "portrait": "yatta-02",
+    "scene": "狭い通路を脱出",
+    "line": "抜けた……。機体の幅、もう少し信用してもよかったね。",
+    "enabled": false
+  },
+  {
+    "trigger": "longBattle",
+    "portrait": "yatta-02",
+    "scene": "長い戦闘が終了",
+    "line": "これで、この区間は終わり。少しだけ手を休めよう。",
+    "enabled": true
+  },
+  {
+    "trigger": "bossDefeated",
+    "portrait": "yatta-02",
+    "scene": "ボス撃破",
+    "line": "倒せた。……次は、元の場所に戻らずに済むといいけど。",
+    "enabled": true
+  },
+  {
+    "trigger": "diffusionClear",
+    "portrait": "yatta-03",
+    "scene": "拡散波動砲で一掃",
+    "line": "見て、エンジェルさん。今の、きれいに決まった。",
+    "enabled": true
+  },
+  {
+    "trigger": "dangerPassed",
+    "portrait": "yatta-03",
+    "scene": "危険な区間を突破",
+    "line": "やったね。……私ひとりで喜ぶより、この方がいい。",
+    "enabled": true
+  },
+  {
+    "trigger": "upgradedFirstWin",
+    "portrait": "yatta-03",
+    "scene": "強化した機体で初勝利",
+    "line": "新しい装備、合ってたね。もう少し頼らせてもらおう。",
+    "enabled": true
+  },
+  {
+    "trigger": "newRecord",
+    "portrait": "yatta-03",
+    "scene": "前回より先へ進む",
+    "line": "エンジェルさん、ここから先は初めて。やっと続きを見られるね。",
+    "enabled": false
+  },
+  {
+    "trigger": "equipmentCollected",
+    "portrait": "yatta-04",
+    "scene": "強化パーツ取得",
+    "line": "これ、欲しかった。さっきの敵にも、もう少し余裕が持てそう。",
+    "enabled": true
+  },
+  {
+    "trigger": "powReunion",
+    "portrait": "yatta-04",
+    "scene": "PAWと再会",
+    "line": "また会えた。……今日は頭をぶつけない距離でよろしく。",
+    "enabled": true
+  },
+  {
+    "trigger": "dashEvaded",
+    "portrait": "yatta-04",
+    "scene": "スラスターで回避成功",
+    "line": "スラスター、いい感じ。同じ名前だと、少し贔屓しちゃうね。",
+    "enabled": true
+  },
+  {
+    "trigger": "nebulaAfterBattle",
+    "portrait": "yatta-04",
+    "scene": "戦闘後に星雲を見る",
+    "line": "まだ見える。戦っている間に、通り過ぎたかと思った。",
+    "enabled": true
+  },
+  {
+    "trigger": "smallCollected",
+    "portrait": "yatta-05",
+    "scene": "小さなパーツを回収",
+    "line": "拾えた。こういう小さいの、見落とさずに済むと嬉しい。",
+    "enabled": true
+  },
+  {
+    "trigger": "cleanSegment",
+    "portrait": "yatta-05",
+    "scene": "被弾せず短い区間を通過",
+    "line": "今のところ、傷なし。……言った途端に当たらないでね。",
+    "enabled": true
+  },
+  {
+    "trigger": "powNearby",
+    "portrait": "yatta-05",
+    "scene": "PAWが近くを通る",
+    "line": "あ、その角度。ちょっと間抜けで、好き。",
+    "enabled": true
+  },
+  {
+    "trigger": "quietFlight",
+    "portrait": "yatta-05",
+    "scene": "静かな飛行が続く",
+    "line": "さっきより落ち着いた。景色を見る余裕も戻ってきたね。",
+    "enabled": true
+  },
+  {
+    "trigger": "pawAssist",
+    "portrait": "yatta-06",
+    "scene": "PAWの援護が有効に働く",
+    "line": "その見た目で、ちゃんと頼れるんだ。……やるね。",
+    "enabled": true
+  },
+  {
+    "trigger": "equipmentEffective",
+    "portrait": "yatta-06",
+    "scene": "強化装備の威力を確認",
+    "line": "思ったより効く。拾っておいて正解だった。",
+    "enabled": true
+  },
+  {
+    "trigger": "fastResponse",
+    "portrait": "yatta-06",
+    "scene": "機体が素早く応答",
+    "line": "今の操作についてくるんだ。まだ余裕がありそうね。",
+    "enabled": true
+  },
+  {
+    "trigger": "enemyDodged",
+    "portrait": "yatta-06",
+    "scene": "敵がこちらの攻撃を回避",
+    "line": "今のを避けるんだ。……次は、同じ撃ち方じゃ駄目か。",
+    "enabled": false
+  },
+  {
+    "trigger": "pawRevisited",
+    "portrait": "bikkuri-01",
+    "scene": "同じ場所でPAWを発見",
+    "line": "あれ。この場所で会うの、初めてじゃないよね。",
+    "enabled": true
+  },
+  {
+    "trigger": "partRevisited",
+    "portrait": "bikkuri-01",
+    "scene": "見覚えのあるパーツ配置",
+    "line": "このパーツ、前もここに……。拾ったところまで覚えてる。",
+    "enabled": false
+  },
+  {
+    "trigger": "enemyPremonition",
+    "portrait": "bikkuri-01",
+    "scene": "敵の出現直前",
+    "line": "次は右から来る気がする。……どうして分かるんだろう。",
+    "enabled": false
+  },
+  {
+    "trigger": "nebulaRevisited",
+    "portrait": "bikkuri-01",
+    "scene": "同じ星雲を見る",
+    "line": "あの星雲、さっき通り過ぎなかった？",
+    "enabled": true
+  },
+  {
+    "trigger": "pawCloseLook",
+    "portrait": "bikkuri-02",
+    "scene": "PAWを間近で見る",
+    "line": "え、その顔みたいなところ、そんなふうになってたの？",
+    "enabled": true,
+    "event": "powNearby"
+  },
+  {
+    "trigger": "equipmentAppearance",
+    "portrait": "bikkuri-02",
+    "scene": "パーツ取得で外見が変化",
+    "line": "あ、見た目まで変わるんだ。ちょっと立派になったね。",
+    "enabled": true,
+    "event": "installedEquipment"
+  },
+  {
+    "trigger": "strongAcceleration",
+    "portrait": "bikkuri-02",
+    "scene": "スラスターの強い加速",
+    "line": "わ、速い。名前が同じでも、私はそこまでせっかちじゃないよ。",
+    "enabled": true,
+    "event": "fastResponse"
+  },
+  {
+    "trigger": "nebulaExpanded",
+    "portrait": "bikkuri-02",
+    "scene": "星雲が大きく広がる",
+    "line": "わ……こんなに広かったんだ。遠くからじゃ分からなかった。",
+    "enabled": false
+  },
+  {
+    "trigger": "cargoMissedTurn",
+    "portrait": "bikkuri-03",
+    "scene": "パーツを取り逃す",
+    "line": "あ……今の、少し早く曲がりすぎた。",
+    "enabled": true,
+    "event": "cargoLost"
+  },
+  {
+    "trigger": "waveTooEarly",
+    "portrait": "bikkuri-03",
+    "scene": "波動砲の射機を逃す",
+    "line": "撃つのが早かった。もう少し引きつければよかったね。",
+    "enabled": false
+  },
+  {
+    "trigger": "pawDistractedCollision",
+    "portrait": "bikkuri-03",
+    "scene": "PAWに気を取られて接触",
+    "line": "そっち見てた……。頭だけじゃなく、機体までぶつけるとは。",
+    "enabled": false
+  },
+  {
+    "trigger": "memoryEvasionFailed",
+    "portrait": "bikkuri-03",
+    "scene": "記憶頼みの回避に失敗",
+    "line": "前と同じだと思った。……見てから動くべきだった。",
+    "enabled": false
+  },
+  {
+    "trigger": "routeReturned",
+    "portrait": "bikkuri-04",
+    "scene": "同じ航路へ戻る",
+    "line": "……ここ、通ったね。曲がったつもりだったんだけど。",
+    "enabled": true,
+    "event": "familiarRoute"
+  },
+  {
+    "trigger": "similarEnemy",
+    "portrait": "bikkuri-04",
+    "scene": "撃破した敵に似た個体が出現",
+    "line": "同じ形。同じ位置。……別の個体、なのかな。",
+    "enabled": false
+  },
+  {
+    "trigger": "partMemoryMismatch",
+    "portrait": "bikkuri-04",
+    "scene": "記憶とパーツ配置が食い違う",
+    "line": "ここにあるはずだった。記憶の方が違う？",
+    "enabled": false
+  },
+  {
+    "trigger": "bossSpaceOdd",
+    "portrait": "bikkuri-04",
+    "scene": "ボス付近の空間に違和感",
+    "line": "……距離が掴めない。画面の異常だけならいいけど。",
+    "enabled": false
+  },
+  {
+    "trigger": "unknownPart",
+    "portrait": "bikkuri-05",
+    "scene": "未知のパーツ発見",
+    "line": "これ、何の部品？　取り付け口は合いそうだけど。",
+    "enabled": true
+  },
+  {
+    "trigger": "possessedObject",
+    "portrait": "bikkuri-05",
+    "scene": "無機物に取り憑いた敵を見る",
+    "line": "こんなものまで取り込むの？　どこまでが本体なの。",
+    "enabled": false
+  },
+  {
+    "trigger": "enemyStrangeMovement",
+    "portrait": "bikkuri-05",
+    "scene": "敵の不可解な移動",
+    "line": "今、どこを通った？　こっちからは道が見えなかった。",
+    "enabled": false
+  },
+  {
+    "trigger": "coreAnomaly",
+    "portrait": "bikkuri-05",
+    "scene": "コア付近で異常が起きる",
+    "line": "この反応、何を示してるの？　知ってる警告と違う。",
+    "enabled": false
+  },
+  {
+    "trigger": "largeHit",
+    "portrait": "itai-01",
+    "scene": "大きな被弾",
+    "line": "っ……息が、うまく……。まず、射線の外へ。",
+    "enabled": true
+  },
+  {
+    "trigger": "armConnectionFailure",
+    "portrait": "itai-01",
+    "scene": "腕の接続部に異常",
+    "line": "腕が……操作と、ずれてる。力を入れても駄目か。",
+    "enabled": false
+  },
+  {
+    "trigger": "consecutiveHits",
+    "portrait": "itai-01",
+    "scene": "連続被弾",
+    "line": "痛覚、落として……。警告は、消さないで。",
+    "enabled": true
+  },
+  {
+    "trigger": "testPainMemory",
+    "portrait": "itai-01",
+    "scene": "過去のテストと似た被弾",
+    "line": "この痛みまで、覚えてる……。今も、テストなの……？",
+    "enabled": false
+  },
+  {
+    "trigger": "controllableHit",
+    "portrait": "itai-02",
+    "scene": "被弾後も操縦可能",
+    "line": "ぐ……動く。なら、まだ抜けられる。",
+    "enabled": true
+  },
+  {
+    "trigger": "chargingHit",
+    "portrait": "itai-02",
+    "scene": "波動砲充填中に被弾",
+    "line": "あと少し……。ここで撃ち損ねる方が、痛い。",
+    "enabled": true
+  },
+  {
+    "trigger": "samePlaceHit",
+    "portrait": "itai-02",
+    "scene": "前回と同じ場所で被弾",
+    "line": "またここ……。でも、今度はその先まで行く。",
+    "enabled": false
+  },
+  {
+    "trigger": "coreBattleHit",
+    "portrait": "itai-02",
+    "scene": "コアとの戦闘中",
+    "line": "まだ意識はある。あなたの動きも、ちゃんと見てる。",
+    "enabled": true
+  },
+  {
+    "trigger": "encircled",
+    "portrait": "huan-01",
+    "scene": "包囲される",
+    "line": "出口が狭くなってる。……まだ、一機分はある。",
+    "enabled": true
+  },
+  {
+    "trigger": "damagedReinforcements",
+    "portrait": "huan-01",
+    "scene": "損傷と敵の増援",
+    "line": "この状態で、まだ来るの。少し間を空けてほしいんだけど。",
+    "enabled": true
+  },
+  {
+    "trigger": "escapeBlocked",
+    "portrait": "huan-01",
+    "scene": "慣れた回避先を塞がれる",
+    "line": "そっちまで来る？　さっきは空いてたのに。",
+    "enabled": false
+  },
+  {
+    "trigger": "bossApproachBlocked",
+    "portrait": "huan-01",
+    "scene": "ボスに接近できない",
+    "line": "近づいてるはずなのに、距離が縮まらない……。",
+    "enabled": false
+  },
+  {
+    "trigger": "quietUnease",
+    "portrait": "huan-02",
+    "scene": "静かな航路が続く",
+    "line": "静かだね。……こういう時に来るんだったかな。",
+    "enabled": true,
+    "event": "quietFlight"
+  },
+  {
+    "trigger": "unknownInstalled",
+    "portrait": "huan-02",
+    "scene": "未知の装備を取り付ける",
+    "line": "接続はできた。動かして大丈夫かは、これからね。",
+    "enabled": true
+  },
+  {
+    "trigger": "pawLostSight",
+    "portrait": "huan-02",
+    "scene": "PAWが見えなくなる",
+    "line": "あの子、先に行った？　近くにいないと、少し落ち着かない。",
+    "enabled": true
+  },
+  {
+    "trigger": "memoryAnticipates",
+    "portrait": "huan-02",
+    "scene": "記憶が先行する",
+    "line": "次の敵まで思い出せそう。……思い出す、でいいのかな。",
+    "enabled": false
+  },
+  {
+    "trigger": "postBattleCheck",
+    "portrait": "huan-03",
+    "scene": "戦闘後の点検",
+    "line": "警告は消えた。念のため、腕の応答も確かめておこう。",
+    "enabled": true
+  },
+  {
+    "trigger": "sameScenery",
+    "portrait": "huan-03",
+    "scene": "同じ景色を通過",
+    "line": "似た場所はある。でも、ここまで同じだと気になるね。",
+    "enabled": true,
+    "event": "familiarRoute"
+  },
+  {
+    "trigger": "angelMonologue",
+    "portrait": "huan-03",
+    "scene": "エンジェルさんへの独り言",
+    "line": "私、さっきも同じこと言ったかな。自分の声まで聞き覚えがある。",
+    "enabled": true
+  },
+  {
+    "trigger": "bossReactionAgain",
+    "portrait": "huan-03",
+    "scene": "再びボスの反応",
+    "line": "この反応、覚えてる。近づく前に、周りを見ておきたい。",
+    "enabled": true
+  },
+  {
+    "trigger": "sameEventOrder",
+    "portrait": "huan-04",
+    "scene": "同じ出来事が同じ順で起きる",
+    "line": "パーツも、敵も、同じ順番。見覚えだけじゃ説明できない。",
+    "enabled": false
+  },
+  {
+    "trigger": "enemyPreShotDodge",
+    "portrait": "huan-04",
+    "scene": "敵が射撃前に回避する",
+    "line": "まだ撃ってないのに避けた。……今のは見間違いじゃない。",
+    "enabled": false
+  },
+  {
+    "trigger": "forcedRouteReturn",
+    "portrait": "huan-04",
+    "scene": "航路が元に戻る",
+    "line": "別の進路を選んだ。それでも、ここに戻された。",
+    "enabled": false
+  },
+  {
+    "trigger": "bossSpaceWarp",
+    "portrait": "huan-04",
+    "scene": "ボス付近だけ空間が歪む",
+    "line": "近づくほど景色が歪む。異常が起きてるのは、あいつの周囲だ。",
+    "enabled": false
+  },
+  {
+    "trigger": "unansweredMemory",
+    "portrait": "kanashi-01",
+    "scene": "返事のない呼びかけの後",
+    "line": "初めてエンジェルさんって呼んだ時も、こんな静けさだったね。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "flightStart",
+      "angelMonologue"
+    ]
+  },
+  {
+    "trigger": "testConversationMemory",
+    "portrait": "kanashi-01",
+    "scene": "過去のテストを思い出す",
+    "line": "テストの後も、あなたに話してた気がする。誰かに聞いてほしかったのかな。",
+    "enabled": true,
+    "ambient": true,
+    "event": "monologueMemory"
+  },
+  {
+    "trigger": "aloneAfterBattle",
+    "portrait": "kanashi-01",
+    "scene": "戦闘後に独りになる",
+    "line": "帰ったら話そうって思って……もう、ここで全部話してるね。",
+    "enabled": true,
+    "ambient": true,
+    "event": "quietAfterBattle"
+  },
+  {
+    "trigger": "repeatedFlightMemory",
+    "portrait": "kanashi-01",
+    "scene": "同じ飛行を繰り返す",
+    "line": "私は少しずつ覚えてる。あなたには、何回目でも同じなのかな。",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "rememberHands",
+    "portrait": "kanashi-02",
+    "scene": "自分の手を見る",
+    "line": "この指にも慣れたね。前の手の感触、少し思い出しにくい。",
+    "enabled": true,
+    "ambient": true,
+    "event": "monologueLimbs"
+  },
+  {
+    "trigger": "quietNebulaSad",
+    "portrait": "kanashi-02",
+    "scene": "静かな星雲を見る",
+    "line": "誰かと見てたら、黙ってても違う感じがするのかな。",
+    "enabled": true,
+    "ambient": true,
+    "event": "nebulaVisible"
+  },
+  {
+    "trigger": "battleReturnsSad",
+    "portrait": "kanashi-02",
+    "scene": "同じ戦闘へ戻る",
+    "line": "やっと抜けたと思ったのに。……少し、休みたかった。",
+    "enabled": true,
+    "ambient": true,
+    "event": "repeatedFormation"
+  },
+  {
+    "trigger": "weaponCreators",
+    "portrait": "kanashi-02",
+    "scene": "人類が生んだ兵器を思う",
+    "line": "これを作った人も、どこかに帰りたかったのかな。",
+    "enabled": true,
+    "ambient": true,
+    "event": "monologueHuman"
+  },
+  {
+    "trigger": "battleHabit",
+    "portrait": "kanashi-03",
+    "scene": "戦闘が日常になっていると気づく",
+    "line": "敵が来ないと、次を待ってしまう。……変な慣れ方をしたね。",
+    "enabled": true,
+    "ambient": true,
+    "event": "battleHabit"
+  },
+  {
+    "trigger": "pawLeavesSad",
+    "portrait": "kanashi-03",
+    "scene": "PAWが去っていく",
+    "line": "見えなくなると、静かだね。さっきまで少し邪魔だったのに。",
+    "enabled": true,
+    "ambient": true,
+    "event": "pawLostSight"
+  },
+  {
+    "trigger": "nebulaPassed",
+    "portrait": "kanashi-03",
+    "scene": "星雲を通り過ぎる",
+    "line": "もう遠くなった。きれいなところは、すぐ通り過ぎるね。",
+    "enabled": true,
+    "ambient": true
+  },
+  {
+    "trigger": "unchangingFace",
+    "portrait": "kanashi-03",
+    "scene": "自分の姿を思う",
+    "line": "十六の顔のまま、また記憶が増えた。顔には出ないものね。",
+    "enabled": true,
+    "ambient": true,
+    "event": "monologueAge"
+  },
+  {
+    "trigger": "noticedAngelCall",
+    "portrait": "tereru-01",
+    "scene": "エンジェルさんへの呼びかけを自覚",
+    "line": "今の、相談するみたいに言っちゃったね。……ひとりだと、つい。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "flightStart",
+      "angelMonologue"
+    ]
+  },
+  {
+    "trigger": "pawReunionShy",
+    "portrait": "tereru-01",
+    "scene": "PAWとの再会を喜びすぎる",
+    "line": "会えて嬉しい、は少し大げさか。……でも、間違ってはいないよ。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "powReunion"
+    ]
+  },
+  {
+    "trigger": "thrusterFavorShy",
+    "portrait": "tereru-01",
+    "scene": "スラスターへの贔屓を自覚",
+    "line": "名前が同じだから好きって、選ぶ理由としては単純すぎるかな。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "dashEvaded",
+      "strongAcceleration"
+    ]
+  },
+  {
+    "trigger": "victoryShy",
+    "portrait": "tereru-01",
+    "scene": "撃破後に得意になる",
+    "line": "今のは、ちょっと見ていてほしかった。……言うほどでもないけど。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "diffusionClear",
+      "upgradedFirstWin",
+      "intenseBattle"
+    ]
+  },
+  {
+    "trigger": "pawCute",
+    "portrait": "tereru-02",
+    "scene": "PAWを眺める",
+    "line": "……かわいいね。頭をぶつけたことは、まだ許してないけど。",
+    "enabled": true,
+    "ambient": true,
+    "event": "powNearby"
+  },
+  {
+    "trigger": "angelThanks",
+    "portrait": "tereru-02",
+    "scene": "エンジェルさんに感謝する",
+    "line": "いつも助かってるよ。……急に言うと、私の方が落ち着かないね。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "pawAssist",
+      "dangerPassed"
+    ]
+  },
+  {
+    "trigger": "nebulaTogether",
+    "portrait": "tereru-02",
+    "scene": "星雲を一緒に見る気分になる",
+    "line": "隣に誰かいるつもりで見てた。相手が計算中でも、まあいいか。",
+    "enabled": true,
+    "ambient": true,
+    "event": "nebulaVisible"
+  },
+  {
+    "trigger": "smallSuccessSmile",
+    "portrait": "tereru-02",
+    "scene": "小さな成功を喜ぶ",
+    "line": "今、少し笑った。……この程度でって、自分でも思うけど。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "smallCollected",
+      "cleanSegment"
+    ]
+  },
+  {
+    "trigger": "talkedTooMuch",
+    "portrait": "tereru-03",
+    "scene": "戦闘後に話しすぎたと気づく",
+    "line": "私、こんなに喋る方だったかな。エンジェルさん相手だと、どうもね。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "aloneAfterBattle",
+      "quietAfterBattle"
+    ]
+  },
+  {
+    "trigger": "thrusterNamesake",
+    "portrait": "tereru-03",
+    "scene": "スラスターで気分よく飛ぶ",
+    "line": "同じ名前のよしみで、よろしく。……一度言ってみたかっただけ。",
+    "enabled": true,
+    "ambient": true,
+    "event": "fastResponse"
+  },
+  {
+    "trigger": "waitingForPaw",
+    "portrait": "tereru-03",
+    "scene": "PAWを待っている自分に気づく",
+    "line": "あの形を探してた。もう、ずいぶん気に入ってるみたい。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "pawLostSight",
+      "pawLeavesSad"
+    ]
+  },
+  {
+    "trigger": "weaknessRecorded",
+    "portrait": "tereru-03",
+    "scene": "エンジェルさんに弱音を吐いた後",
+    "line": "さっきの弱音、記録には残るんだよね。……少し恥ずかしいな。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "damagedReinforcements",
+      "encircled",
+      "largeHit",
+      "consecutiveHits"
+    ]
+  },
+  {
+    "trigger": "waitingAngelReply",
+    "portrait": "nayamu-01",
+    "scene": "エンジェルさんに返答を期待しかける",
+    "line": "今、返事を待っちゃった。……分かってるんだけど、話し相手がほしくて。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "flightStart",
+      "angelMonologue"
+    ]
+  },
+  {
+    "trigger": "pawAttachment",
+    "portrait": "nayamu-01",
+    "scene": "PAWへの愛着に気づく",
+    "line": "あの子までテストのイメージだったら……。気に入った分、困るね。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "powReunion",
+      "pawReunionShy"
+    ]
+  },
+  {
+    "trigger": "nebulaReality",
+    "portrait": "nayamu-01",
+    "scene": "星雲の現実性を疑う",
+    "line": "本物だったらいいなって、景色にまで頼んでる。少し疲れてるのかな。",
+    "enabled": true,
+    "ambient": true,
+    "event": "nebulaVisible"
+  },
+  {
+    "trigger": "monologueDoubt",
+    "portrait": "nayamu-01",
+    "scene": "自分の独り言に不安を覚える",
+    "line": "また同じ話をしてた？　話す癖なのか、繰り返してるのか……。",
+    "enabled": true,
+    "ambient": true,
+    "after": [
+      "angelMonologue"
+    ],
+    "minimumParentUses": 2
+  },
+  {
+    "trigger": "testBattleDoubt",
+    "portrait": "nayamu-02",
+    "scene": "テストの記憶と一致する",
+    "line": "テストを思い出してるだけ？　それとも、あれも同じ戦闘だった？",
+    "enabled": true,
+    "ambient": true,
+    "event": "monologueMemory"
+  },
+  {
+    "trigger": "enemyAdaptsDoubt",
+    "portrait": "nayamu-02",
+    "scene": "敵の行動が変わる",
+    "line": "私が撃ち方を変えたら、向こうも変えた。偶然、なのかな。",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "enemiesLoopDoubt",
+    "portrait": "nayamu-02",
+    "scene": "装備だけでなく敵もループする",
+    "line": "私だけが繰り返してると思ってた。敵も覚えているとしたら……。",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "bossAnomaliesDoubt",
+    "portrait": "nayamu-02",
+    "scene": "ボス付近に異常が集中する",
+    "line": "航路がおかしくなるの、あいつに近づいてからだよね。",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "enemyRemembersAttack",
+    "portrait": "nayamu-03",
+    "scene": "敵が以前の攻撃に対処する",
+    "line": "前の攻撃を知ってるみたい。同じ敵と、もう一度戦ってるの？",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "spaceReturnsDoubt",
+    "portrait": "nayamu-03",
+    "scene": "進路を変えても戻される",
+    "line": "進路の間違いじゃない。この空間そのものが、戻ってる？",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "bossBendsDimension",
+    "portrait": "nayamu-03",
+    "scene": "ボスとループの関係を疑う",
+    "line": "このループ……あなたが次元を曲げてるの？",
+    "enabled": false,
+    "ambient": true
+  },
+  {
+    "trigger": "investigateCore",
+    "portrait": "nayamu-03",
+    "scene": "コアへ向かう決意",
+    "line": "あのコアが原因か、まだ分からない。だから、そこまで行って確かめる。",
+    "enabled": true,
+    "ambient": true,
+    "event": "coreApproach"
+  },
+  {
+    "trigger": "pawKillJoy",
+    "portrait": "yatta-03",
+    "scene": "PAWの援護で敵を撃破",
+    "line": "エンジェルさん、見た？　あの子とタイミング合っちゃった。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": false
+  },
+  {
+    "trigger": "iceFoundJoy",
+    "portrait": "yatta-03",
+    "scene": "氷を発見",
+    "line": "氷、見つけた。補給に使えそうなら、今日はちょっと助かるね。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true
+  },
+  {
+    "trigger": "hardSectionJoy",
+    "portrait": "yatta-03",
+    "scene": "難しい区間を突破",
+    "line": "やったね、エンジェルさん。ご褒美、二人分ほしいところだけど。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "dangerPassed"
+  },
+  {
+    "trigger": "smoothThrusterJoy",
+    "portrait": "yatta-04",
+    "scene": "スラスターで滑らかに移動",
+    "line": "スラスター、今日もいい調子。名前を呼ぶと、私まで褒められてる気がする。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "fastResponse"
+  },
+  {
+    "trigger": "pawStroll",
+    "portrait": "yatta-04",
+    "scene": "PAWと並んで飛行",
+    "line": "そのまま、もう少し一緒に飛ぼう。……なんだか散歩みたい。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true
+  },
+  {
+    "trigger": "nebulaBlanket",
+    "portrait": "yatta-04",
+    "scene": "星雲の近くを通る",
+    "line": "あの色の毛布、あったらいいな。帰ったら探してみようかな。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "nebulaVisible"
+  },
+  {
+    "trigger": "waterComfort",
+    "portrait": "yatta-05",
+    "scene": "補給を終えた後",
+    "line": "水があるって、安心するね。飲む分は、ちゃんと残しておこう。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "pawAssist"
+    ]
+  },
+  {
+    "trigger": "quietHumming",
+    "portrait": "yatta-05",
+    "scene": "静かな飛行中",
+    "line": "今日の鼻歌、まだ一度もつっかえてない。操縦もこうだといいんだけど。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "brightIdle"
+  },
+  {
+    "trigger": "catStillSeen",
+    "portrait": "yatta-05",
+    "scene": "猫に似た星雲を見る",
+    "line": "さっきの猫、まだ見える。ちゃんとこっち向いてる……気がする。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "catCloudDiscovery"
+    ],
+    "requires": "catVisible"
+  },
+  {
+    "trigger": "pawAttackSurprise",
+    "portrait": "bikkuri-02",
+    "scene": "PAWが敵を攻撃",
+    "line": "えっ、PAWも一緒に戦ってる！？　うそ、そんなに頼れる子だったの？",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": false
+  },
+  {
+    "trigger": "angelAgeFile",
+    "portrait": "bikkuri-02",
+    "scene": "エンジェルパックの資料を見る",
+    "line": "エンジェルさん、私と同い年なんだってね。……え、同い年？",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true
+  },
+  {
+    "trigger": "catCloudDiscovery",
+    "portrait": "bikkuri-02",
+    "scene": "星雲の形に気づく",
+    "line": "あ、猫！　耳もある。……もう猫にしか見えない。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "requires": "catCandidate"
+  },
+  {
+    "trigger": "iceWaterQuestion",
+    "portrait": "bikkuri-05",
+    "scene": "氷のある宙域を飛行",
+    "line": "この氷、溶かせば飲めるのかな。……透明でも、駄目なものは駄目か。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "iceFoundJoy"
+    ],
+    "requires": "iceVisible"
+  },
+  {
+    "trigger": "pawFacingQuestion",
+    "portrait": "bikkuri-05",
+    "scene": "PAWの動きを眺める",
+    "line": "どっちが前なんだろう。さっきから、私が顔だと思ってる方が後ろかも。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "powNearby"
+  },
+  {
+    "trigger": "angelBirthdayQuestion",
+    "portrait": "bikkuri-05",
+    "scene": "エンジェルさんと同い年だと知った後",
+    "line": "誕生日も記録にあるのかな。同い年なら、私とどっちがお姉さん？",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "angelAgeFile"
+    ],
+    "requires": "ageKnown"
+  },
+  {
+    "trigger": "angelPeerFriendly",
+    "portrait": "tereru-01",
+    "scene": "同い年のエンジェルさんに話しかける",
+    "line": "同い年って分かったら、少し話しやすいね。……もともと、よく喋ってたけど。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "angelBirthdayQuestion"
+    ],
+    "requires": "ageKnown"
+  },
+  {
+    "trigger": "pawCheerShy",
+    "portrait": "tereru-01",
+    "scene": "PAWを応援した後",
+    "line": "今、『がんばれ』って言っちゃった。動きを見てたら、つい。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "pawAttackSurprise",
+      "pawKillJoy"
+    ]
+  },
+  {
+    "trigger": "hummingShy",
+    "portrait": "tereru-01",
+    "scene": "鼻歌が少し大きくなる",
+    "line": "……今の歌、そこだけ録音しないで。音を外したの、自分でも分かった。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "quietHumming"
+    ]
+  },
+  {
+    "trigger": "pawPetShy",
+    "portrait": "tereru-02",
+    "scene": "PAWが近くを飛ぶ",
+    "line": "そんな近くに来ると、撫でたくなるね。……窓、開かないけど。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "powNearby"
+  },
+  {
+    "trigger": "nebulaRoom",
+    "portrait": "tereru-02",
+    "scene": "星雲を部屋に見立てる",
+    "line": "あの色の毛布に、猫のクッション。……部屋の話、ちょっと続けていい？",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "nebulaBlanket",
+      "catStillSeen"
+    ],
+    "requires": "roomReady"
+  },
+  {
+    "trigger": "angelNickname",
+    "portrait": "tereru-02",
+    "scene": "エンジェルさんへの呼び方を考える",
+    "line": "同い年なら、エンジェルちゃん？　……ううん、やっぱりエンジェルさん。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "angelPeerFriendly"
+    ],
+    "requires": "ageKnown"
+  },
+  {
+    "trigger": "evasionSelfPraise",
+    "portrait": "tereru-03",
+    "scene": "うまく回避できた後",
+    "line": "スー、いい調子。……今のは褒めておこう。こういうの、言い慣れてないし。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "dashEvaded"
+  },
+  {
+    "trigger": "returnDayOff",
+    "portrait": "tereru-03",
+    "scene": "帰還後の予定を考える",
+    "line": "帰ったら、何もしない日を作りたい。お菓子だけは、先に用意して。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "event": "brightIdle"
+  },
+  {
+    "trigger": "angelPastFriend",
+    "portrait": "tereru-03",
+    "scene": "エンジェルさんの昔を想像する",
+    "line": "どこかですれ違ってたら、友達になれたかな。……同い年ってだけで、気が早いね。",
+    "enabled": true,
+    "tone": "bright",
+    "ambient": true,
+    "after": [
+      "angelNickname"
+    ],
+    "requires": "ageKnown"
+  },
+  {
+    "trigger": "mossDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "苔状の合体敵を発見",
+    "line": "こんな敵いたんだ…",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "snakeDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "蛇型の合体敵を発見",
+    "line": "なにこれっ、ふたつの頭があるヘビ？？PAWが捕まってるしなんなの！？",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "crabDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "蟹型の合体敵を発見",
+    "line": "これはカニ？？こんなの見たらトラウマになっちゃう！？",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "giantBydoSignal",
+    "portrait": "bikkuri-02",
+    "scene": "巨大反応に接近",
+    "line": "高バイド係数感知、何かいる！",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "giantCodeRed",
+    "portrait": "bikkuri-02",
+    "scene": "巨大反応の近傍",
+    "line": "バイドの反応を確認…コード赤、巨大バイドの反応あり…",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "berserkDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "暴走敵を発見",
+    "line": "なにこいつら、変な動き、気持ち悪い…",
+    "enabled": true,
+    "ambient": false,
+    "requires": "berserkVisible"
+  },
+  {
+    "trigger": "berserkInfighting",
+    "portrait": "bikkuri-02",
+    "scene": "敵同士の交戦を確認",
+    "line": "味方同士で戦ってるよ、こんなのデータには…",
+    "enabled": true,
+    "ambient": false,
+    "requires": "berserkVisible"
+  },
+  {
+    "trigger": "centipedeDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "ムカデを発見",
+    "line": "長くて厄介、こいつら一体なにと融合したのよ",
+    "enabled": true,
+    "ambient": false,
+    "requires": "centipedeVisible"
+  },
+  {
+    "trigger": "centipedeDread",
+    "portrait": "bikkuri-02",
+    "scene": "ムカデとの交戦が続く",
+    "line": "惑星サイズのムカデなんて考えたくなかったわ…",
+    "enabled": true,
+    "ambient": false,
+    "requires": "centipedeVisible"
+  },
+  {
+    "trigger": "scorpionDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "サソリを発見",
+    "line": "ひえっ…エンジェルさん助けて…",
+    "enabled": true,
+    "ambient": false,
+    "requires": "scorpionVisible"
+  },
+  {
+    "trigger": "scorpionFear",
+    "portrait": "bikkuri-02",
+    "scene": "サソリとの交戦が続く",
+    "line": "触手は大丈夫なのに、虫は苦手なの…",
+    "enabled": true,
+    "ambient": false,
+    "requires": "scorpionVisible"
+  },
+  {
+    "trigger": "homeworldAway",
+    "portrait": "normal-04",
+    "scene": "本星から離れる",
+    "line": "本星の反応が遠ざかってる。……進路を確認しよう。",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "homeworldAwayReturn",
+    "portrait": "normal-04",
+    "scene": "本星から離れる",
+    "line": "この方向だと、本星から離れてしまう。戻るなら、今のうちね。",
+    "enabled": true,
+    "ambient": false,
+    "event": "homeworldAway"
+  },
+  {
+    "trigger": "objectiveAway",
+    "portrait": "normal-04",
+    "scene": "目的地から離れる",
+    "line": "目標との距離が開いてる。……一度、向きを整えよう。",
+    "enabled": true,
+    "ambient": false
+  },
+  {
+    "trigger": "objectiveAwayReturn",
+    "portrait": "normal-04",
+    "scene": "目的地から離れる",
+    "line": "追う相手は、あの反応。見失う前に、進路を戻す。",
+    "enabled": true,
+    "ambient": false,
+    "event": "objectiveAway"
+  },
+  {
+    "trigger": "berserkFriendlyWarning",
+    "portrait": "bikkuri-04",
+    "line": "……そっちにも撃つの？　味方、いるよね。",
+    "scene": "berserkとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "berserkVisible"
+  },
+  {
+    "trigger": "berserkStrayWarning",
+    "portrait": "bikkuri-04",
+    "line": "動きがばらばら……。狙ってない弾の方が、避けにくい。",
+    "scene": "berserkとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "berserkVisible"
+  },
+  {
+    "trigger": "berserkDamagedWarning",
+    "portrait": "bikkuri-04",
+    "line": "壊れかけてるのに、まだ動くんだ。……近寄らないでおこう。",
+    "scene": "berserkとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "berserkVisible"
+  },
+  {
+    "trigger": "mossSurface",
+    "portrait": "bikkuri-05",
+    "line": "あれ、苔？　……下にあるの、全部機体なの？",
+    "scene": "mossとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "mossVisible"
+  },
+  {
+    "trigger": "mossBoundaries",
+    "portrait": "bikkuri-05",
+    "line": "何機くっついてるんだろう。境目がもう分からない。",
+    "scene": "mossとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "mossVisible"
+  },
+  {
+    "trigger": "mossGrowth",
+    "portrait": "bikkuri-05",
+    "line": "苔なら、ゆっくり育っていてほしかったんだけど……。",
+    "scene": "mossとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "mossVisible"
+  },
+  {
+    "trigger": "snakeHeads",
+    "portrait": "bikkuri-01",
+    "line": "あれ、頭が……二つ。尻尾だと思ってた方も、こっち見てる。",
+    "scene": "snakeとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "snakeVisible"
+  },
+  {
+    "trigger": "snakeOtherHead",
+    "portrait": "bikkuri-01",
+    "line": "片方を避けても、もう片方が来るのね。……よくできてる。",
+    "scene": "snakeとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "snakeVisible"
+  },
+  {
+    "trigger": "snakeDirections",
+    "portrait": "bikkuri-01",
+    "line": "別々の方を向いてる。仲が悪いなら、今だけそのままでいて。",
+    "scene": "snakeとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "snakeVisible"
+  },
+  {
+    "trigger": "crabClaws",
+    "portrait": "bikkuri-02",
+    "line": "え、蟹？　……そのハサミ、機体より大きくない？",
+    "scene": "crabとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "crabVisible"
+  },
+  {
+    "trigger": "crabApproach",
+    "portrait": "bikkuri-02",
+    "line": "横に来ると思ったら、こっち！？　蟹の動きはしてくれないんだ。",
+    "scene": "crabとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "crabVisible"
+  },
+  {
+    "trigger": "crabLegs",
+    "portrait": "bikkuri-02",
+    "line": "脚、多いね……。何機分で歩いてるの、それ。",
+    "scene": "crabとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "crabVisible"
+  },
+  {
+    "trigger": "bossParasiteSeen",
+    "portrait": "huan-01",
+    "line": "触手の間に、コアが見える……。あそこまで通さないと。",
+    "scene": "bossとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "bossVisible"
+  },
+  {
+    "trigger": "bossLanesBlocked",
+    "portrait": "huan-01",
+    "line": "一本避けると、次が来る。……少しずつ、進路を塞がれてる。",
+    "scene": "bossとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "bossVisible"
+  },
+  {
+    "trigger": "bossFindGap",
+    "portrait": "huan-01",
+    "line": "エンジェルさん、まだ隙間はあるよね。……落ち着いて、探そう。",
+    "scene": "bossとの交戦",
+    "enabled": true,
+    "ambient": false,
+    "requires": "bossVisible"
+  }
+]

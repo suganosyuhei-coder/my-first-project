@@ -1,3 +1,4 @@
+import {createEquippedGame} from './helpers/equippedGame.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {defaultTuning,validateTuning,readTuning,saveTuning,TUNING_KEY} from '../src/prototype/devTuning.js';
@@ -20,15 +21,21 @@ test('confirmed settings persist, corruption and denied storage safely use defau
  assert.deepEqual(readTuning({getItem(){throw new Error('denied')}}).value,defaultTuning());
 });
 test('live movement and observation adjustments preserve voyage, craft and recovery data',()=>{
- const g=createGame();stepGame(g,0,.1);const position=g.flight.position,ship=g.ship,jobs=g.jobs,max=g.flight.maxDistance;
+ const g=createEquippedGame();stepGame(g,0,.1);const position=g.flight.position,ship=g.ship,jobs=g.jobs,max=g.flight.maxDistance;
  g.tuning=defaultTuning();g.tuning.ship.speedMultiplier=2;g.tuning.observation.radius=280;
  stepGame(g,1,.1);assert.equal(g.flight.position,position);assert.equal(g.ship,ship);assert.ok(g.flight.maxDistance>max);assert.ok(g.flight.elapsed>.1);assert.equal(g.baseObservation,280);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>30);assert.ok(snapshot(g).tuning);assert.ok(Array.isArray(jobs));
  const a=createFlight(),b=createFlight();stepFlight(a,1,1,24,null,null,.1);stepFlight(b,1,1,24,null,null,.8);assert.ok(b.heading>a.heading*7);
 });
 test('display zoom does not change physical observation and density has no cumulative multiplication',()=>{
- const g=createGame();g.tuning=defaultTuning();const radius=g.observation,scale=flightScale(g.tuning);g.tuning.camera.zoom=1.5;assert.equal(flightScale(g.tuning),scale*1.5);assert.equal(g.observation,radius);
+ const g=createEquippedGame();g.tuning=defaultTuning();const radius=g.observation,scale=flightScale(g.tuning);g.tuning.camera.zoom=1.5;assert.equal(flightScale(g.tuning),scale*1.5);assert.equal(g.observation,radius);
  updateNebula(g);const original=g.nebula.regions.map(r=>r.density);g.tuning.nebula.densityMultiplier=.5;updateNebula(g);assert.deepEqual(g.nebula.regions.map(r=>r.density),original.map(d=>d*.5));updateNebula(g);assert.deepEqual(g.nebula.regions.map(r=>r.density),original.map(d=>d*.5));
 });
 test('default adjustment settings keep existing simulation equivalent',()=>{
- const a=createGame(),b=createGame();b.tuning=defaultTuning();for(let i=0;i<20;i++){stepGame(a,.25,1/60);stepGame(b,.25,1/60);}assert.deepEqual(a.flight,b.flight);assert.equal(a.observation,b.observation);assert.deepEqual(a.inventory,b.inventory);
+ const a=createEquippedGame(),b=createEquippedGame();b.tuning=defaultTuning();for(let i=0;i<20;i++){stepGame(a,.25,1/60);stepGame(b,.25,1/60);}assert.deepEqual(a.flight,b.flight);assert.equal(a.observation,b.observation);assert.deepEqual(a.inventory,b.inventory);
+});
+
+test('old v1 settings keep saved values when dive grace field is absent',()=>{const old=defaultTuning();old.ship.speedMultiplier=1.7;delete old.boost.diveGraceFrames;const clean=validateTuning(old);assert.equal(clean.ship.speedMultiplier,1.7);assert.equal(clean.boost.diveGraceFrames,5);});
+test('adding dive grace preserves every old v1 value and never rewrites saved JSON',()=>{
+ const old=defaultTuning();old.ship.speedMultiplier=1.4;old.ship.visualScale=.75;old.camera.zoom=1.2;old.boost.duration=1.7;old.boost.impulseMultiplier=2.1;delete old.boost.diveGraceFrames;const json=JSON.stringify(old),data=new Map([[TUNING_KEY,json]]),storage={getItem:k=>data.get(k),setItem(){throw new Error('reading must not write')}};
+ const result=readTuning(storage);assert.equal(result.error,null);const migrated=structuredClone(result.value);delete migrated.boost.diveGraceFrames;assert.deepEqual(migrated,old);assert.equal(data.get(TUNING_KEY),json);
 });

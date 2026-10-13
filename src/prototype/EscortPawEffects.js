@@ -1,0 +1,9 @@
+import {drawMissileVisual,drawMissileExplosion} from './MissileVisuals.js';
+import {drawPowArmor} from './PowArmor.js';import {worldToScreen} from './model.js';import {renderCamera} from './camera.js';
+export function drawEscortPaws(ctx,width,height,game){
+ const state=game.escortPaws;if(!state)return;const scale=game.viewport.scale,screen=p=>worldToScreen(p,renderCamera(game),width,height,scale);ctx.save();
+ for(const unit of state.units){const p=screen(unit.position),r=14*scale;if(p.x+r<0||p.x-r>width||p.y+r<0||p.y-r>height)continue;ctx.save();ctx.translate(p.x,p.y);drawPowArmor(ctx,r,game.flight.elapsed,'white');ctx.fillStyle=game.flight.elapsed-(unit.hitAt??-Infinity)<.2?'#ff9c9c':'#e5f5ff';ctx.font='10px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('ESCORT PAW',0,r+23);ctx.fillText(unit.joinedAt===null?'接近で同行':`${Math.ceil(Math.max(0,30-(game.flight.elapsed-unit.joinedAt)))}s / MISSILE ${unit.missileUsed?0:1}`,0,r+36);for(let i=0;i<3;i++){ctx.fillStyle=i<3-unit.hits?'#e2f8ff':'#683c43';ctx.fillRect(-12+i*9,-r-14,6,4);}ctx.restore();}
+ for(const shot of state.shots){const p=screen(shot.position);if(shot.kind==='missile'){drawMissileVisual(ctx,shot,screen,scale,true,game.enemies.units.find(e=>e.id===shot.targetId&&e.hp>0));}else{ctx.fillStyle='#e1f7ff';ctx.fillRect(p.x-2,p.y-3,4,6);}}
+ for(const effect of state.effects){if(effect.kind==='explosion'){drawMissileExplosion(ctx,effect.position,game.flight.elapsed-effect.at,screen,scale,true);continue;}const p=screen(effect.position),age=game.flight.elapsed-effect.at;ctx.globalAlpha=Math.max(0,1-age);ctx.strokeStyle=effect.kind==='destroyed'?'#ffb88b':'#e6f5ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,(5+age*35)*scale,0,Math.PI*2);ctx.stroke();if(effect.kind==='departed'){ctx.fillStyle='#e6f5ff';ctx.font='10px ui-monospace,monospace';ctx.fillText('援護終了',p.x+10,p.y);}}
+ ctx.restore();
+}

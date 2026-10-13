@@ -1,0 +1,16 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createGame,stepGame,snapshot} from '../src/prototype/game.js';
+import {finishVictory,continueVoyage} from '../src/prototype/victory.js';
+import {createAngelRecorder} from '../src/prototype/angelRecords.js';
+import {missionBearing} from '../src/prototype/MissionBearing.js';
+test('boss continuation retains equipment, inventory, damage, position, time and pending jobs; vital +15 capped, no duplicate bonus',()=>{
+ for(const [initial,expected] of [[40,55],[94,100]]){const g=createGame();g.flight.position={x:20,y:-6500};g.flight.elapsed=240;g.flight.maxDistance=6501;g.vital.value=initial;g.inventory.water=7;g.ship.cells[0].hp=90;g.jobs=[{id:'pending',stage:'outbound'}];const parts=g.ship.parts,cells=structuredClone(g.ship.cells),inventory=structuredClone(g.inventory),position={...g.flight.position};g.campaign.units.find(e=>e.id==='final-boss').hp=0;
+ assert.ok(finishVictory(g));const score=g.score;stepGame(g,0,10);assert.equal(g.flight.elapsed,240);assert.ok(continueVoyage(g));assert.equal(g.status,'running');assert.equal(g.end,null);assert.deepEqual(g.flight.position,position);assert.equal(g.ship.parts,parts);assert.deepEqual(g.ship.cells,cells);assert.deepEqual(g.inventory,inventory);assert.equal(g.jobs[0].stage,'outbound');assert.equal(g.vital.value,expected);assert.equal(g.flight.elapsed,240);assert.equal(g.flight.maxDistance,6501);assert.equal(finishVictory(g),false);assert.equal(g.score,score);assert.equal(continueVoyage(g),false);g.jobs=[];g.bits=[];stepGame(g,0,1/60);assert.equal(g.status,'running');assert.ok(g.flight.elapsed>240);}
+});
+test('post-boss mission lists exactly three side encounters, guides nearest surviving target, and keeps defeated flags',()=>{
+ const g=createGame();g.flight.position={x:-200,y:-6500};const snake=g.campaign.mossGroups.find(e=>e.kind==='snake');g.campaign.units.filter(e=>e.clusterId===snake.id).forEach(e=>e.hp=0);g.campaign.units.find(e=>e.id==='final-boss').hp=0;finishVictory(g);continueVoyage(g);const c=snapshot(g).campaign;assert.equal(c.objectives.length,3);assert.equal(c.objectives.find(e=>e.id===snake.id).remaining,0);assert.equal(c.next.name,'??????');assert.equal(missionBearing(g,800,600).name,'??????');
+ g.campaign.units.filter(e=>c.objectives.some(o=>o.id===e.clusterId)).forEach(e=>e.hp=0);assert.equal(snapshot(g).campaign.next,null);assert.equal(missionBearing(g,800,600),null);
+});
+test('continuation belongs to the same voyage: Angel saves time once and records the eventual game over',()=>{
+ const store={getItem:()=>null,setItem:()=>{}},r=createAngelRecorder(()=>store),g=createGame();g.flight.elapsed=240;g.campaign.units.find(e=>e.id==='final-boss').hp=0;finishVictory(g);r.accumulate(g);assert.equal(r.record(g),false);continueVoyage(g);g.flight.elapsed=300;r.accumulate(g);g.status='ended';g.end={reason:'vital',position:{...g.flight.position},maxDistance:500};assert.equal(r.record(g),true);assert.equal(r.record(g),false);assert.equal(r.snapshot().data.totalFlights,1);assert.equal(r.snapshot().data.totalSeconds,300);assert.equal(r.snapshot().data.replayCount,0);assert.equal(r.snapshot().data.entries[0].outcome,'ended');
+});
