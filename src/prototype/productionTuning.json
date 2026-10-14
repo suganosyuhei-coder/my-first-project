@@ -1,19 +1,48 @@
 {
   "version": 1,
+  "enemies": {
+    "speedMultiplier": 1,
+    "damageMultiplier": 1,
+    "bitDamageMultiplier": 1
+  },
+  "force": {
+    "normalInterval": 0.8,
+    "normalRange": 700,
+    "normalDuration": 0.65,
+    "spreadDegrees": 30,
+    "chargedDamage": 2,
+    "chargedWidth": 1.8
+  },
+  "environment": {
+    "galaxyStrength": 0.5,
+    "nebulaRecovery": 8,
+    "planetStrength": 0.3,
+    "nebulaStrength": 1
+  },
+  "energy": {
+    "generation": 18,
+    "tankLinkBonus": 0.3
+  },
+  "boost": {
+    "impulseMultiplier": 2.3,
+    "duration": 1.8,
+    "diveGraceFrames": 12,
+    "turnMultiplier": 3.5
+  },
   "ship": {
-    "speedMultiplier": 1.6,
-    "rotationRate": 0.31,
-    "visualScale": 0.9
+    "speedMultiplier": 2.5,
+    "rotationRate": 0.32,
+    "visualScale": 0.55
   },
   "observation": {
-    "radius": 115,
-    "opacity": 0.21,
+    "radius": 100,
+    "opacity": 0.4,
     "lineWidth": 1.5
   },
   "nebula": {
-    "dotMultiplier": 0.7,
+    "dotMultiplier": 1.1,
     "densityMultiplier": 1,
-    "opacity": 1
+    "opacity": 0.5
   },
   "camera": {
     "zoom": 1
