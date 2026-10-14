@@ -2,14 +2,14 @@ import {startFlight} from './flightGuide.js';
 import {createAngelRecorder} from './angelRecords.js';
 import {continueVoyage} from './victory.js';
 import {CAMPAIGN} from './campaign.js';
-import {loadDevTuning} from './devTuning.js';
+import {loadRuntimeTuning} from './runtimeTuning.js';
 import {createBoostInput} from './boostInput.js';
 import {useEffect,useRef,useState,useCallback} from 'react';
 import {createWeaponInput} from './weaponInput.js';
 import {createGame,stepGame,snapshot} from './game.js';
-const createPrototypeGame=()=>{
+const createPrototypeGame=(tuning=loadRuntimeTuning())=>{
  const demo=import.meta.env.DEV?new URLSearchParams(window.location.search).get('demo'):null;
- const game=createGame(demo==='enemies'?{seed:4}:{});game.introduction=true;
+ const game=createGame({...demo==='enemies'?{seed:4}:{},tuning});game.introduction=true;
  if(demo==='campaign-front'||demo==='campaign-home'||demo==='campaign-boss'){
   const target=demo==='campaign-front'?CAMPAIGN.approachBases[0]:CAMPAIGN.home;
   game.flight.position={x:target.x,y:target.y+(demo==='campaign-front'?200:demo==='campaign-boss'?200:600)};
@@ -19,10 +19,10 @@ const createPrototypeGame=()=>{
 export default function useFlight() {
  const recorder=useRef(null);if(!recorder.current)recorder.current=createAngelRecorder();
  const [records,setRecords]=useState(()=>recorder.current.snapshot());
- const game=useRef(null);if(!game.current){game.current=createPrototypeGame();game.current.tuning=loadDevTuning();}
+ const game=useRef(null);if(!game.current){game.current=createPrototypeGame();}
  const keys=useRef(new Set()),weaponInput=useRef(null),boostInput=useRef(null);const [telemetry,setTelemetry]=useState(()=>snapshot(game.current));
  const command=useCallback(action=>{if(action.type==='flight-start'){weaponInput.current?.cancel();boostInput.current?.cancel();if(startFlight(game.current)){keys.current.clear();setTelemetry(snapshot(game.current));}return;}if(action.type==='pause-toggle'){keys.current.clear();weaponInput.current?.cancel();boostInput.current?.cancel();}game.current.commands.push(action);},[]);
- const restart=useCallback(()=>{weaponInput.current?.cancel();boostInput.current?.cancel();if(continueVoyage(game.current)){keys.current.clear();setTelemetry(snapshot(game.current));return;}const viewport=game.current.viewport,tuning=game.current.tuning;if(recorder.current.replay(game.current))setRecords(recorder.current.snapshot());game.current=createPrototypeGame();game.current.viewport=viewport;game.current.tuning=tuning;keys.current.clear();setTelemetry(snapshot(game.current));},[]);
+ const restart=useCallback(()=>{weaponInput.current?.cancel();boostInput.current?.cancel();if(continueVoyage(game.current)){keys.current.clear();setTelemetry(snapshot(game.current));return;}const viewport=game.current.viewport,tuning=game.current.tuning;if(recorder.current.replay(game.current))setRecords(recorder.current.snapshot());game.current=createPrototypeGame(tuning);game.current.viewport=viewport;keys.current.clear();setTelemetry(snapshot(game.current));},[]);
  useEffect(()=>{
   const input=createWeaponInput({enqueue:action=>game.current.commands.push(action),isRunning:()=>game.current.status==='running'&&!game.current.paused&&!game.current.introduction,heading:()=>game.current.flight.heading,isAuto:()=>game.current.weapon.autoFire});weaponInput.current=input;
   const burst=createBoostInput({enqueue:action=>game.current.commands.push(action),isRunning:()=>game.current.status==='running'&&!game.current.paused&&!game.current.introduction,heading:()=>game.current.flight.heading});boostInput.current=burst;

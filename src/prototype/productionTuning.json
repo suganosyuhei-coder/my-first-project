@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "ship": {
+    "speedMultiplier": 1.6,
+    "rotationRate": 0.31,
+    "visualScale": 0.9
+  },
+  "observation": {
+    "radius": 115,
+    "opacity": 0.21,
+    "lineWidth": 1.5
+  },
+  "nebula": {
+    "dotMultiplier": 0.7,
+    "densityMultiplier": 1,
+    "opacity": 1
+  },
+  "camera": {
+    "zoom": 1
+  },
+  "ui": {
+    "hudScale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "padding": 0,
+    "opacity": 1
+  },
+  "animation": {
+    "visualSpeed": 1,
+    "reactionDuration": 1
+  }
+}

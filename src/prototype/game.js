@@ -28,12 +28,12 @@ function equipment() {
  for(const [x,y] of [[3,6],[3,7],[5,8],[6,4],[6,5],[6,6],[6,7],[6,10],[6,11],[6,12]])parts.push({id:`pipe-${x}-${y}`,type:'pipe',x,y});
  return parts;
 }
-export function createGame({seed=NEBULA.seed,force=true,campaign=true,initialEquipment=true,manualPlacement=true}={}) {
+export function createGame({seed=NEBULA.seed,force=true,campaign=true,initialEquipment=true,manualPlacement=true,tuning}={}) {
  const flight=createFlight(),ship=createShip(initialEquipment?equipment():equipment().filter(p=>p.type==='pipe'));
  const initialTank=ship.parts.find(p=>p.type==='tank');if(initialTank)initialTank.stored=RAILGUN.initialStored;
- const game={flight,ship,vital:createVital(),supplyPaws:createSupplyPaws(),escortPaws:createEscortPaws(),missiles:createMissiles(),enemies:createEnemies(),nebula:createNebula(seed),weapon:createRailgun(),boost:createBoost(),status:'running',paused:false,score:0,observationBonus:0,manualPlacement,bits:createBits(flight.position),resources:initialResources(),jobs:[],recoveredCount:0,inventory:{missile:0,water:0,wire:0,plate:0,tank:0,solar:0,engine:0,observer:0,railgun:0,pipe:0},nextJob:1,commands:[],viewport:{width:800,height:600,scale:flightScale()},energy:null,observation:0,notice:'資材をクリックしてビットへ指示。観測範囲内の素材は空きビットが自動回収します。',hazards:[],destroyedRocks:new Set(),warnedRocks:new Set(),rockAlerts:new Map(),contacts:new Set(),depleted:new Set(),discovered:new Set()};
+ const game={flight,ship,tuning,vital:createVital(),supplyPaws:createSupplyPaws(),escortPaws:createEscortPaws(),missiles:createMissiles(),enemies:createEnemies(),nebula:createNebula(seed),weapon:createRailgun(),boost:createBoost(),status:'running',paused:false,score:0,observationBonus:0,manualPlacement,bits:createBits(flight.position),resources:initialResources(),jobs:[],recoveredCount:0,inventory:{missile:0,water:0,wire:0,plate:0,tank:0,solar:0,engine:0,observer:0,railgun:0,pipe:0},nextJob:1,commands:[],viewport:{width:800,height:600,scale:flightScale(tuning)},energy:null,observation:0,notice:'資材をクリックしてビットへ指示。観測範囲内の素材は空きビットが自動回収します。',hazards:[],destroyedRocks:new Set(),warnedRocks:new Set(),rockAlerts:new Map(),contacts:new Set(),depleted:new Set(),discovered:new Set()};
  game.force=createForce(force);game.campaign=campaign?createCampaign():null;
- game.energy=stepEnergy(ship,0);flight.velocity.y=-(TUNING.minimumSpeed+poweredThrust(ship,game.energy))*TUNING.cruiseMultiplier;stepBoost(game,[],0);game.observation=TUNING.observation;
+ game.energy=stepEnergy(ship,0);flight.velocity.y=-(TUNING.minimumSpeed+poweredThrust(ship,game.energy))*TUNING.cruiseMultiplier*(tuning?.ship.speedMultiplier??1);stepBoost(game,[],0);game.observation=tuning?.observation.radius??TUNING.observation;if(tuning)game.baseObservation=game.observation;
  updateWorld(game);rockWarnings(game);updateNebula(game);return game;
 }
 export function applyCommand(game,command) {
