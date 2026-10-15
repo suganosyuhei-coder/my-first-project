@@ -30,7 +30,7 @@
     "turnMultiplier": 3.5
   },
   "ship": {
-    "speedMultiplier": 8,
+    "speedMultiplier": 5,
     "rotationRate": 0.32,
     "visualScale": 0.55
   },

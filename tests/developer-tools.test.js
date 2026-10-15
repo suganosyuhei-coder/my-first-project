@@ -21,7 +21,7 @@ test('comparison distinguishes saved settings from public defaults without chang
   const rows = compareTuning(current, saved, published);
   assert.equal(rows.length, TUNING_FIELDS.length);
   const speed = rows.find(r => r.key === 'ship.speedMultiplier');
-  assert.deepEqual([speed.current, speed.saved, speed.published], [2.8, 1, 8]);
+  assert.deepEqual([speed.current, speed.saved, speed.published], [2.8, 1, 5]);
   assert.equal(speed.savedDiffers, true);
   assert.equal(speed.publishedDiffers, true);
   assert.equal(compareTuning(published, published, published).filter(r => r.savedDiffers || r.publishedDiffers).length, 0);
