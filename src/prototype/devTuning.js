@@ -20,7 +20,7 @@ export const TUNING_FIELDS = [
  ['boost','duration','ブースト / 持続時間 s',.5,2,.05,1.25],
  ['boost','diveGraceFrames','亜空間 / 波動砲発射後の猶予（60fps換算）',0,30,1,5],
  ['boost','turnMultiplier','Shift / 急旋回倍率',1,6,.1,3.5],
- ['ship','speedMultiplier','機体 / 前進速度倍率',.5,3,.05,1],
+ ['ship','speedMultiplier','機体 / 前進速度倍率',.5,12,.05,1],
  ['ship','rotationRate','機体 / 旋回速度 rad/s',.05,1.5,.01,.32],
  ['ship','visualScale','機体 / 表示サイズ（判定は不変）',.5,2,.05,1],
  ['observation','radius','観測 / 基本半径 m',20,600,5,140],

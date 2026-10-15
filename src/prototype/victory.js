@@ -1,9 +1,11 @@
+import {finishTrueBoss} from './trueBoss.js';
 import {cancelRailgun} from './railgun.js';
 import {recoverVital} from './vital.js';
 import {cancelBoost} from './boost.js';
 export const TIME_BONUS={maximum:20000,pointsPerSecond:20};
 export function timeBonus(seconds){return Math.max(0,Math.floor(TIME_BONUS.maximum-Math.max(0,seconds)*TIME_BONUS.pointsPerSecond));}
 export function finishVictory(game){
+ if(finishTrueBoss(game))return true;
  if(game.status!=='running'||!game.campaign||game.campaign.bossCleared||(game.campaign.units.find(e=>e.id==='final-boss')?.hp??1)>0)return false;
  const clearSeconds=game.flight.elapsed,bonus=timeBonus(clearSeconds),baseScore=game.score??0;game.score=baseScore+bonus;
  game.campaign.bossCleared=true;const resumeVelocity={...game.flight.velocity};game.status='cleared';if(game.missiles){game.missiles.units=[];game.missiles.effects=[];}game.flight.velocity={x:0,y:0};

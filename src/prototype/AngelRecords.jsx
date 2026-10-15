@@ -1,6 +1,6 @@
 import React from 'react';
 import {angelResultSummary} from './angelRecords.js';
-const reasons={finalBoss:'作戦クリア',overload:'オーバーロード',structural:'重要部分の破壊',vital:'VITAL切れ',impact:'岩との衝突',enemyAttack:'敵の攻撃',contact:'接触',heatContact:'熱領域'};
+const reasons={trueBoss:'機体回収・パイロット消息不明',finalBoss:'作戦クリア',overload:'オーバーロード',structural:'重要部分の破壊',vital:'VITAL切れ',impact:'岩との衝突',enemyAttack:'敵の攻撃',contact:'接触',heatContact:'熱領域'};
 const duration=seconds=>`${Math.floor(seconds/60)}分 ${(seconds%60).toFixed(1)}秒`;
 export default function AngelRecords({records,error}){
  if(!records)return null;

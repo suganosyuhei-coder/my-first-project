@@ -1,3 +1,4 @@
+import {tankBoostMultiplier,equipmentBonus} from './equipment.js';
 import {supplyGraph} from './energy.js';
 
 // Issue #6 provisional balance. Ordinary consumers are paid first; no second fuel.
@@ -21,7 +22,7 @@ export function stepBoost(game,commands,dt){
    const charge=b.charge,cost=0,seconds=b.heldSeconds;
    cancelBoost(b);
    if(seconds<BOOST.minimumChargeSeconds){b.reason='短押し：急加速をキャンセル';continue;}
-   const heading=action.heading??game.flight.heading,impulse=((BOOST.baseImpulse+BOOST.extraImpulse)*charge)*(game.tuning?.boost.impulseMultiplier??BOOST.impulseMultiplier);
+   const heading=action.heading??game.flight.heading,impulse=((BOOST.baseImpulse+BOOST.extraImpulse)*charge)*(game.tuning?.boost.impulseMultiplier??BOOST.impulseMultiplier)*tankBoostMultiplier(game.ship.parts)*(1+equipmentBonus(game.ship.parts,'engine'));
    b.velocity={x:Math.sin(heading)*impulse,y:-Math.cos(heading)*impulse};b.remaining=game.tuning?.boost.duration??BOOST.duration;b.bursts++;b.totalSpent+=cost;b.lastBurst={heading,cost,charge,impulse,level:b.level};b.subspace=Boolean((game.weapon?.subspaceGrace??0)>1e-9);if(b.subspace)game.weapon.subspaceGrace=0;b.reason=b.subspace?'亜空間ブースト':'急加速';game.notice=b.reason;
    game.energy.stored=game.ship.parts.filter(p=>p.type==='tank'&&p.hp>0).reduce((n,p)=>n+(p.stored||0),0);
   }

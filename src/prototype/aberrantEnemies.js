@@ -1,5 +1,6 @@
+import {ORGANIC_ENCOUNTERS} from './organicEncounters.js';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-export const ABERRANT_TYPES=['berserk','centipede','scorpion'];
+export const ABERRANT_TYPES=['berserk','centipede','scorpion',...Object.keys(ORGANIC_ENCOUNTERS)];
 function turnTo(enemy,target,rate,dt){const angle=Math.atan2(target.x-enemy.position.x,-(target.y-enemy.position.y)),delta=Math.atan2(Math.sin(angle-enemy.heading),Math.cos(angle-enemy.heading));enemy.heading+=Math.max(-rate*dt,Math.min(rate*dt,delta));}
 export function stepAberrant(game,enemy,type,dt,speedScale,damageScale){
  if(!ABERRANT_TYPES.includes(enemy.type))return false;
@@ -14,7 +15,7 @@ export function stepAberrant(game,enemy,type,dt,speedScale,damageScale){
   }
   const reach=distance(enemy.position,wander),step=Math.min(type.speed*speedScale*dt,reach);if(reach>0){enemy.position.x+=Math.sin(enemy.heading)*step;enemy.position.y-=Math.cos(enemy.heading)*step;}
  }else{
-  const target=near?game.flight.position:enemy.home;turnTo(enemy,target,enemy.type==='centipede'?1.25:3.1,dt);
+  const target=near?game.flight.position:enemy.home;turnTo(enemy,target,enemy.type==='centipede'||ORGANIC_ENCOUNTERS[enemy.type]?1.25:3.1,dt);
   const step=Math.min(type.speed*speedScale*dt,Math.max(0,distance(enemy.position,target)-(near?0:2)));enemy.position.x+=Math.sin(enemy.heading)*step;enemy.position.y-=Math.cos(enemy.heading)*step;
   if(enemy.type==='scorpion'&&near&&distance(enemy.position,game.flight.position)<type.shootRange&&enemy.cooldown<=0){const a=Math.atan2(game.flight.position.x-enemy.position.x,-(game.flight.position.y-enemy.position.y));for(const spread of [-.1,0,.1])game.enemies.shots.push({id:game.enemies.nextShot++,enemyType:enemy.type,position:{...enemy.position},velocity:{x:Math.sin(a+spread)*type.shotSpeed,y:-Math.cos(a+spread)*type.shotSpeed},damage:type.damage*damageScale,remaining:4});enemy.cooldown=type.cooldown;}
  }

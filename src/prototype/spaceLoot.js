@@ -1,3 +1,4 @@
+import {ORGANIC_ENCOUNTERS} from './organicEncounters.js';
 import {LARGE_ICE} from './world.js';
 import {recoverVital} from './vital.js';
 import {repairShip,repairFromPickup} from './repair.js';
@@ -5,7 +6,7 @@ import {PARTS} from './model.js';
 import {installRecoveredPart} from './autoInstall.js';
 import {destructionEffect} from './destruction.js';
 export const ENEMY_SCORE={berserk:50,centipede:1800,scorpion:200,sniper:800,moss:1500,mossSnake:33,mossCrab:1200,commander:1500,miniboss:4000,finalBoss:10000,pow:250};
-export const CLUSTER_SCORE={moss:12000,snake:400,crab:18000};
+export const CLUSTER_SCORE={moss:12000,largeMoss:24000,snake:400,crab:18000};
 export const OBJECT_LOOT_CHANCE=.12;
 // Normal PAWs: 1/km; green supply PAWs: 1/5 km; missile carriers: about 1/10 km.
 export const PAW_MISSILE_CHANCE=.1;
@@ -23,6 +24,8 @@ export function enemyReward(game,enemy,source='normal'){
  const points=total!==undefined?Math.floor(total/group.count):(ENEMY_SCORE[enemy.type]??500);game.score=(game.score??0)+points;
  if(group&&total!==undefined){group.scoreAwarded=(group.scoreAwarded??0)+points;const members=game.campaign.units.filter(e=>e.clusterId===group.id);if(!group.rewardGranted&&members.length===group.count&&members.every(e=>e.hp<=0)){game.score+=Math.max(0,total-group.scoreAwarded);group.scoreAwarded=total;group.rewardGranted=true;}}
 
+ if(ORGANIC_ENCOUNTERS[enemy.type]){const info=ORGANIC_ENCOUNTERS[enemy.type],recovered=recoverVital(game,info.vital);if(recovered>0)game.notice=`${info.name}を撃破 / バイタル＋${recovered}`;}
+ if(enemy.type==='centipede'||enemy.type==='scorpion'){const recovered=recoverVital(game,enemy.type==='centipede'?4:3);if(recovered>0)game.notice=`${enemy.type==='centipede'?'ムカデ':'サソリ'}型敵を撃破 / バイタル＋${recovered}`;}
  if(enemy.type==='pow'){const previousEffects=game.repairEffects;const index=Array.from(enemy.id).reduce((n,c)=>n+c.charCodeAt(0),0)%LOOT_PARTS.length;const type=(enemy.carriesMissile??pawMissileDrop(enemy.id,game.nebula.seed))?'missile':LOOT_PARTS[index],part=grantPart(game,type),count=game.ship.parts.filter(p=>p.type===type&&p.hp>0).length;game.equipmentPickup={sequence:(game.equipmentPickup?.sequence??0)+1,type,partId:part?.id??null,x:part?.x,y:part?.y,count,installed:!!part,at:game.flight.elapsed};game.notice=`PAWアーマー：${PARTS[type].name}＋1 / ${part?'自動装着完了（装備 '+count+'個）':'空きなし・所持品へ保管'}`;if(game.repairEffects!==previousEffects)game.notice+=' / 船体を修復しました';}
 }
 export function destroySpaceObject(game,object){

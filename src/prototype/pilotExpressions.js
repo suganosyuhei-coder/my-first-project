@@ -1,3 +1,5 @@
+import {pilotDamageDialogue} from './pilotDamageDialogue.js';
+import {STABLE_SUE_LINE} from './stableSpace.js';
 import {createPilotStoryObserver,candidateStoryTrigger} from './pilotStory.js';
 import {pilotWarning} from './pilotWarnings.js';
 import dialogue from './pilotDialogue.json' with {type:'json'};
@@ -193,7 +195,7 @@ export function createPilotController(actions = PILOT_ACTIONS) {
     const terminal=active&&['cleared','ended'].includes(active.id)&&active.id===candidate.id;
     if(!terminal&&(!active||time>=active.until||candidate.priority>active.priority&&candidate.id!==active.id||active.id?.startsWith('warning-')&&active.id!==candidate.id)){
       const scene=candidate.scene??candidate.id;
-      active=make(candidate.id,scene,candidate.priority,time,{...(candidate.expression?{expression:candidate.expression}:{}),...(story?{line:story.line,portraitId:story.portrait,storyTrigger:story.trigger}:!PILOT_SCENES[scene]?{line:candidate.line}: {}),...(candidate.until?{until:candidate.until}:{}),...(candidate.label?{label:candidate.label}:{})});
+      active=make(candidate.id,scene,candidate.priority,time,{...(candidate.expression?{expression:candidate.expression}:{}),...(story?{line:storyTrigger==='flightStart'&&t.stableSpace?STABLE_SUE_LINE:story.line,portraitId:story.portrait,storyTrigger:story.trigger}:!PILOT_SCENES[scene]?{line:candidate.line}: {}),...(candidate.until?{until:candidate.until}:{}),...(candidate.label?{label:candidate.label}:{})});
       if(story)storyObserver.accepted(story.trigger,time);
       if(active.id==='vitalRecovered')vitalRecoveryUntil=-Infinity;
       if(active.id==='boss')seenBosses.add(newBoss.id);
@@ -202,6 +204,6 @@ export function createPilotController(actions = PILOT_ACTIONS) {
       if(active.id==='upgraded')lineIndexes.upgraded=(lineIndexes.upgraded??0)+1;
     }
     previous={vitalRecoveries:t.vital?.recoveries??0,time,hp,inventory,parts,analyzed,shots:t.weapon.shots,multiKills:t.weapon.diffusionMultiKills??0};wasThreat=threat;
-    return active;
+    return pilotDamageDialogue(active,t);
   };
 }

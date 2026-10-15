@@ -8,20 +8,20 @@ import {campaignNebulaRegions,environmentAt} from '../src/prototype/nebula.js';
 import {bossTentacleTips} from '../src/prototype/enemyAnatomy.js';
 import {launchBossAttack} from '../src/prototype/bossAttacks.js';
 function isolated(){const g=createEquippedGame();g.nebula.regions=[];g.enemies.units=[];g.bits=[];g.hazards=[];return g;}
-test('one complete moss cluster is opposite the homeworld, with four snipers at every front base',()=>{
+test('one eurypterid encounter is opposite the homeworld, with four snipers at every front base',()=>{
  const g=isolated(),group=g.campaign.mossGroups.find(e=>e.home.y>0);assert.ok(group);assert.equal(group.home.x,0);assert.ok(CAMPAIGN.home.y<0);assert.equal(group.home.y,1800);
- g.flight.position={...group.home};activateCampaign(g);assert.equal(g.enemies.units.filter(e=>e.clusterId===group.id).length,8);
+ g.flight.position={...group.home};activateCampaign(g);assert.equal(g.enemies.units.filter(e=>e.clusterId===group.id).length,6);
  for(const site of g.campaign.sites.filter(e=>e.kind==='front'))assert.equal(g.campaign.units.filter(e=>e.siteId===site.id&&e.type==='sniper').length,4);
 });
-test('individual moss deaths remove guns and only the eighth death earns one orange star, retained on revisit and reset on retry',()=>{
+test('individual biological deaths reduce threats and only the last member death earns one orange star, retained on revisit and reset on retry',()=>{
  const g=isolated(),group=g.campaign.mossGroups.find(e=>e.home.y>0),members=g.campaign.units.filter(e=>e.clusterId===group.id);g.campaign.squads=[];g.flight.position={x:group.home.x,y:group.home.y+200};
- members.forEach(e=>e.cooldown=0);stepEnemies(g,0);assert.equal(g.enemies.shots.length,8);g.enemies.shots=[];
- damageEnemy(g,members[0],1000,members[0].position);members.forEach(e=>e.cooldown=0);stepEnemies(g,0);assert.equal(g.enemies.shots.length,7);
- for(const e of members.slice(1,7))damageEnemy(g,e,1000,e.position);assert.equal(campaignSnapshot(g).mossDefeated,0);
- damageEnemy(g,members[7],1000,members[7].position);assert.equal(campaignSnapshot(g).mossDefeated,1);damageEnemy(g,members[7],1000,members[7].position);assert.equal(campaignSnapshot(g).mossDefeated,1);
+ members.forEach(e=>e.cooldown=0);stepEnemies(g,0);assert.equal(g.enemies.shots.length,0);g.enemies.shots=[];
+ damageEnemy(g,members[0],1000,members[0].position);members.forEach(e=>e.cooldown=0);stepEnemies(g,0);assert.equal(g.enemies.shots.length,0);
+ for(const e of members.slice(1,-1))damageEnemy(g,e,1000,e.position);assert.equal(campaignSnapshot(g).mossDefeated,0);
+ damageEnemy(g,members.at(-1),1000,members.at(-1).position);assert.equal(campaignSnapshot(g).mossDefeated,1);damageEnemy(g,members.at(-1),1000,members.at(-1).position);assert.equal(campaignSnapshot(g).mossDefeated,1);
  g.flight.position={x:9999,y:9999};activateCampaign(g);g.flight.position={...group.home};activateCampaign(g);assert.equal(g.enemies.units.filter(e=>e.clusterId===group.id).length,0);assert.equal(campaignSnapshot(g).mossDefeated,1);assert.equal(campaignSnapshot(isolated()).mossDefeated,0);
 });
-test('red moss marker cloud is visible without environmental damage and disappears when its eight members die',()=>{
+test('red encounter marker cloud is visible without environmental damage and disappears when all its members die',()=>{
  const g=isolated(),group=g.campaign.mossGroups.find(e=>e.home.y>0);const cloud=campaignNebulaRegions(g.campaign,group.position,500).find(e=>e.campaignSite===group.id);assert.ok(cloud);assert.deepEqual(cloud.color,[1,.06,.12]);assert.deepEqual(environmentAt([cloud],group.position,10),environmentAt([],group.position,10));
  g.campaign.units.filter(e=>e.clusterId===group.id).forEach(e=>e.hp=0);assert.ok(!campaignNebulaRegions(g.campaign,group.position,500).some(e=>e.campaignSite===group.id));
 });
@@ -32,8 +32,8 @@ test('sniper locks a visible warning for 1.2 seconds before firing a narrow lase
 test('final boss balls originate from all four animated tentacle tips',()=>{
  const g=isolated(),e=g.campaign.units.find(e=>e.type==='finalBoss');e.heading=.7;e.attackHeading=.3;e.attackCycle=1;g.enemies.time=2;launchBossAttack(g.enemies,e,enemyType(e),1);const tips=bossTentacleTips(e,2),orbs=g.enemies.shots.filter(s=>s.kind==='bossOrb'&&!s.mouth);assert.equal(orbs.length,20);for(const s of orbs)assert.deepEqual(s.position,tips[s.tentacle]);assert.equal(new Set(orbs.map(s=>s.tentacle)).size,4);
 });
-test('stronger snake and crab clusters have exact side positions, captive counts and independent whole-cluster stars',()=>{
- const g=isolated();for(const [kind,count,captives,x,type] of [['snake',12,3,1800,'mossSnake'],['crab',15,4,-1800,'mossCrab']]){
+test('earwig and tardigrade encounters have exact side positions, captive counts and independent whole-cluster stars',()=>{
+ const g=isolated();for(const [kind,count,captives,x,type] of [['snake',8,0,1800,'earwig'],['crab',1,0,-1800,'tardigrade']]){
   const group=g.campaign.mossGroups.find(e=>e.kind===kind),members=g.campaign.units.filter(e=>e.clusterId===group.id);assert.deepEqual(group.home,{x,y:0});assert.equal(group.captives,captives);assert.equal(members.length,count);assert.equal(new Set(members.map(e=>e.id)).size,count);assert.ok(members.every(e=>e.type===type&&e.hp>120));
   g.flight.position={...group.home};activateCampaign(g);assert.equal(g.enemies.units.filter(e=>e.clusterId===group.id).length,count);
   for(const e of members.slice(0,-1))damageEnemy(g,e,10000,e.position);assert.equal(campaignSnapshot(g)[`${kind}Defeated`],0);damageEnemy(g,members.at(-1),10000,members.at(-1).position);assert.equal(campaignSnapshot(g)[`${kind}Defeated`],1);assert.equal(campaignSnapshot(g).mossDefeated,0);damageEnemy(g,members.at(-1),10000,members.at(-1).position);assert.equal(campaignSnapshot(g)[`${kind}Defeated`],1);

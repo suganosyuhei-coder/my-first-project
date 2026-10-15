@@ -1,0 +1,5 @@
+{
+  "intervalMs": 4000,
+  "durationMs": 141,
+  "frameDurationsMs": [16, 25, 55, 45]
+}

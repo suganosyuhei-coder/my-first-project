@@ -4,14 +4,14 @@ import {launchMissiles} from './missiles.js';
 import {destroySpaceObject} from './spaceLoot.js';
 import {launchBitShoot} from './bitShoot.js';
 import {diffusionPath,convergencePath,stepDiffusion} from './diffusion.js';
-import {multipleBonus,solarChargeMultiplier} from './equipment.js';
+import {weaponDamageMultiplier,solarChargeMultiplier} from './equipment.js';
 import {enemyType,damageEnemy} from './enemyCombat.js';
 import {weaponMuzzleDistance,forceTuning} from './force.js';
 import {aimTarget} from './targeting.js';
 import {supplyGraph} from './energy.js';
 import {occupiedCells} from './model.js';
 // Provisional Issue #5 tuning. Not approved final balance. Units: seconds, metres, E.
-export const RAILGUN={minHoldSeconds:.4,maxChargeSeconds:3.6,convergenceHoldSeconds:2.8,baseChargeSeconds:2.4,maxCharge:1.5,thresholds:[0,.35,.85,1.4],costs:[2,12,32,64],damage:[10,35,100,400/9],damageGrowth:.5,speeds:[900,220,260,260],ranges:[588,560,700,650],radii:[2,5,9,1.5],initialStored:40,muzzleDistance:42,effectSeconds:.38,beamSeconds:.32,flashSeconds:.09,trailSeconds:.1,tracerLength:12,corePort:{x:5,y:9}};
+export const RAILGUN={minHoldSeconds:.4,maxChargeSeconds:3.6,convergenceHoldSeconds:2.8,baseChargeSeconds:2.4,maxCharge:1.5,thresholds:[0,.35,.85,1.4],costs:[2,12,32,64],damage:[12.5,35,100,400/9],damageGrowth:.5,speeds:[900,220,260,260],ranges:[588,560,700,650],radii:[2,5,9,1.5],initialStored:40,muzzleDistance:42,effectSeconds:.38,beamSeconds:.32,flashSeconds:.09,trailSeconds:.1,tracerLength:12,corePort:{x:5,y:9}};
 export function normalShotSpeed(heading){return RAILGUN.speeds[0]*(-Math.cos(heading)>1e-9?1.25:1);}
 export function createRailgun(){return {subspaceGrace:0,autoFire:false,autoClock:0,holding:false,heldSeconds:0,diffusionHeldSeconds:0,convergenceReady:false,charge:0,limit:0,limitStage:0,forceCooldown:0,shots:0,hits:0,nextId:1,projectiles:[],effects:[],lastShot:null,lastHit:null,totalSpent:0,baseGenerated:0};}
 export function railgunTanks(ship){
@@ -39,7 +39,7 @@ function fire(game,heading){
  const low=RAILGUN.thresholds[stage],high=stage===3?RAILGUN.maxCharge:stage===2?1:RAILGUN.thresholds[stage+1],u=Math.max(0,Math.min(1,(charge-low)/(high-low)));
  const muzzleDistance=weaponMuzzleDistance(game,RAILGUN.muzzleDistance);
  const target=aimTarget(game,heading,range,muzzleDistance);if(target)heading=target.heading;
- const damage=RAILGUN.damage[stage]*(1+RAILGUN.damageGrowth*u*u)*(enhanced&&stage>0?tuning.chargedDamage:1)*(1+multipleBonus(limits.count));
+ const damage=RAILGUN.damage[stage]*(1+RAILGUN.damageGrowth*u*u)*(enhanced&&stage>0?tuning.chargedDamage:1)*weaponDamageMultiplier(game.ship.parts);
  // Origin stays on the physical nozzle even when forward aim assistance changes direction.
  const origin=target?.origin||{x:game.flight.position.x+Math.sin(heading)*muzzleDistance,y:game.flight.position.y-Math.cos(heading)*muzzleDistance};
  const patterns=stage===3?[-1.2,-.9,-.6,-.3,0,.3,.6,.9,1.2].map(offset=>({offset,laser:enhanced})):normalForce?[{offset:0,lateral:0,laser:false,halfWave:true},...[-10,10].map(lateral=>({offset:0,lateral,laser:false,forceBullet:true}))] :stage===0?(enhanced?[0,-10,10].map(lateral=>({offset:0,lateral,laser:false,forceBullet:true})):[{offset:0,laser:false}]):[{offset:0,laser:enhanced}];
@@ -48,7 +48,7 @@ function fire(game,heading){
   const angle=heading+offset,direction={x:Math.sin(angle),y:-Math.cos(angle)},shotOrigin={x:origin.x+Math.cos(heading)*lateral,y:origin.y+Math.sin(heading)*lateral};
   if(halfWave){shotOrigin.x=game.flight.position.x+Math.sin(heading)*RAILGUN.muzzleDistance;shotOrigin.y=game.flight.position.y-Math.cos(heading)*RAILGUN.muzzleDistance;}
   const shotStage=halfWave?1:forceBullet?0:stage,speed=shotStage===0?normalShotSpeed(angle):RAILGUN.speeds[shotStage];
-  return {volley,converging,halfWave,forceBullet,path:stage===3?(converging?convergencePath:diffusionPath)(origin,heading,offset,range):undefined,id:`shot-${w.nextId++}`,stage:shotStage,charge,damage:halfWave?RAILGUN.damage[2]*1.5*tuning.chargedDamage*.5*(1+multipleBonus(limits.count)):forceBullet?RAILGUN.damage[0]:damage,cost,paid,base,enhanced:laser,duration:stage>0&&stage<3?1.4:RAILGUN.beamSeconds,position:{...shotOrigin},origin:{...shotOrigin},heading:angle,velocity:{x:direction.x*speed,y:direction.y*speed},targetId:offset===0?target?.rock.id||null:null,radius:halfWave?RAILGUN.radii[2]*.5:forceBullet?RAILGUN.radii[0]:laser?(stage===0?1.5:RAILGUN.radii[stage]*tuning.chargedWidth):RAILGUN.radii[stage],remaining:halfWave?RAILGUN.ranges[2]:forceBullet?RAILGUN.ranges[0]:range};
+  return {volley,converging,halfWave,forceBullet,path:stage===3?(converging?convergencePath:diffusionPath)(origin,heading,offset,range):undefined,id:`shot-${w.nextId++}`,stage:shotStage,charge,damage:halfWave?RAILGUN.damage[2]*1.5*tuning.chargedDamage*.5*weaponDamageMultiplier(game.ship.parts):forceBullet?RAILGUN.damage[0]*weaponDamageMultiplier(game.ship.parts):damage,cost,paid,base,enhanced:laser,duration:stage>0&&stage<3?1.4:RAILGUN.beamSeconds,position:{...shotOrigin},origin:{...shotOrigin},heading:angle,velocity:{x:direction.x*speed,y:direction.y*speed},targetId:offset===0?target?.rock.id||null:null,radius:halfWave?RAILGUN.radii[2]*.5:forceBullet?RAILGUN.radii[0]:laser?(stage===0?1.5:RAILGUN.radii[stage]*tuning.chargedWidth):RAILGUN.radii[stage],remaining:halfWave?RAILGUN.ranges[2]:forceBullet?RAILGUN.ranges[0]:range};
  });
  if(enhanced)for(const bit of game.bits??[]){
   if(bit.state!=='orbiting'||Math.hypot(bit.position.x-game.flight.position.x,bit.position.y-game.flight.position.y)>90)continue;
@@ -67,6 +67,7 @@ function fire(game,heading){
 export function stepRailgun(game,commands,dt){
  const w=game.weapon;if(game.status!=='running'){cancelRailgun(w);w.subspaceGrace=0;w.autoFire=false;return;}
  if(game.paused)return;
+ if(game.trueBoss?.phase==='absorption'){cancelRailgun(w);w.autoFire=false;w.subspaceGrace=0;return;}
  w.subspaceGrace=Math.max(0,(w.subspaceGrace??0)-dt);
  w.forceCooldown=Math.max(0,(w.forceCooldown??0)-dt);
  const limits=railgunLimits(game.ship);w.limit=limits.limit;w.limitStage=limits.stage;

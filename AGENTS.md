@@ -5,6 +5,7 @@
 - 確定した製品要件: [`docs/requirements.md`](docs/requirements.md)
 - 技術設計案（未承認の提案を含む）: [`docs/design.md`](docs/design.md)
 - 既存コードの実態: `src/`, `package.json`, `tests/`
+- 変更箇所・設定参照先の索引: [`docs/code-map.md`](docs/code-map.md)（仕様ではなく調査の起点）
 - `README.md` と `TODO.md` は旧3Dゲームの記述が残っているため、**新仕様の根拠にしない**。
 - 仕様が矛盾する、または設計案と確定要件が食い違う場合は、勝手に決めず質問する。
 

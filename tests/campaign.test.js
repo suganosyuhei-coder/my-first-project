@@ -12,8 +12,8 @@ import {createPilotController} from '../src/prototype/pilotExpressions.js';
 function battle(){const g=createEquippedGame();g.nebula.regions=[];g.enemies.units=[];g.resources=[];g.hazards=[];g.bits.forEach(b=>b.state='returning');return g;}
 function shoot(g,seconds=0){g.ship.parts.find(p=>p.type==='tank').stored=160;stepRailgun(g,[{type:'weapon-press'}],seconds);stepRailgun(g,[{type:'weapon-release'}],0);stepProjectiles(g,1/60);}
 
-test('campaign contains exactly 3 forward bases, 5 home bases, 45 squads, 12 snipers, 4 eight-member moss clusters, a 12-member snake, a 15-member crab, 6 commanders, 4 minibosses and 1 boss',()=>{
- const c=createCampaign();assert.equal(c.sites.filter(s=>s.kind==='front').length,3);assert.equal(c.sites.filter(s=>s.kind==='home-base').length,5);assert.equal(c.squads.length,45);assert.equal(c.units.length,275);assert.equal(new Set(c.units.map(e=>e.id)).size,275);
+test('campaign contains exactly 3 forward bases, 5 home bases, 45 squads, 12 snipers, 4 twelve-member moss clusters, 2 twenty-member large moss clusters, a 16-member snake, a 19-member crab, 6 commanders, 4 minibosses and 1 boss',()=>{
+ const c=createCampaign();assert.equal(c.sites.filter(s=>s.kind==='front').length,3);assert.equal(c.sites.filter(s=>s.kind==='home-base').length,5);assert.equal(c.squads.length,45);assert.equal(c.units.length,265);assert.equal(new Set(c.units.map(e=>e.id)).size,265);
  for(const site of c.sites){const units=c.units.filter(e=>e.siteId===site.id);assert.equal(units.filter(e=>e.squadId).length,20);assert.equal(units.filter(e=>e.type==='commander').length,site.kind==='front'?0:1);}
  for(const squad of c.squads)assert.equal(c.units.filter(e=>e.squadId===squad.id).length,4);
  assert.equal(c.units.filter(e=>e.type==='guard').length,20);assert.equal(c.units.filter(e=>e.type==='miniboss').length,4);

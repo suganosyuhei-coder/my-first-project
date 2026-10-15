@@ -11,7 +11,7 @@ function release(g,heading=0){stepRailgun(g,[{type:'weapon-release',heading}],0)
 test('four nonlinear charge stages, maximum holds without auto fire, repeat release fires once',()=>{
  for(const [seconds,stage] of [[0,0],[1.2,1],[2.5,2],[3.6,3]]){const g=charged(seconds);assert.equal(g.weapon.shots,0);const shot=release(g);assert.equal(shot.stage,stage);assert.ok(shot.damage>=RAILGUN.damage[stage]);assert.equal(g.weapon.charge,0);release(g);assert.equal(g.weapon.shots,1);}
  const ready=createEquippedGame({force:false});stepGame(ready,0,1/60);assert.equal(ready.energy.status['railgun-0'],'射撃時精算');
- const g=charged(4);assert.equal(g.weapon.heldSeconds,RAILGUN.maxChargeSeconds/1.1);assert.equal(g.weapon.charge,RAILGUN.maxCharge);stepRailgun(g,[{type:'weapon-press'}],1/60);assert.equal(g.weapon.charge,RAILGUN.maxCharge);
+ const g=charged(4);assert.equal(g.weapon.heldSeconds,RAILGUN.maxChargeSeconds/1.03);assert.equal(g.weapon.charge,RAILGUN.maxCharge);stepRailgun(g,[{type:'weapon-press'}],1/60);assert.equal(g.weapon.charge,RAILGUN.maxCharge);
  const low=release(charged(1.0)).damage,high=release(charged(1.7)).damage;assert.ok(high>low);
 });
 test('energy is settled only on release, keeps charge stage regardless of live balance, never consumes disconnected storage',()=>{

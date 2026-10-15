@@ -9,7 +9,7 @@ import {applyContact} from '../src/prototype/damage.js';
 import {stepFlight} from '../src/prototype/model.js';
 const runUntil=(g,predicate,max=3000)=>{for(let i=0;i<max&&!predicate();i++)stepGame(g,0,1/60);assert.ok(predicate(),'simulation condition did not complete');};
 test('v0.7 initial supply powers observation and propulsion and charges storage',()=>{
- const g=createEquippedGame();stepGame(g,0,1/60);assert.equal(g.observation,140);assert.equal(g.energy.active['engine-0'],true);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>34&&Math.hypot(g.flight.velocity.x,g.flight.velocity.y)<35);assert.ok(g.energy.stored>0);
+ const g=createEquippedGame();stepGame(g,0,1/60);assert.equal(g.observation,140);assert.equal(g.energy.active['engine-0'],true);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>35&&Math.hypot(g.flight.velocity.x,g.flight.velocity.y)<36);assert.ok(g.energy.stored>0);
  assert.equal(new Set(g.ship.parts.map(p=>p.id)).size,g.ship.parts.length);
 });
 test('two-bit collection reserves atomically, survives leaving viewport, credits only after both returns',()=>{

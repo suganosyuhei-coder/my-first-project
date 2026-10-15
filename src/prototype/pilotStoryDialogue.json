@@ -442,7 +442,7 @@
     "trigger": "consecutiveHits",
     "portrait": "itai-01",
     "scene": "連続被弾",
-    "line": "痛覚、落として……。警告は、消さないで。",
+    "line": "痛覚落としてエンジェルさん、警告は残しておいて。",
     "enabled": true
   },
   {
@@ -1477,5 +1477,88 @@
     "enabled": true,
     "ambient": false,
     "requires": "bossVisible"
-  }
+  },
+  {
+    "trigger": "largeMossDiscovered",
+    "portrait": "bikkuri-02",
+    "scene": "大型苔型の合体敵を発見",
+    "line": "えっ、でかっ！　さっきの苔より、ずっと大きいんだけど！？　エンジェルさん、これ見えてる！？",
+    "enabled": true,
+    "ambient": false,
+    "requires": "largeMossVisible"
+  },
+  {
+    "trigger": "largeMossCaptives",
+    "portrait": "bikkuri-02",
+    "scene": "大型苔型に捕まったPAWを見る",
+    "line": "PAWが四体も捕まってる！　ちょっと、苔のくせに欲張りすぎでしょ！　今、ほどいてあげるから！",
+    "enabled": true,
+    "ambient": false,
+    "requires": "largeMossVisible"
+  },
+  {
+    "trigger": "largeMossChallenge",
+    "portrait": "bikkuri-02",
+    "scene": "大型苔型と交戦",
+    "line": "こんなにくっついちゃって！　一機ずつ剥がしていこう。全部ほどけたら、ちょっと気持ちよさそうね！",
+    "enabled": true,
+    "ambient": false,
+    "requires": "largeMossVisible"
+  },
+  {
+    "trigger": "trueBossRift",
+    "portrait": "bikkuri-05",
+    "scene": "異次元の真ボス戦",
+    "line": "次元の裂け目……。真のバイド帝国は、異次元にあったの？",
+    "enabled": true,
+    "ambient": false,
+    "requires": "trueBossRift"
+  },
+  {
+    "trigger": "trueBossBattleship",
+    "portrait": "bikkuri-02",
+    "scene": "異次元の真ボス戦",
+    "line": "あれ、戦艦！？　全部バイドに同化してる……こんな係数、見たことない！",
+    "enabled": true,
+    "ambient": false,
+    "requires": "trueBossBattleship"
+  },
+  {
+    "trigger": "trueBossDormant",
+    "portrait": "nayamu-03",
+    "scene": "異次元の真ボス戦",
+    "line": "区画の奥に、目玉……。当たってるのに、何も反応しない。",
+    "enabled": true,
+    "ambient": false,
+    "requires": "trueBossDormant"
+  },
+  {
+    "trigger": "trueBossAbsorption",
+    "portrait": "bikkuri-02",
+    "scene": "異次元の真ボス戦",
+    "line": "フォースに何か取り付いた！　待って、持っていかないで！",
+    "enabled": true,
+    "ambient": false,
+    "requires": "trueBossAbsorption"
+  },
+  {
+    "trigger": "trueBossPursuit",
+    "portrait": "huan-01",
+    "scene": "異次元の真ボス戦",
+    "line": "フォースが……。でも、波動砲は撃てる。触手の隙間を、探さないと。",
+    "enabled": true,
+    "ambient": false,
+    "requires": "trueBossPursuit"
+  },
+  {
+    "trigger": "trueBossCoreOpen",
+    "portrait": "normal-04",
+    "scene": "異次元の真ボス戦",
+    "line": "コアが開いた。……今だ。これで、最後にする！",
+    "enabled": true,
+    "ambient": false,
+    "requires": "trueBossPursuit"
+  },
+  {"trigger":"trueBossSwarm","portrait":"huan-01","line":"四十体も……！　人類の生存もかかってる。掻い潜って、あの瞳を撃ち抜かなきゃ。","enabled":true,"requires":"trueBossPursuit"},
+  {"trigger":"trueBossStableBlocked","portrait":"bikkuri-02","scene":"真ボスが安定空域に阻まれる","line":"あ、こいつ、私たちの星には入れないのか…","enabled":true,"ambient":false}
 ]

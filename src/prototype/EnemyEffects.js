@@ -1,3 +1,6 @@
+import {ORGANIC_ENCOUNTERS} from './organicEncounters.js';
+import {drawOrganicEncounter} from './OrganicEncounterVisuals.js';
+import {drawTrueBoss} from './TrueBossVisuals.js';
 import {drawBerserk,drawCentipede,drawScorpion} from './OrganicEnemyVisuals.js';
 import {drawTentacleBoss,drawSniper,drawMossMember,drawMossCaptives} from './NewEnemyVisuals.js';
 import {bossTentacleTips,sniperOrigin,bossMouth,bossParasite,PARASITE_LASER_OFFSETS} from './enemyAnatomy.js';
@@ -11,6 +14,7 @@ import {ENEMY_TYPES,BIT_DEFENSE} from './enemies.js';
 export function drawEnemies(ctx,width,height,game){
  const state=game.enemies;if(!state)return;const scale=game.viewport.scale,screen=p=>worldToScreen(p,renderCamera(game),width,height,scale);
  ctx.save();
+ drawTrueBoss(ctx,width,height,game);
  for(const site of game.campaign?.sites??[]){
   const p=screen(site.position),r=site.radius*scale;
   if(p.x+r<0||p.x-r>width||p.y+r<0||p.y-r>height)continue;
@@ -22,31 +26,32 @@ export function drawEnemies(ctx,width,height,game){
   }
   ctx.fillStyle='#d5a18a';ctx.font='10px ui-monospace,monospace';ctx.fillText(site.name,p.x-r*.6,p.y+r+16);
  }
- const clusters=new Map();for(const member of state.units.filter(e=>e.clusterId&&e.hp>0&&e.detected)){const members=clusters.get(member.clusterId)??[];members.push(member);clusters.set(member.clusterId,members);}
+ const clusters=new Map();for(const member of state.units.filter(e=>e.clusterId&&!e.organicEncounter&&e.hp>0&&e.detected)){const members=clusters.get(member.clusterId)??[];members.push(member);clusters.set(member.clusterId,members);}
  for(const [clusterId,members] of clusters){
   const group=game.campaign?.mossGroups?.find(g=>g.id===clusterId),kind=group?.kind??'moss',centre=group?.position??{x:members.reduce((sum,e)=>sum+e.position.x,0)/members.length,y:members.reduce((sum,e)=>sum+e.position.y,0)/members.length},p=screen(centre);
   ctx.strokeStyle=kind==='snake'?'#79a9a088':kind==='crab'?'#b27c6388':'#668f4a88';ctx.lineWidth=(kind==='snake'?18:7)*scale;ctx.lineCap='round';
   const ordered=[...members].sort((a,b)=>a.slot-b.slot);
   for(const [i,member] of ordered.entries()){const q=screen(member.position),from=kind==='snake'&&i>0&&ordered[i-1].slot===member.slot-1?screen(ordered[i-1].position):kind==='snake'?q:p;ctx.beginPath();ctx.moveTo(from.x,from.y);ctx.lineTo(q.x,q.y);ctx.stroke();}
-  ctx.fillStyle='#c2c9ab';ctx.font='10px ui-monospace,monospace';ctx.fillText(`${kind==='snake'?'蛇合体':kind==='crab'?'蟹合体':'苔合体'} ${members.length}/${group?.count??8}`,p.x-30,p.y+(kind==='snake'?180:kind==='crab'?85:60)*scale);
+  ctx.fillStyle='#c2c9ab';ctx.font='10px ui-monospace,monospace';ctx.fillText(`${kind==='snake'?'蛇合体':kind==='crab'?'蟹合体':kind==='largeMoss'?'大型苔合体':'苔合体'} ${members.length}/${group?.count??8}`,p.x-30,p.y+(kind==='snake'?180:kind==='crab'?85:kind==='largeMoss'?100:60)*scale);
  }
- for(const enemy of state.units){if(enemy.hp<=0||!enemy.detected)continue;const type=ENEMY_TYPES.find(t=>t.id===enemy.type),p=screen(enemy.position),r=type.radius*scale;if(p.x+r*(enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?12:enemy.type==='scorpion'?2.2:1)<0||p.x-r*(enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?12:enemy.type==='scorpion'?2.2:1)>width||p.y+r*(enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?12:enemy.type==='scorpion'?2.2:1)<0||p.y-r*(enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?12:enemy.type==='scorpion'?2.2:1)>height)continue;ctx.save();ctx.translate(p.x,p.y);if(enemy.type!=='pow')ctx.rotate(enemy.heading);ctx.fillStyle='#16202e';ctx.strokeStyle=type.color;ctx.lineWidth=1.5;
+ for(const enemy of state.units){if(enemy.hp<=0||!enemy.detected||enemy.trueBossPart)continue;const type=ENEMY_TYPES.find(t=>t.id===enemy.type),p=screen(enemy.position),r=type.radius*scale;if(p.x+r*(ORGANIC_ENCOUNTERS[enemy.type]?4:enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?18:enemy.type==='scorpion'?2.2:1)<0||p.x-r*(ORGANIC_ENCOUNTERS[enemy.type]?4:enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?18:enemy.type==='scorpion'?2.2:1)>width||p.y+r*(ORGANIC_ENCOUNTERS[enemy.type]?4:enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?18:enemy.type==='scorpion'?2.2:1)<0||p.y-r*(ORGANIC_ENCOUNTERS[enemy.type]?4:enemy.type==='finalBoss'?3.6:enemy.type==='centipede'?18:enemy.type==='scorpion'?2.2:1)>height)continue;ctx.save();ctx.translate(p.x,p.y);if(enemy.type!=='pow')ctx.rotate(enemy.heading);ctx.fillStyle='#16202e';ctx.strokeStyle=type.color;ctx.lineWidth=1.5;
   if(type.weakpoint){drawTentacleBoss(ctx,r,game.flight.elapsed,enemy);
+  }else if(ORGANIC_ENCOUNTERS[enemy.type]){drawOrganicEncounter(ctx,enemy.type,scale);
   }else if(enemy.type==='berserk'){drawBerserk(ctx,r,game.flight.elapsed,enemy.slot);
   }else if(enemy.type==='centipede'){drawCentipede(ctx,scale,enemy.bodyTime??0);
   }else if(enemy.type==='scorpion'){drawScorpion(ctx,r,game.flight.elapsed);
   }else if(enemy.type==='sniper'){drawSniper(ctx,r);
-  }else if(['moss','mossSnake','mossCrab'].includes(enemy.type)){drawMossMember(ctx,r,enemy.slot,game.flight.elapsed,enemy.clusterKind);
+  }else if(['moss','mossSnake','mossCrab'].includes(enemy.type)){drawMossMember(ctx,r,enemy.slot,game.flight.elapsed,enemy.clusterKind,enemy.clusterCount);
   }else if(enemy.type==='pow'){
    drawPowArmor(ctx,r,game.flight.elapsed,enemy.variant);if(enemy.carriesMissile){ctx.fillStyle='#ffe597';ctx.font='bold 10px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('MISSILE',0,-r-16);ctx.fillRect(r*.6,-r*.4,4,r);ctx.textAlign='start';}
   }else if(enemy.type==='miniboss'){
    ctx.fillStyle='#3b2930';ctx.strokeStyle=type.color;ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,x=Math.cos(a)*r,y=Math.sin(a)*r;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeRect(-r*.5,-r*.5,r,r);
   }else if(type.supportRange){ctx.strokeStyle='#D6B7F433';ctx.setLineDash([3,8]);ctx.beginPath();ctx.arc(0,0,type.supportRange*scale,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle=type.color;ctx.fillRect(-r,-r,r*2,r*2);ctx.strokeRect(-r,-r,r*2,r*2);ctx.strokeRect(-r*.5,-r*.5,r,r);}
   else{ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r,r);ctx.lineTo(0,r*.5);ctx.lineTo(-r,r);ctx.closePath();ctx.fill();ctx.stroke();if(type.shootRange>0)ctx.fillRect(-2,-r-4,4,7);}
-  ctx.fillStyle=enemy.supported?'#f7d6ff':type.color;ctx.fillRect(-2,-2,4,4);drawDetectionGlow(ctx,enemy,game.flight.elapsed,scale,r);ctx.restore();ctx.fillStyle=type.color;ctx.font='9px ui-monospace,monospace';if(!enemy.squadId&&!enemy.clusterId)ctx.fillText(type.name,p.x+r+5,p.y);ctx.fillStyle='#ffffff55';ctx.fillRect(p.x-r,p.y+r+5,r*2,2);ctx.fillStyle=type.color;ctx.fillRect(p.x-r,p.y+r+5,r*2*enemy.hp/type.hp,2);
+  ctx.fillStyle=enemy.supported?'#f7d6ff':type.color;ctx.fillRect(-2,-2,4,4);drawDetectionGlow(ctx,enemy,game.flight.elapsed,scale,r);ctx.restore();ctx.fillStyle=type.color;ctx.font='9px ui-monospace,monospace';if(!enemy.squadId&&(!enemy.clusterId||enemy.organicEncounter))ctx.fillText(type.name,p.x+r+5,p.y);ctx.fillStyle='#ffffff55';ctx.fillRect(p.x-r,p.y+r+5,r*2,2);ctx.fillStyle=type.color;ctx.fillRect(p.x-r,p.y+r+5,r*2*enemy.hp/(enemy.maxHp??type.hp),2);
  }
  for(const [clusterId,members] of clusters){const group=game.campaign?.mossGroups?.find(g=>g.id===clusterId);if(group)drawMossCaptives(ctx,screen(group.position),scale,game.flight.elapsed,group.kind,group.captives);}
- for(const boss of state.units.filter(e=>e.hp>0&&e.warning!==undefined)){
+ for(const boss of state.units.filter(e=>e.hp>0&&!e.trueBossPart&&e.warning!==undefined)){
   const type=ENEMY_TYPES.find(t=>t.id===boss.type),core=enemyWeakpoint(boss),from=screen(boss.type==='sniper'?sniperOrigin(boss):(boss.type==='finalBoss'?(boss.parasiteRevealed?bossParasite(boss).position:bossMouth(boss)):(core?.position??boss.position)));ctx.strokeStyle=boss.type==='sniper'?'#b4edff':'#ff7777';ctx.lineWidth=1;ctx.setLineDash([6,6]);
   for(const offset of (boss.type==='sniper'?[0]:boss.type==='finalBoss'&&boss.parasiteRevealed?PARASITE_LASER_OFFSETS:[-.22,0,.22])){const a=(boss.attackHeading??boss.heading)+offset,origin=boss.type==='sniper'?sniperOrigin(boss):(boss.type==='finalBoss'?(boss.parasiteRevealed?bossParasite(boss).position:bossMouth(boss)):(core?.position??boss.position)),to=screen({x:origin.x+Math.sin(a)*type.shootRange,y:origin.y-Math.cos(a)*type.shootRange});ctx.beginPath();ctx.moveTo(from.x,from.y);ctx.lineTo(to.x,to.y);ctx.stroke();}
   if(boss.type==='finalBoss')for(const tip of bossTentacleTips(boss,game.flight.elapsed)){const p=screen(tip);ctx.strokeStyle='#ffafca';ctx.beginPath();ctx.arc(p.x,p.y,12*scale,0,Math.PI*2);ctx.stroke();}

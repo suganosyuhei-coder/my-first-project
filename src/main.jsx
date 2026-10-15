@@ -2,7 +2,7 @@ import React, {useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import Adventure,{createAdventureSession} from './Adventure.jsx';
 import WorldEditor from './WorldEditor.jsx';
-import shutleLogo from './assets/shutle_logo.svg';
+import shutleLogo from './assets/shutle_logo_v3.svg';
 import './style.css';
 
 function App() {

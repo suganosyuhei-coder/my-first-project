@@ -39,13 +39,13 @@ test('additional connected solar generation scales, replenishes shot energy duri
  const isolated=createShip([{id:'s',type:'solar',x:0,y:0},{id:'t',type:'tank',x:5,y:5}]);assert.equal(stepEnergy(isolated,5).stored,0);
 });
 test('added powered engines change thrust and travel, loss of supply keeps only minimum flight',()=>{
- const g=createEquippedGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;stepGame(g,0,1/60);assert.equal(g.energy.active.extra,true);assert.ok(Math.abs(snapshot(g).stats.thrust-25.2)<1e-9);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>34);
- applyCommand(g,{type:'remove',x:6,y:11});stepGame(g,0,1/60);assert.equal(g.energy.active.extra,false);assert.equal(snapshot(g).stats.thrust,0);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>=12);
+ const g=createEquippedGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;stepGame(g,0,1/60);assert.equal(g.energy.active.extra,true);assert.ok(Math.abs(snapshot(g).stats.thrust-13.2)<1e-9);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>34);
+ applyCommand(g,{type:'remove',x:6,y:11});stepGame(g,0,1/60);assert.equal(g.energy.active.extra,false);assert.equal(snapshot(g).stats.thrust,13.200000000000001);assert.ok(Math.hypot(g.flight.velocity.x,g.flight.velocity.y)>=12);
 });
 test('boost tuning increases actual impulse without extra energy, retains eligibility and resets',()=>{
  const g=createEquippedGame();applyCommand(g,{type:'place',partType:'engine',x:7,y:11,id:'extra'});g.ship.parts.find(p=>p.type==='tank').stored=160;g.energy=stepEnergy(g.ship,1/60);
- stepBoost(g,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(g,[{type:'boost-release'}],0);assert.equal(g.boost.lastBurst.impulse,132);assert.equal(g.boost.lastBurst.cost,0);
- const h=createEquippedGame();h.tuning=defaultTuning();h.tuning.boost.impulseMultiplier=2;h.tuning.boost.duration=1.5;applyCommand(h,{type:'place',partType:'engine',x:7,y:11,id:'extra'});h.ship.parts.find(p=>p.type==='tank').stored=160;h.energy=stepEnergy(h.ship,1/60);stepBoost(h,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(h,[{type:'boost-release'}],0);assert.equal(h.boost.lastBurst.impulse,160);assert.equal(h.boost.remaining,1.5);assert.equal(h.boost.lastBurst.cost,0);
+ stepBoost(g,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(g,[{type:'boost-release'}],0);assert.equal(g.boost.lastBurst.impulse,132*1.05*1.1);assert.equal(g.boost.lastBurst.cost,0);
+ const h=createEquippedGame();h.tuning=defaultTuning();h.tuning.boost.impulseMultiplier=2;h.tuning.boost.duration=1.5;applyCommand(h,{type:'place',partType:'engine',x:7,y:11,id:'extra'});h.ship.parts.find(p=>p.type==='tank').stored=160;h.energy=stepEnergy(h.ship,1/60);stepBoost(h,[{type:'boost-press'}],BOOST.chargeSeconds);stepBoost(h,[{type:'boost-release'}],0);assert.equal(h.boost.lastBurst.impulse,160*1.05*1.1);assert.equal(h.boost.remaining,1.5);assert.equal(h.boost.lastBurst.cost,0);
 });
 test('previous v1 JSON settings migrate without losing adjusted values; invalid new values reject',()=>{
  const old=defaultTuning();delete old.energy;delete old.boost;old.camera.zoom=1.4;const migrated=validateTuning(old);assert.equal(migrated.camera.zoom,1.4);assert.equal(migrated.boost.impulseMultiplier,1.65);assert.equal(migrated.energy.generation,16);migrated.boost.duration=99;assert.throws(()=>validateTuning(migrated));

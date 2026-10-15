@@ -1,3 +1,4 @@
+import {drawStableSpace,drawStableSpaceBackground} from './StableSpaceEffects.js';
 import {drawEscortPaws} from './EscortPawEffects.js';
 import {drawSupplyPaws} from './SupplyPawEffects.js';
 import {drawCampaignNebula} from './CampaignNebulaBackground.js';
@@ -27,6 +28,7 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
     if(hash>.8&&!reducedMotion){ctx.strokeStyle='#79d2df22';ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-state.velocity.x*.32,p.y-state.velocity.y*.32);ctx.stroke();}
   }
   if(nebulaImage){ctx.save();ctx.globalAlpha=game?.tuning?.nebula.opacity??1;drawGas(ctx,nebulaImage,width,height,{position:camera},scale);ctx.restore();}
+  drawStableSpaceBackground(ctx,width,height,game);
   ctx.lineWidth=1;ctx.font='10px ui-monospace, monospace';
   for(const planet of nearbyPlanets(state.position)){
     const i=planet.index,world=planet.position,p=screen(world),radius=planet.radius*scale;
@@ -83,6 +85,7 @@ export function drawFlight(ctx,width,height,state,{observation,reducedMotion,gam
     for(const resource of game.resources){if(!resource.discovered||!['available','reserved'].includes(resource.state))continue;const p=screen(resource.position);ctx.strokeStyle=resource.state==='reserved'?'#eeaa72':'#79d2df';ctx.beginPath();ctx.moveTo(p.x,p.y-8);ctx.lineTo(p.x+8,p.y);ctx.lineTo(p.x,p.y+8);ctx.lineTo(p.x-8,p.y);ctx.closePath();ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.fillText(`${RESOURCE_TYPES[resource.type].name} / ${RESOURCE_TYPES[resource.type].bits}基`,p.x+13,p.y+3);}
     for(const bit of game.bits){ctx.strokeStyle=bit.state==='shooting'?'#ffdc7a':bit.state==='orbiting'?'#79d2df66':'#79d2df';ctx.beginPath();bit.trail.forEach((point,i)=>{const p=screen(point);if(!i)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();const p=screen(bit.position);ctx.fillStyle=bit.state==='shooting'?'#fff0ad':'#d1fafb';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();ctx.strokeStyle='#79d2df66';circle(ctx,p.x,p.y,8);}
   }
+  drawStableSpace(ctx,width,height,game);
   if(game){drawSupplyPaws(ctx,width,height,game);drawEscortPaws(ctx,width,height,game);drawEnemies(ctx,width,height,game);drawRailgun(ctx,width,height,game,reducedMotion);drawMissiles(ctx,width,height,game);drawBoostCharge(ctx,width,height,game,reducedMotion);}
   if(nebulaImage){ctx.save();ctx.globalAlpha=.08*(game?.tuning?.nebula.opacity??1);drawGas(ctx,nebulaImage,width,height,{position:camera},scale);ctx.restore();}
   // Ruler labels correspond to world position; minor marks are 20m apart.

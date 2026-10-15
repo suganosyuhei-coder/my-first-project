@@ -56,3 +56,59 @@
 .proto-instructions dl{margin:0}.proto-instructions dl>div{display:flex;justify-content:space-between;gap:16px;margin:8px 0}.proto-instructions dt,.proto-instructions dd{margin:0}.proto-instructions kbd{display:inline-block;border:1px solid #71878c;padding:0 7px;min-width:25px;text-align:center;font:inherit;color:#bce6ed}.proto-instructions ol{margin:10px 0 22px;padding-left:26px}.proto-instructions p{margin:12px 0}
 .proto-instructions button{width:100%;padding:12px;border:1px solid #a9d4dc;background:#bce6ed;color:#101d27;font:inherit;font-weight:700;cursor:pointer}.proto-instructions button:focus-visible{outline:2px solid white;outline-offset:4px}
 @media(max-width:480px){.proto-instructions{padding:18px;font-size:13px}.proto-instructions h2{font-size:21px}.proto-instructions dl>div{gap:8px}.proto-instructions kbd{padding:0 4px}}
+.proto-supply-bearing{position:absolute;left:20px;bottom:60px;max-width:calc(100% - 40px);padding:8px 10px;border:1px solid #8ed9ac;background:#10291feb;color:#ceffdd;font:11px/1.5 ui-monospace,monospace;pointer-events:none}.proto-supply-bearing strong,.proto-supply-bearing span{display:block}.proto-supply-bearing i{display:inline-block;font-style:normal;font-size:18px;margin-right:10px}.proto-supply-bearing small{margin-left:8px;color:#a5c8b5}.proto-result .proto-damage-report{margin:20px 0 0;border-top:1px solid #a5aaa5;padding-top:10px}.proto-result .proto-damage-report h3{font-size:15px;margin:0 0 8px}.proto-result .proto-damage-report p,.proto-result .proto-damage-report li{font-size:13px;line-height:1.6;margin:4px 0}.proto-damage-report ol{padding-left:20px;margin:6px 0}.proto-damage-report small{font-size:11px;color:#52615c}
+/* Gameplay surfaces use in-game markers instead of the system pointer. */
+.proto-flight canvas,.proto-flight-ship,.proto-grid,.proto-grid *,.proto-craft .proto-grid button{cursor:none}
+.proto-true-ending{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow:hidden;color:#fbe4b9;background:#090809}.proto-true-ending:before{content:"";position:absolute;inset:0;background:#cf8c35;opacity:var(--amber);pointer-events:none}.proto-true-ending h2,.proto-true-ending>div{position:relative}.proto-true-ending h2{font-size:clamp(17px,2.3vw,27px);font-weight:400;line-height:1.8;max-width:800px}.proto-ending-light{position:absolute!important;width:140px;height:140px;border:2px solid #ffd88c;border-radius:50%;box-shadow:0 0 60px #ffbb68;animation:proto-ending-collapse 4s ease-out forwards}.proto-ending-tears{width:140px;overflow:hidden;border:1px solid #e8c890}.proto-ending-tears img{width:100%;display:block;opacity:.8}.proto-ending-tears i{position:absolute;top:47%;left:64%;width:4px;height:12px;background:#d9f4ff;border-radius:50%;box-shadow:-30px 2px 0 #d9f4ff;animation:proto-ending-tear 2s linear infinite}.proto-ending-credits{font:18px/2 ui-monospace,monospace;animation:proto-ending-credits 7s linear forwards}.proto-recovery-report{max-width:640px;width:100%;color:#241a12;padding:clamp(16px,4vw,42px);border:1px solid #594020;background:#f5deb4ed}.proto-recovery-report>span{font:12px ui-monospace,monospace}.proto-recovery-report h2{font-weight:bold}.proto-recovery-report dl>div{display:flex;justify-content:space-between;border-bottom:1px solid #a68b61;padding:10px 0;gap:20px}.proto-recovery-report dd{margin:0}.proto-recovery-report p{font-size:clamp(12px,1.6vw,16px);line-height:1.7}.proto-recovery-report small{display:block}.proto-recovery-report button{margin-top:18px;padding:12px 20px;border:1px solid #594020;background:#241a12;color:#f5deb4}.proto-recovery-report button:disabled{opacity:.45}@keyframes proto-ending-collapse{to{transform:scale(5);opacity:0}}@keyframes proto-ending-tear{to{transform:translateY(70px);opacity:0}}@keyframes proto-ending-credits{from{transform:translateY(50px);opacity:0}to{transform:translateY(-20px);opacity:1}}@media(prefers-reduced-motion:reduce){.proto-ending-light,.proto-ending-credits,.proto-ending-tears i{animation:none}}
+.proto-ending-eye{position:absolute;width:240px;height:240px;overflow:visible;stroke:#ff758c;stroke-width:2;fill:none;opacity:.85}.proto-ending-eye path{animation:proto-ending-fragment 3.5s ease-out forwards}.proto-ending-force-orb{stroke:#ffd58a;fill:#ffdf9266;transform-origin:120px 120px;animation:proto-ending-force 3s ease-out forwards}@keyframes proto-ending-fragment{to{transform:translateY(-70px);opacity:0}}@keyframes proto-ending-force{to{transform:scale(.05);opacity:0}}@media(prefers-reduced-motion:reduce){.proto-ending-eye path,.proto-ending-force-orb{animation:none}}
+
+.proto-environment-caption{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:12px}.proto-pilot-filename{color:#d7e6ea;white-space:nowrap}
+
+.proto-stable-guide{position:absolute;left:20px;top:240px;max-width:360px;padding:12px 14px;background:#0c211de8;border:1px solid #73b893;color:#d3efdf;font:11px/1.7 ui-monospace,monospace;pointer-events:none}.proto-stable-guide strong{font-size:11px;letter-spacing:.08em}.proto-stable-guide p{margin:7px 0 0}.proto-stable-angel{color:#9cd8b7}
+
+.proto-instructions{display:flex;flex-direction:column;overflow:hidden}
+.proto-instructions-content{min-height:0;overflow:auto;overscroll-behavior:contain;padding-right:10px}
+.proto-instructions h4{margin:20px 0 8px;font-size:inherit;color:#bce6ed}
+.proto-instructions ul{margin:8px 0 18px;padding-left:22px}
+.proto-instructions li{margin:8px 0}
+.proto-instructions>button{flex-shrink:0;margin-top:32px}
+
+.proto-instructions{width:min(940px,100%);padding:24px 28px;font-size:13px;line-height:1.5}
+.proto-instructions h2{font-size:23px;margin:12px 0 18px}
+.proto-instructions-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.proto-instructions-columns>div{min-width:0}
+.proto-instructions-columns h3:first-child{margin-top:0}
+.proto-instructions h3{font-size:16px;margin:24px 0 10px}
+.proto-instructions h4{font-size:14px;margin:14px 0 6px}
+.proto-instructions p{margin:8px 0}
+.proto-instructions table{width:100%;border-collapse:collapse;text-align:left;font-size:inherit}
+.proto-instructions th,.proto-instructions td{padding:6px 9px;border-bottom:1px solid #405460;vertical-align:top;overflow-wrap:anywhere}
+.proto-instructions thead th{color:#abc6cf;font-size:12px;font-weight:400}
+.proto-instructions tbody th{font-weight:600}
+.proto-instructions-controls tbody th{width:50%}
+.proto-instructions-items tbody th{width:34%}
+.proto-instructions-note{color:#b1c3cb;font-size:12px}
+.proto-instructions-charge{color:#bce6ed}
+@media(max-width:760px){.proto-instructions{padding:18px;font-size:13px}.proto-instructions-columns{grid-template-columns:minmax(0,1fr);gap:24px}.proto-instructions th,.proto-instructions td{padding:7px 5px}.proto-instructions-items tbody th{width:40%}.proto-instructions h2{font-size:21px}}
+
+.proto-instructions h3{display:flex;align-items:center;gap:8px}
+.proto-guide-icon{width:18px;height:18px;flex-shrink:0;fill:none;stroke:#bce6ed;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+.proto-instructions .proto-guide-keys>div{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;margin:12px 0}
+.proto-instructions .proto-guide-keys dt{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.proto-instructions .proto-guide-keys dd{text-align:right;font-size:14px;font-weight:600}
+.proto-instructions .proto-guide-keys kbd{padding:3px 9px;min-width:32px;border:1px solid #78949d;color:#bce6ed;font-size:15px;line-height:1.5}
+.proto-instructions .proto-guide-charge-help{margin-top:20px;line-height:1.8}
+@media(max-width:480px){.proto-instructions .proto-guide-keys dd{font-size:13px}.proto-instructions .proto-guide-keys kbd{padding:3px 7px;font-size:14px}}
+
+.proto-guide-actions{display:flex;gap:12px;flex-shrink:0;margin-top:32px}
+.proto-instructions .proto-guide-actions>button{flex:1;min-width:0}
+.proto-instructions .proto-guide-details-button{background:transparent;color:#bce6ed}
+.proto-detailed-guide{max-width:800px;margin:auto}
+.proto-detailed-guide table{table-layout:fixed}
+.proto-detailed-guide table tbody th{width:28%}
+.proto-detailed-guide h3{margin-top:24px}
+@media(max-width:480px){.proto-guide-actions{gap:8px}.proto-instructions .proto-guide-actions>button{padding:10px 5px;font-size:12px}}
+
+.proto-brand img{width:326.4px;height:50.4px;object-fit:contain}
+@media(max-width:760px){.proto-brand img{width:216px;height:38.4px}}

@@ -26,12 +26,12 @@ export function createAngelRecorder(storageProvider=()=>window.localStorage){
  const accumulate=game=>{const current=game.flight.elapsed;if(!nonnegative(current))return;const before=clocks.get(game)??0;const delta=Math.max(0,current-before);clocks.set(game,current);if(delta>0){data.totalSeconds+=delta;dirty=true;}};
  const flush=()=>{if(!dirty)return false;savedSeconds=data.totalSeconds;dirty=false;try{storageProvider().setItem(ANGEL_RECORD_KEY,JSON.stringify(data));error='';}catch{error='航行記録を保存できませんでした。この起動中は保持しますが、再読み込みで失われる場合があります。';}return true;};
  return {
-  accumulate(game){if(recorded.has(game))return false;accumulate(game);return data.totalSeconds-savedSeconds>=30?flush():false;},
+  accumulate(game){if(game.developmentScenario||recorded.has(game))return false;accumulate(game);return data.totalSeconds-savedSeconds>=30?flush():false;},
   flush,
-  replay(game){if(!['ended','cleared'].includes(game.status)||replayed.has(game))return false;replayed.add(game);data.replayCount++;dirty=true;flush();return true;},
+  replay(game){if(game.developmentScenario||!['ended','cleared'].includes(game.status)||replayed.has(game))return false;replayed.add(game);data.replayCount++;dirty=true;flush();return true;},
   snapshot(){return {data:structuredClone(data),error};},
   record(game,endedAt=new Date().toISOString()){
-   if(!['ended','cleared'].includes(game.status)||!game.end||game.end.continuable||recorded.has(game))return false;
+   if(game.developmentScenario||!['ended','cleared'].includes(game.status)||!game.end||game.end.continuable||recorded.has(game))return false;
    accumulate(game);
    const end=game.end,entry={id:data.totalFlights+1,endedAt,outcome:game.status,reason:end.reason??'unknown',...(end.reportCause?{reportCause:end.reportCause}:{}),maxDistance:end.maxDistance,elapsed:game.flight.elapsed,score:game.score??0,kills:game.campaign?.defeated??game.enemies?.kills??0,position:{...end.position}};
    const next={...data,version:2,totalFlights:entry.id,bestDistance:Math.max(data.bestDistance,entry.maxDistance),entries:[entry,...data.entries].slice(0,ANGEL_RECORD_LIMIT)};

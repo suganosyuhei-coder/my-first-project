@@ -82,7 +82,7 @@ test('aim assist retains the force muzzle origin, and navigation continues while
 test('below MAX force fires a half wave from ship and two parallel bullets from force without cooldown',()=>{
  for(const seconds of [1,1.2]){const g=createEquippedGame();g.bits=[];g.hazards=[];g.ship.parts.find(p=>p.type==='tank').stored=160;
  stepRailgun(g,[{type:'weapon-press'}],seconds);stepRailgun(g,[{type:'weapon-release',heading:.4}],0);const shots=g.weapon.projectiles;
- assert.equal(shots.length,3);const wave=shots[0];assert.equal(wave.halfWave,true);assert.equal(wave.enhanced,false);assert.equal(wave.radius,RAILGUN.radii[2]*.5);assert.equal(wave.damage,RAILGUN.damage[2]*1.5*2*.5);
+ assert.equal(shots.length,3);const wave=shots[0];assert.equal(wave.halfWave,true);assert.equal(wave.enhanced,false);assert.equal(wave.radius,RAILGUN.radii[2]*.5);assert.equal(wave.damage,RAILGUN.damage[2]*1.5*2*.5*1.05);
  assert.ok(Math.abs(wave.origin.x-Math.sin(.4)*42)<1e-9);assert.ok(shots.slice(1).every(s=>s.stage===0&&s.forceBullet&&s.heading===.4&&!s.enhanced));
  const midpoint={x:(shots[1].origin.x+shots[2].origin.x)/2,y:(shots[1].origin.y+shots[2].origin.y)/2};assert.ok(Math.abs(Math.hypot(midpoint.x,midpoint.y)-weaponMuzzleDistance(g,42))<1e-9);
  stepRailgun(g,[{type:'weapon-press'},{type:'weapon-release'}],0);assert.equal(g.weapon.projectiles.length,6);
@@ -120,7 +120,7 @@ test('force settings accept old v1 files, validate bounds, and apply live withou
  const g=createEquippedGame();g.tuning=defaultTuning();g.tuning.force.spreadDegrees=45;g.tuning.force.chargedDamage=3;g.tuning.force.chargedWidth=2;
  g.hazards=[];stepRailgun(g,[{type:'weapon-press'},{type:'weapon-release'}],0);assert.equal(g.weapon.projectiles[2].heading,0);
  g.ship.parts.find(p=>p.type==='tank').stored=160;stepRailgun(g,[{type:'weapon-press'}],2.4);stepRailgun(g,[{type:'weapon-release'}],0);
- const shot=g.weapon.projectiles.filter(p=>!p.sourceBit).at(-1);assert.equal(shot.damage,RAILGUN.damage[2]*1.5*3);assert.equal(shot.radius,RAILGUN.radii[2]*2);assert.equal(g.force.equipped,true);
+ const shot=g.weapon.projectiles.filter(p=>!p.sourceBit).at(-1);assert.equal(shot.damage,RAILGUN.damage[2]*1.5*3*1.05);assert.equal(shot.radius,RAILGUN.radii[2]*2);assert.equal(g.force.equipped,true);
 });
 
 test('nearby bits support repeated force shots without interrupting collection or consuming extra energy',()=>{

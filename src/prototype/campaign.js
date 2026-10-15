@@ -1,6 +1,8 @@
+import {stableIntroduction,insideStableSpace,enterStableEnemies} from './stableSpace.js';
+import {ORGANIC_ENCOUNTERS} from './organicEncounters.js';
 import data from './enemyTypes.json' with {type:'json'};
 // Distances and battle balance are provisional, isolated from simulation code.
-export const CAMPAIGN={home:{x:0,y:-6800},approachBases:[{x:0,y:-1400},{x:220,y:-3000},{x:-180,y:-4600}],baseRing:650,activation:1600,engage:620,squadSpacing:26,mossFields:[{x:-1000,y:-2600},{x:1100,y:-3900},{x:-1400,y:-5500},{x:0,y:1800}]};
+export const CAMPAIGN={home:{x:0,y:-6800},approachBases:[{x:0,y:-1400},{x:220,y:-3000},{x:-180,y:-4600}],baseRing:650,activation:1600,engage:620,squadSpacing:26,largeMossFields:[{x:1650,y:-2400},{x:-1850,y:-4300}],mossFields:[{x:-1000,y:-2600},{x:1100,y:-3900},{x:-1400,y:-5500},{x:0,y:1800}]};
 const typeFor=id=>data.types.find(t=>t.id===id);
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function unit(id,type,position,siteId,extra={}){
@@ -24,30 +26,37 @@ export function createCampaign(){
  }
  for(let i=0;i<4;i++){const a=Math.PI/4+i*Math.PI/2;units.push(unit(`miniboss-${i+1}`,'miniboss',{x:CAMPAIGN.home.x+Math.cos(a)*360,y:CAMPAIGN.home.y+Math.sin(a)*360},'home'));}
  units.push(unit('final-boss','finalBoss',CAMPAIGN.home,'home'));
- const offsets=[[-22,-22],[0,-24],[22,-18],[-27,4],[0,0],[25,5],[-16,25],[13,26]];
- const mossGroups=CAMPAIGN.mossFields.map((position,i)=>({id:`moss-group-${i+1}`,home:{...position},position:{...position},kind:'moss',count:8,captives:2}));
- mossGroups.push({id:'snake-group',kind:'snake',count:12,captives:3,home:{x:1800,y:0},position:{x:1800,y:0}}, {id:'crab-group',kind:'crab',count:15,captives:4,home:{x:-1800,y:0},position:{x:-1800,y:0}});
- const snakeOffsets=Array.from({length:12},(_,i)=>[Math.sin(i*.65)*28,(i-5.5)*27]);
- const crabOffsets=[[0,0],[-26,0],[26,0],[-13,-25],[13,-25],[-52,-20],[52,-20],[-70,-48],[70,-48],[-51,20],[51,20],[-68,42],[68,42],[-43,50],[43,50]];
- for(const group of mossGroups)for(const [slot,[x,y]] of (group.kind==='snake'?snakeOffsets:group.kind==='crab'?crabOffsets:offsets).entries())units.push(unit(`${group.id}-${slot+1}`,group.kind==='snake'?'mossSnake':group.kind==='crab'?'mossCrab':'moss',{x:group.position.x+x,y:group.position.y+y},group.id,{clusterId:group.id,clusterKind:group.kind,clusterOffset:{x,y},slot,cooldown:1+slot*.25}));
+ // Keep encounter IDs and achievement categories stable; members now move independently.
+ const encounter=(id,kind,type,position)=>({id,kind,type,organic:true,count:ORGANIC_ENCOUNTERS[type].count,captives:0,home:{...position},position:{...position}});
+ const mossGroups=CAMPAIGN.mossFields.map((position,i)=>encounter(`moss-group-${i+1}`,'moss','eurypterid',position));
+ mossGroups.push(...CAMPAIGN.largeMossFields.map((position,i)=>encounter(`large-moss-group-${i+1}`,'largeMoss',i===0?'megadictyon':'pambdelurion',position)));
+ mossGroups.push(encounter('snake-group','snake','earwig',{x:1800,y:0}),encounter('crab-group','crab','tardigrade',{x:-1800,y:0}));
+ for(const group of mossGroups)for(let slot=0;slot<group.count;slot++){
+  const angle=slot*Math.PI*2/group.count,reach=group.count===1?0:120;
+  units.push(unit(`${group.id}-${slot+1}`,group.type,{x:group.position.x+Math.cos(angle)*reach,y:group.position.y+Math.sin(angle)*reach},group.id,{clusterId:group.id,clusterKind:'organic',organicEncounter:true,slot}));
+ }
  // The next sector is gated by the first homeworld victory; deaths remain in this voyage.
- for(let i=0;i<8;i++){const a=i*Math.PI/4;units.push(unit(`berserk-${i+1}`,'berserk',{x:760+Math.cos(a)*170,y:-5300+Math.sin(a)*170},'after-home',{postBoss:true,slot:i,heading:a}));}
- for(let i=0;i<3;i++)units.push(unit(`centipede-${i+1}`,'centipede',{x:900+i*150,y:-4500+i*80},'after-home',{postBoss:true}));
- for(let i=0;i<2;i++)units.push(unit(`scorpion-${i+1}`,'scorpion',{x:-850-i*180,y:-4900+i*200},'after-home',{postBoss:true}));
+ for(let i=0;i<16;i++){const a=i*Math.PI/8;units.push(unit(`berserk-${i+1}`,'berserk',{x:760+Math.cos(a)*170,y:-5300+Math.sin(a)*170},'after-home',{postBoss:true,slot:i,heading:a}));}
+ for(let i=0;i<5;i++)units.push(unit(`centipede-${i+1}`,'centipede',{x:900+i*150,y:-4500+i*80},'after-home',{postBoss:true}));
+ for(let i=0;i<6;i++)units.push(unit(`scorpion-${i+1}`,'scorpion',{x:-850-(i%3)*180,y:-4900+(i%3)*200+Math.floor(i/3)*200},'after-home',{postBoss:true}));
  return {sites,squads,units,mossGroups};
 }
 export function clusterObjectives(campaign,position){
  if(!campaign?.bossCleared)return [];
- return (campaign.mossGroups??[]).filter(g=>g.kind==='snake'||g.kind==='crab'||g.kind==='moss'&&g.home.x===0&&g.home.y===1800).map(g=>({id:g.id,name:'??????',position:{...g.position},distance:distance(g.position,position),remaining:campaign.units.filter(e=>e.clusterId===g.id&&e.hp>0).length,total:g.count}));
+ return (campaign.mossGroups??[]).map(g=>({id:g.id,name:'??????',position:{...g.position},distance:distance(g.position,position),remaining:campaign.units.filter(e=>e.clusterId===g.id&&e.hp>0).length,total:g.count}));
 }
 export function activateCampaign(game){
- if(!game.campaign)return;
+ if(stableIntroduction(game)){game.enemies.units=game.stableSpace.enemy?.hp>0?[game.stableSpace.enemy]:[];return;}
+ if(!game.campaign){enterStableEnemies(game);return;}
+ if(game.trueBoss){game.enemies.units=[...game.trueBoss.parts,...(game.trueBoss.minions??[])].filter(e=>e.hp>0);return;}
  const live=game.campaign.units.filter(e=>e.hp>0&&(!e.postBoss||game.campaign.bossCleared)&&distance(e.clusterId?game.campaign.mossGroups.find(g=>g.id===e.clusterId).position:e.position,game.flight.position)<=Math.max(CAMPAIGN.activation,Math.hypot(game.viewport.width,game.viewport.height)/(2*game.viewport.scale)+200));
- game.enemies.units=[...game.enemies.units.filter(e=>!e.campaign),...live];
+ game.enemies.units=[...game.enemies.units.filter(e=>!e.campaign),...live].filter(e=>!insideStableSpace(game,e.position,70));
+ enterStableEnemies(game);
 }
 export function moveCampaignSquads(game,dt){
  if(!game.campaign)return;
  for(const group of game.campaign.mossGroups??[]){
+  if(group.organic)continue;
   const members=game.enemies.units.filter(e=>e.clusterId===group.id&&e.hp>0);if(!members.length)continue;
   const close=distance(group.position,game.flight.position)<500,target=close?game.flight.position:group.home,dx=target.x-group.position.x,dy=target.y-group.position.y,d=Math.hypot(dx,dy),move=Math.min((close?(group.kind==='snake'?12:8):4)*dt,Math.max(0,d-(close?120:0)));
   if(d>0){group.position.x+=dx/d*move;group.position.y+=dy/d*move;}
@@ -73,6 +82,6 @@ export function campaignSnapshot(game){
  const objectives=clusterObjectives(game.campaign,game.flight.position);
  const next=(game.campaign.bossCleared?objectives:sites.filter(s=>s.kind!=='home'&&s.remaining>0)).filter(s=>s.remaining>0).sort((a,b)=>distance(a.position,game.flight.position)-distance(b.position,game.flight.position))[0];
  const defeatedClusters=(game.campaign.mossGroups??[]).filter(group=>{const members=game.campaign.units.filter(e=>e.clusterId===group.id);return members.length===(group.count??8)&&members.every(e=>e.hp<=0);});
- const mossDefeated=defeatedClusters.filter(g=>(g.kind??'moss')==='moss').length,snakeDefeated=defeatedClusters.filter(g=>g.kind==='snake').length,crabDefeated=defeatedClusters.filter(g=>g.kind==='crab').length;
+ const mossDefeated=defeatedClusters.filter(g=>['moss','largeMoss'].includes(g.kind??'moss')).length,snakeDefeated=defeatedClusters.filter(g=>g.kind==='snake').length,crabDefeated=defeatedClusters.filter(g=>g.kind==='crab').length;
  return {sites,giantSignals,bossCleared:!!game.campaign.bossCleared,objectives,mossDefeated,snakeDefeated,crabDefeated,next:next?{name:next.name,distance:distance(next.position,game.flight.position)}:null,boss:{parasiteRevealed:!!boss.parasiteRevealed,parasiteHits:boss.parasiteHits??0,hp:boss.hp,maxHp:typeFor('finalBoss').hp,position:{...boss.position},distance:distance(boss.position,game.flight.position),detected:boss.detected},defeated:game.campaign.units.filter(e=>e.hp<=0).length,total:game.campaign.units.length};
 }

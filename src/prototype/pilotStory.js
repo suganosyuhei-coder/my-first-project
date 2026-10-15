@@ -6,14 +6,22 @@ const equipment=new Set(['tank','engine','railgun','solar','missile','observer']
 const distance=(a,b)=>a&&b?Math.hypot(a.x-b.x,a.y-b.y):Infinity;
 // Presentation-only, bounded history. Nothing is persisted or changes combat/physics.
 export function createPilotStoryObserver(){
- let previous=null,pending=[],upgradePending=false,trialPending=false,effectPending=false,upgradeWon=false,battleStart=0,battlePeak=0,battleDanger=false,nebulaRestUntil=-Infinity,lastBattle=0,lastThreat=0,lastQuiet=0,cleanStart=0,seenPows=0,lastPow=-Infinity,zone=null,lastNebula=-Infinity,dash=null,lastHurt=-Infinity,hadBattleDamage=false,lastTurn=-Infinity,encounters=0,followUps=[],idleTalks=0,ageKnown=false,catCloud=null,catCandidate=null,blanketKnown=false,iceVisible=false,currentClouds=new Set(),currentSpecies=new Set(),awayTrack=null;
+ let previous=null,pending=[],upgradePending=false,trialPending=false,effectPending=false,upgradeWon=false,battleStart=0,battlePeak=0,battleDanger=false,nebulaRestUntil=-Infinity,lastBattle=0,lastThreat=0,lastQuiet=0,cleanStart=0,seenPows=0,lastPow=-Infinity,zone=null,lastNebula=-Infinity,dash=null,lastHurt=-Infinity,hadBattleDamage=false,lastTurn=-Infinity,encounters=0,followUps=[],idleTalks=0,ageKnown=false,catCloud=null,catCandidate=null,blanketKnown=false,iceVisible=false,currentClouds=new Set(),currentSpecies=new Set(),awayTrack=null,lastTrueBossPhase=null,previousTrueBossPhase=null;
  const zones=new Set(),formations=new Map(),cooldowns=new Map(),uses=new Map(),seenParts=new Set(),seenPawIds=new Set(),seenNebulas=new Set(),seenBossIds=new Set(),giantNotices=new Map();
- const eligible=line=>line&&(!line.requires||({mossVisible:currentSpecies.has('moss'),snakeVisible:currentSpecies.has('mossSnake'),crabVisible:currentSpecies.has('mossCrab'),bossVisible:currentSpecies.has('finalBoss'),berserkVisible:currentSpecies.has('berserk'),centipedeVisible:currentSpecies.has('centipede'),scorpionVisible:currentSpecies.has('scorpion'),ageKnown,catVisible:!!catCloud&&currentClouds.has(catCloud),catCandidate:!!catCandidate,roomReady:blanketKnown&&!!catCloud,iceVisible})[line.requires]);
+ const eligible=line=>line&&(!line.requires||({trueBossRift:previousTrueBossPhase==='rift',trueBossBattleship:previousTrueBossPhase==='battleship',trueBossDormant:previousTrueBossPhase==='dormant',trueBossAbsorption:previousTrueBossPhase==='absorption',trueBossPursuit:previousTrueBossPhase==='pursuit',mossVisible:currentSpecies.has('moss'),largeMossVisible:currentSpecies.has('largeMoss'),snakeVisible:currentSpecies.has('mossSnake'),crabVisible:currentSpecies.has('mossCrab'),bossVisible:currentSpecies.has('finalBoss'),berserkVisible:currentSpecies.has('berserk'),centipedeVisible:currentSpecies.has('centipede'),scorpionVisible:currentSpecies.has('scorpion'),ageKnown,catVisible:!!catCloud&&currentClouds.has(catCloud),catCandidate:!!catCandidate,roomReady:blanketKnown&&!!catCloud,iceVisible})[line.requires]);
  const emit=(trigger,time,priority=30,detail={})=>{if(!eligible(storyLine(trigger))||time-(cooldowns.get(trigger)??-Infinity)<20||pending.some(e=>e.trigger===trigger))return;pending.push({trigger,time,priority,...detail});if(pending.length>8)pending.shift();};
  return {
   observe(t){
    const time=t.flight.elapsed,units=t.enemies?.units??[],visible=units.filter(e=>e.hp>0&&e.detected&&e.type!=='pow'),threat=visible.length>0,nebula=(t.nebula?.observableIds?.length??0)>0;
-   currentSpecies=new Set(visible.map(e=>e.type));
+   previousTrueBossPhase=t.trueBoss?.phase??null;
+   if(previousTrueBossPhase!==lastTrueBossPhase){
+    const trigger={rift:'trueBossRift',battleship:'trueBossBattleship',dormant:'trueBossDormant',absorption:'trueBossAbsorption',pursuit:'trueBossPursuit'}[previousTrueBossPhase];
+    if(trigger)emit(trigger,time,80);lastTrueBossPhase=previousTrueBossPhase;
+   }
+   if(t.trueBoss?.stableBlockedVisible&&!(uses.get('trueBossStableBlocked')>0))emit('trueBossStableBlocked',time,90);
+   if((t.trueBoss?.swarmWaves??0)>0&&!(uses.get('trueBossSwarm')>0))emit('trueBossSwarm',time,86);
+   if(t.trueBoss?.coreOpen&&!(uses.get('trueBossCoreOpen')>0))emit('trueBossCoreOpen',time,84);
+   currentSpecies=new Set(visible.map(e=>e.clusterKind==='largeMoss'?'largeMoss':e.type));
    currentClouds=new Set(t.nebula?.observableIds??[]);catCandidate=(t.nebula?.visibleClouds??[]).find(c=>c.shape===4&&currentClouds.has(c.id))?.id??null;iceVisible=(t.nearbyIce?.length??0)>0;
    const hp=new Map([...t.ship.cells.map(c=>[`c:${c.x}:${c.y}`,c.hp]),...t.ship.parts.map(p=>[`p:${p.id}`,p.hp])]),parts=new Set(t.ship.parts.filter(p=>p.hp>0&&equipment.has(p.type)).map(p=>p.id));
    const damage=previous&&[...hp].some(([id,value])=>previous.hp.has(id)&&value<previous.hp.get(id)),upgraded=previous&&[...parts].some(id=>!previous.parts.has(id)),fired=previous&&t.weapon.shots>previous.shots,killed=previous&&(t.enemies?.kills??0)>previous.kills;
@@ -50,7 +58,7 @@ export function createPilotStoryObserver(){
     const brawl=species!=='berserk'||time-(t.enemies?.lastFriendlyFire?.at??-Infinity)<12;
     if(uses.get(first)>0&&time-(cooldowns.get(first)??time)>=8&&!(uses.get(second)>0)&&brawl)emit(second,time,66);
    }
-   for(const [kind,trigger] of [['moss','mossDiscovered'],['snake','snakeDiscovered'],['crab','crabDiscovered']])if(visible.some(e=>e.clusterId&&(e.clusterKind??'moss')===kind)&&!(uses.get(trigger)>0))emit(trigger,time,56);
+   for(const [kind,trigger] of [['largeMoss','largeMossDiscovered'],['moss','mossDiscovered'],['snake','snakeDiscovered'],['crab','crabDiscovered']])if(visible.some(e=>e.clusterId&&(e.clusterKind??'moss')===kind)&&!(uses.get(trigger)>0))emit(trigger,time,kind==='largeMoss'?79:56);
    const once=(trigger,condition,priority=54)=>{if(condition&&!(uses.get(trigger)>0))emit(trigger,time,priority);};
    if(currentSpecies.has('berserk')){
     const shots=t.enemies?.shots??[];
@@ -58,7 +66,7 @@ export function createPilotStoryObserver(){
     once('berserkStrayWarning',shots.some(s=>s.friendlyFire&&!s.targetEnemyId),64);
     once('berserkDamagedWarning',visible.some(e=>e.type==='berserk'&&e.hp<=36),64);
    }
-   for(const [species,parent,stages] of [['moss','mossDiscovered',['mossSurface','mossBoundaries','mossGrowth']],['mossSnake','snakeDiscovered',['snakeHeads','snakeOtherHead','snakeDirections']],['mossCrab','crabDiscovered',['crabClaws','crabApproach','crabLegs']]])if(currentSpecies.has(species))for(const [i,trigger] of stages.entries()){const before=i===0?parent:stages[i-1];once(trigger,uses.get(before)>0&&time-(cooldowns.get(before)??time)>=8);}
+   for(const [species,parent,stages] of [['largeMoss','largeMossDiscovered',['largeMossCaptives','largeMossChallenge']],['moss','mossDiscovered',['mossSurface','mossBoundaries','mossGrowth']],['mossSnake','snakeDiscovered',['snakeHeads','snakeOtherHead','snakeDirections']],['mossCrab','crabDiscovered',['crabClaws','crabApproach','crabLegs']]])if(currentSpecies.has(species))for(const [i,trigger] of stages.entries()){const before=i===0?parent:stages[i-1];once(trigger,uses.get(before)>0&&time-(cooldowns.get(before)??time)>=8);}
    const boss=visible.find(e=>e.type==='finalBoss');
    once('bossParasiteSeen',boss?.parasiteRevealed,68);
    once('bossLanesBlocked',boss?.parasiteRevealed&&(boss.warning!==undefined||(t.enemies?.shots??[]).filter(s=>s.enemyType==='finalBoss'&&s.kind==='bossLaser').length>1),68);

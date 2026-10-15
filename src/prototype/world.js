@@ -1,3 +1,4 @@
+import {stableIntroduction,stableTrainingObjects,stableVisibleHazards,insideStableSpace} from './stableSpace.js';
 // Provisional approach lanes give players time to align a beam before collision.
 export const ROCKS={spacing:720,approach:400,laneOffset:18,radius:14};
 export const RESOURCE_SPAWN_RATE=.25;
@@ -37,7 +38,10 @@ export function updateWorld(game) {
  }
  const iceBand=Math.floor(y/LARGE_ICE.spacing);
  for(let i=iceBand-1;i<=iceBand+1;i++){const ice=largeIceInBand(i,game.nebula.seed);if(Math.hypot(ice.position.x-x,ice.position.y-y)<game.viewport.height/game.viewport.scale+400)game.hazards.push(ice);}
- game.hazards=game.hazards.filter(h=>!game.destroyedRocks?.has(h.id));
+ if(stableIntroduction(game))game.hazards=stableTrainingObjects(game);
+ else if(game.stableSpace)game.hazards.push(...stableTrainingObjects(game));
+ game.hazards=stableVisibleHazards(game,game.hazards);
+ game.hazards=game.hazards.filter(h=>!game.destroyedRocks?.has(h.id)&&!insideStableSpace(game,h.position,h.radius));
  for(const id of game.spaceObjectDamage?.keys()??[])if(!game.hazards.some(h=>h.id===id))game.spaceObjectDamage.delete(id);
 }
 

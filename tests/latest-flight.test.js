@@ -30,7 +30,7 @@ test('boost acceleration is proportional to charge; energy collects behind the l
 
 test('boost capacity starts 20% above the former initial limit and grows for each powered engine',()=>{
  const g=createEquippedGame();assert.equal(g.boost.chargeLimit,.5*1.2);for(const [i,x,y] of [[1,7,11],[2,7,5]]){applyCommand(g,{type:'place',partType:'engine',x,y,id:`added-${i}`});g.ship.parts.find(p=>p.type==='tank').stored=160;g.energy=stepEnergy(g.ship,0);stepBoost(g,[],0);assert.equal(g.boost.engines,i+1);assert.ok(Math.abs(g.boost.chargeLimit-(.6+i*.4))<1e-9);}
- stepBoost(g,[{type:'boost-press'}],5);assert.ok(Math.abs(g.boost.charge-1.4)<1e-9);stepBoost(g,[{type:'boost-release'}],0);assert.ok(Math.abs(g.boost.lastBurst.impulse-184.8)<1e-9);g.ship.parts.find(p=>p.id==='added-2').hp=0;g.ship.revision++;g.energy=stepEnergy(g.ship,0);stepBoost(g,[],0);assert.equal(g.boost.chargeLimit,1);assert.ok(g.boost.remaining>0);
+ stepBoost(g,[{type:'boost-press'}],5);assert.ok(Math.abs(g.boost.charge-1.4)<1e-9);stepBoost(g,[{type:'boost-release'}],0);assert.ok(Math.abs(g.boost.lastBurst.impulse-184.8*1.05*1.15)<1e-9);g.ship.parts.find(p=>p.id==='added-2').hp=0;g.ship.revision++;g.energy=stepEnergy(g.ship,0);stepBoost(g,[],0);assert.equal(g.boost.chargeLimit,1);assert.ok(g.boost.remaining>0);
 });
 
 import {missionBearing} from '../src/prototype/MissionBearing.js';

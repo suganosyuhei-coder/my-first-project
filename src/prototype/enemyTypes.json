@@ -202,7 +202,7 @@
     {
       "id": "centipede",
       "name": "生物融合・ムカデ",
-      "hp": 460,
+      "hp": 690,
       "speed": 65,
       "radius": 16,
       "color": "#dd7474",
@@ -224,6 +224,71 @@
       "cooldown": 2.2,
       "damage": 5,
       "ramDamage": 5
+    },
+    {
+      "id": "eurypterid",
+      "name": "ウミサソリ型",
+      "hp": 690,
+      "speed": 65,
+      "radius": 28,
+      "color": "#dd7474",
+      "shootRange": 0,
+      "shotSpeed": 0,
+      "cooldown": 1.2,
+      "damage": 0,
+      "ramDamage": 10
+    },
+    {
+      "id": "earwig",
+      "name": "ハサミムシ型",
+      "hp": 690,
+      "speed": 65,
+      "radius": 23,
+      "color": "#dd7474",
+      "shootRange": 0,
+      "shotSpeed": 0,
+      "cooldown": 1.2,
+      "damage": 0,
+      "ramDamage": 10
+    },
+    {
+      "id": "tardigrade",
+      "name": "大型クマムシ型",
+      "hp": 2070,
+      "speed": 65,
+      "radius": 70,
+      "color": "#dd7474",
+      "shootRange": 0,
+      "shotSpeed": 0,
+      "cooldown": 1.2,
+      "damage": 0,
+      "ramDamage": 10
+    },
+    {
+      "id": "megadictyon",
+      "name": "大型メガディクティオン型",
+      "hp": 2070,
+      "speed": 65,
+      "radius": 64,
+      "color": "#dd7474",
+      "shootRange": 0,
+      "shotSpeed": 0,
+      "cooldown": 1.2,
+      "damage": 0,
+      "ramDamage": 10
+    },
+    {
+      "id": "pambdelurion",
+      "name": "大型パンブデルリオン型",
+      "hp": 2070,
+      "speed": 65,
+      "radius": 64,
+      "color": "#dd7474",
+      "shootRange": 0,
+      "shotSpeed": 0,
+      "cooldown": 1.2,
+      "damage": 0,
+      "ramDamage": 10
     }
   ],
   "defense": {

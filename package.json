@@ -10,7 +10,10 @@
     "deploy:preview": "bash scripts/deploy-preview.sh",
     "test": "node --test tests/*.test.js",
     "test:browser": "node tests/browser-smoke.cjs",
-    "test:exploration": "node tests/exploration-smoke.cjs"
+    "test:exploration": "node tests/exploration-smoke.cjs",
+    "validate:tuning": "node scripts/validate-tuning.mjs",
+    "prebuild": "npm run validate:tuning",
+    "check": "npm test && npm run build"
   },
   "dependencies": {
     "@react-three/drei": "^10.0.0",

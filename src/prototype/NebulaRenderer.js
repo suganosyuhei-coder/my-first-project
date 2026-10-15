@@ -43,10 +43,15 @@ void main(){
  gl_FragColor=weight>0.?mix(base,shade(world,1.),weight):base;
 }`;
 export const NEBULA_RENDER={high:{scale:.25,detailScale:.5,interval:80},low:{scale:1/6,detailScale:1/3,interval:125}};
+function resizeSurface(canvas,width,height){
+ if(canvas.width!==width)canvas.width=width;
+ if(canvas.height!==height)canvas.height=height;
+}
 const VERTEX='attribute vec2 point;void main(){gl_Position=vec4(point,0,1);}';
 function compile(gl,type,source){const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const message=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(message);}return shader;}
 export function createNebulaRenderer(){
  const canvas=document.createElement('canvas'),coarseSurface=document.createElement('canvas'),detailSurface=document.createElement('canvas'),surface=document.createElement('canvas');
+ const cpuImages=new WeakMap();
  let gl,program,buffer,uniforms={},lost=false,last=-Infinity,signature='',mode='fallback',disposed=false;
  const init=()=>{try{
   gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:false,antialias:false,depth:false,preserveDrawingBuffer:true});if(!gl)return;
@@ -66,9 +71,11 @@ export function createNebulaRenderer(){
  }
  function pass(game,target,screenW,screenH,resolutionScale,detail,time,reducedMotion,origin,step){
   const w=Math.max(1,Math.round(screenW*resolutionScale)),h=Math.max(1,Math.round(screenH*resolutionScale)),scale=game.viewport.scale,camera=detail?game.flight.position:renderCamera(game);
-  target.width=w;target.height=h;
+  resizeSurface(target,w,h);
   if(!gl||lost||mode!=='webgl'){
-   const ctx=target.getContext('2d'),image=ctx.createImageData(w,h);
+   const ctx=target.getContext('2d');
+   let image=cpuImages.get(target);
+   if(!image||image.width!==w||image.height!==h){image=ctx.createImageData(w,h);cpuImages.set(target,image);}
    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const point={x:camera.x+((x+.5)/w-.5)*screenW/scale,y:camera.y+((y+.5)/h-.5)*screenH/scale};
     let rgba;
@@ -76,7 +83,9 @@ export function createNebulaRenderer(){
     const index=(y*w+x)*4;for(let i=0;i<3;i++)image.data[index+i]=rgba[3]?Math.round(rgba[i]/rgba[3]*255):0;image.data[index+3]=Math.round(rgba[3]*255);
    }ctx.putImageData(image,0,0);return;
   }
-  canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);gl.disable(gl.SCISSOR_TEST);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(program);gl.enable(gl.BLEND);gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  // Both passes share a grow-only GL buffer. The viewport selects each pass's
+  // resolution without reallocating when coarse and detail dimensions alternate.
+  resizeSurface(canvas,Math.max(canvas.width,w),Math.max(canvas.height,h));gl.viewport(0,0,w,h);gl.disable(gl.SCISSOR_TEST);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(program);gl.enable(gl.BLEND);gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
   gl.uniform2f(uniforms.resolution,w,h);gl.uniform2f(uniforms.worldSize,screenW/scale,screenH/scale);gl.uniform2f(uniforms.camera,camera.x,camera.y);gl.uniform2f(uniforms.observationCenter,game.flight.position.x,game.flight.position.y);gl.uniform1f(uniforms.time,time);gl.uniform1f(uniforms.visualTime,reducedMotion?0:time*(game.tuning?.animation.visualSpeed??1));gl.uniform1f(uniforms.diagnostic,0);
   gl.uniform2f(uniforms.coarseOrigin,origin.x,origin.y);gl.uniform2f(uniforms.coarseStep,step.x,step.y);gl.uniform1f(uniforms.detailPass,detail?1:0);gl.uniform1f(uniforms.observationRadius,game.observation);gl.uniform1f(uniforms.observationFeather,NEBULA_DETAIL.feather);gl.uniform2f(uniforms.colorLevels,NEBULA_DETAIL.coarseLevels,NEBULA_DETAIL.fineLevels);
   for(const r of game.nebula.regions){
@@ -85,7 +94,9 @@ export function createNebulaRenderer(){
    gl.enable(gl.SCISSOR_TEST);gl.scissor(left,bottom,right-left,top-bottom);
    gl.uniform2f(uniforms.center,r.position.x,r.position.y);gl.uniform2f(uniforms.extent,r.extent.x,r.extent.y);gl.uniform1f(uniforms.seed,r.seed);gl.uniform1f(uniforms.shape,r.shape);gl.uniform1f(uniforms.density,r.density);gl.uniform1f(uniforms.dark,r.type==='dark'?1:0);gl.uniform3fv(uniforms.palette,r.color);gl.drawArrays(gl.TRIANGLES,0,6);
   }
-  target.getContext('2d').drawImage(canvas,0,0);
+  const targetCtx=target.getContext('2d');targetCtx.clearRect(0,0,w,h);
+  // GL's viewport starts at the bottom left; canvas source rectangles start at the top left.
+  targetCtx.drawImage(canvas,0,canvas.height-h,w,h,0,0,w,h);
  }
  return {
   get mode(){return mode;},
@@ -97,7 +108,7 @@ export function createNebulaRenderer(){
    const fallback=mode!=='webgl',coarseScale=(fallback?.125:setting.scale)/(game.tuning?.nebula.dotMultiplier??1),detailScale=(fallback?.25:setting.detailScale)/(game.tuning?.nebula.dotMultiplier??1);
    const lowW=Math.max(1,Math.round(width*coarseScale)),lowH=Math.max(1,Math.round(height*coarseScale)),origin={x:renderCamera(game).x-width/scale/2,y:renderCamera(game).y-height/scale/2},step={x:width/scale/lowW,y:height/scale/lowH};
    pass(game,coarseSurface,width,height,coarseScale,false,time,reducedMotion,origin,step);
-   surface.width=Math.max(1,Math.round(width));surface.height=Math.max(1,Math.round(height));const ctx=surface.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(coarseSurface,0,0,width,height);
+   resizeSurface(surface,Math.max(1,Math.round(width)),Math.max(1,Math.round(height)));const ctx=surface.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,surface.width,surface.height);ctx.drawImage(coarseSurface,0,0,width,height);
    if(game.observation>0){
     const crop=observationCrop(width,height,scale,game.observation),anchor=flightAnchor(game,width,height);crop.left=anchor.x-crop.width/2;crop.top=anchor.y-crop.height/2;pass(game,detailSurface,crop.width,crop.height,detailScale,true,time,reducedMotion,origin,step);
     // Copy replaces coarse gas in the crop; the shader returns the identical coarse field outside the circle.

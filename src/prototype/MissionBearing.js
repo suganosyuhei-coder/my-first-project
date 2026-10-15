@@ -1,11 +1,11 @@
 import {clusterObjectives} from './campaign.js';
 import {flightAnchor} from './camera.js';
 export function missionBearing(game,width,height){
- const objective=clusterObjectives(game.campaign,game.flight.position).filter(e=>e.remaining>0).sort((a,b)=>a.distance-b.distance)[0];const boss=game.campaign?.units.find(e=>e.id==='final-boss');const target=game.campaign?.bossCleared?objective:boss;if(!target||(!game.campaign?.bossCleared&&boss.hp<=0))return null;
+ const objective=clusterObjectives(game.campaign,game.flight.position).filter(e=>e.remaining>0).sort((a,b)=>a.distance-b.distance)[0];const boss=game.campaign?.units.find(e=>e.id==='final-boss');const target=game.trueBoss&&game.trueBoss.phase!=='ending'?{position:game.trueBoss.position}:game.campaign?.bossCleared?objective:boss;if(!target||(!game.campaign?.bossCleared&&boss.hp<=0))return null;
  const dx=target.position.x-game.flight.position.x,dy=target.position.y-game.flight.position.y,distance=Math.hypot(dx,dy);if(!distance)return null;
  const anchor=flightAnchor(game,width,height),ux=dx/distance,uy=dy/distance,margin=65;
  const radius=Math.max(0,Math.min(game.observation*game.viewport.scale,Math.max(0,(ux>0?width-anchor.x:anchor.x)-margin)/Math.max(1e-9,Math.abs(ux)),Math.max(0,(uy>0?height-anchor.y:anchor.y)-margin)/Math.max(1e-9,Math.abs(uy))));
- return {x:anchor.x+ux*radius,y:anchor.y+uy*radius,angle:Math.atan2(dy,dx),distance,...(objective?{name:objective.name}:{})};
+ return {x:anchor.x+ux*radius,y:anchor.y+uy*radius,angle:Math.atan2(dy,dx),distance,...(game.trueBoss?{name:game.trueBoss.phase==='rift'?'次元の裂け目':'超高バイド反応'}:objective?{name:objective.name}:{})};
 }
 export function drawMissionBearing(ctx,width,height,game){
  const p=missionBearing(game,width,height);if(!p)return;

@@ -1,3 +1,5 @@
+import {stableIntroduction,insideStableSpace} from './stableSpace.js';
+import {TRUE_BOSS_TYPES} from './trueBossGeometry.js';
 import {stepAberrant} from './aberrantEnemies.js';
 import {enemyBodies,enemySegmentHit} from './enemyBodies.js';
 import {SNIPER,launchSniperLaser} from './enemyAnatomy.js';
@@ -14,11 +16,13 @@ import {shipCells,cellToWorld} from './ship.js';
 import {applyContact} from './damage.js';
 import {segmentHit} from './railgun.js';
 import {forceBody} from './force.js';
-export const ENEMY_TYPES=data.types,ENEMY_CONFIG=data.config,BIT_DEFENSE=data.defense;
+export const ENEMY_TYPES=[...data.types,...TRUE_BOSS_TYPES],ENEMY_CONFIG=data.config,BIT_DEFENSE=data.defense;
 export function createEnemies(){return {units:[],spawned:new Map(),shots:[],beams:[],nextShot:1,kills:0,bitCooldown:{},time:0};}
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function spawnEnemies(game){
  const state=game.enemies;
+ if(stableIntroduction(game)){state.units=game.stableSpace.enemy?.hp>0?[game.stableSpace.enemy]:[];return;}
+ if(game.trueBoss){state.units=state.units.filter(e=>e.trueBossPart);return;}
  for(const region of game.nebula.regions){
   if(region.campaignSite||region.type!=='energetic'||state.spawned.has(region.id)||state.units.filter(e=>!e.campaign).length+ENEMY_CONFIG.perNebula>ENEMY_CONFIG.maxEnemies)continue;
   state.spawned.set(region.id,{...region.position});
@@ -31,7 +35,7 @@ export function spawnEnemies(game){
  for(let i=row-1;i<=row+1;i++){const id=`pow-${i}`,position={x:Math.sin(i*3.7)*230,y:i*1000+500};if(state.spawned.has(id))continue;state.spawned.set(id,position);state.units.push({id,type:'pow',carriesMissile:pawMissileDrop(id,game.nebula.seed),variant:['blue','red','yellow'][Math.abs(i)%3],hp:60,position:{...position},heading:0,cooldown:1,ramCooldown:0,supported:false,detected:false});}
  // Preserve killed-region history nearby, bound the endless-world journal.
  for(const [id,p] of state.spawned)if(distance(p,game.flight.position)>ENEMY_CONFIG.maxRange*2)state.spawned.delete(id);
- state.units=state.units.filter(e=>!e.campaign&&e.hp>0&&distance(e.position,game.flight.position)<=ENEMY_CONFIG.maxRange);
+ state.units=state.units.filter(e=>!e.campaign&&e.hp>0&&distance(e.position,game.flight.position)<=ENEMY_CONFIG.maxRange&&!insideStableSpace(game,e.position,70));
 }
 export function stepEnemies(game,dt){
  game.enemies.debris=(game.enemies.debris??[]).filter(e=>game.flight.elapsed-e.startedAt<1.1);
@@ -41,12 +45,12 @@ export function stepEnemies(game,dt){
  spawnEnemies(game);activateCampaign(game);moveCampaignSquads(game,dt);state.time=stateTime;state.beams=state.beams.map(b=>({...b,age:b.age+dt})).filter(b=>b.age<BIT_DEFENSE.beamSeconds);
  const leaders=state.units.filter(e=>e.hp>0&&ENEMY_TYPES.find(t=>t.id===e.type).supportRange);
  for(const enemy of state.units){
-  if(enemy.hp<=0)continue;
+  if(enemy.hp<=0||enemy.trueBossPart||enemy.tutorialEnemy&&game.stableSpace?.phase==='shooting')continue;
   const type=ENEMY_TYPES.find(t=>t.id===enemy.type),support=leaders.find(e=>e.id!==enemy.id&&distance(e.position,enemy.position)<=ENEMY_TYPES.find(t=>t.id===e.type).supportRange),boost=support?ENEMY_TYPES.find(t=>t.id===support.type):null;
   enemy.supported=Boolean(support);enemy.ramCooldown=Math.max(0,enemy.ramCooldown-dt);enemy.cooldown=Math.max(0,enemy.cooldown-dt*(boost?.fireRateBoost??1));
   const dx=game.flight.position.x-enemy.position.x,dy=game.flight.position.y-enemy.position.y,d=Math.hypot(dx,dy);enemy.bodyTime=stateTime;markEnemyDetected(enemy,d<=Math.max(game.observation,Math.hypot(game.viewport.width,game.viewport.height)/(2*game.viewport.scale)+120)+type.radius,stateTime);
   if(stepAberrant(game,enemy,type,dt,speedScale,damageScale))continue;
-  if(!enemy.campaign&&d>0&&d<=ENEMY_CONFIG.chaseRange&&type.speed>0){const move=Math.min(type.speed*speedScale*(boost?.speedBoost??1)*dt,Math.max(0,d-12));enemy.position.x+=dx/d*move;enemy.position.y+=dy/d*move;enemy.heading=Math.atan2(dx,-dy);}
+  if((!enemy.campaign||enemy.tutorialEnemy)&&d>0&&d<=ENEMY_CONFIG.chaseRange&&type.speed>0){const move=Math.min(type.speed*speedScale*(boost?.speedBoost??1)*dt,Math.max(0,d-12));enemy.position.x+=dx/d*move;enemy.position.y+=dy/d*move;enemy.heading=Math.atan2(dx,-dy);}
   if(type.sniper){
    if(d<=type.shootRange&&enemy.cooldown<=0&&enemy.warning===undefined){enemy.warning=SNIPER.warning;enemy.attackHeading=Math.atan2(dx,-dy);}
    if(enemy.warning!==undefined){enemy.warning=Math.max(0,enemy.warning-dt);if(enemy.warning===0){launchSniperLaser(state,enemy,type,damageScale);enemy.cooldown=type.cooldown;delete enemy.warning;}}
@@ -84,7 +88,8 @@ export function stepEnemies(game,dt){
   if(ally&&(!contact||ally.t<=contact.t)){hitEscort(game,ally.unit);return false;}
   shot.previousPosition=from;shot.position=to;if(contact){applyContact(game,{type:'enemyAttack',enemyType:shot.enemyType,position:contact.position,damage:shot.damage,source:'敵弾'});return false;}return shot.remaining>0;
  }).slice(-160);
- for(const enemy of state.units){const type=ENEMY_TYPES.find(t=>t.id===enemy.type);if(enemy.hp<=0||type.ramDamage===0||enemy.ramCooldown>0)continue;const cell=cells.find(p=>enemyBodies(enemy).some(body=>distance(p,body.position)<=body.radius+3));if(cell){applyContact(game,{type:'enemyAttack',enemyType:enemy.type,position:cell,damage:type.ramDamage*damageScale,source:'敵機との接触'});enemy.ramCooldown=type.cooldown;}}
+ for(const enemy of state.units){const type=ENEMY_TYPES.find(t=>t.id===enemy.type);if(enemy.hp<=0||type.ramDamage===0||enemy.ramCooldown>0)continue;const bodies=enemyBodies(enemy),cell=cells.find(p=>bodies.some(body=>distance(p,body.position)<=body.radius+3));if(cell){applyContact(game,{type:'enemyAttack',enemyType:enemy.type,position:cell,damage:type.ramDamage*damageScale,source:'敵機との接触'});enemy.ramCooldown=type.cooldown;}}
+ state.units=state.units.filter(e=>!insideStableSpace(game,e.position,70));
  if(game.status!=='running'){state.shots=[];state.beams=[];}
 }
 export function enemySnapshot(state){return {...state,spawned:undefined,units:state.units.map(e=>({...e,position:{...e.position}})),shots:state.shots.map(s=>({...s,position:{...s.position},velocity:{...s.velocity}})),beams:state.beams.map(b=>({...b,from:{...b.from},to:{...b.to}})),bitCooldown:{...state.bitCooldown}};}

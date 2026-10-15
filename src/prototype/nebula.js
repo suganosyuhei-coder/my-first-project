@@ -1,3 +1,4 @@
+import {insideStableSpace} from './stableSpace.js';
 import {shipCells,cellToWorld} from './ship.js';
 import {applyContact} from './damage.js';
 
@@ -64,7 +65,7 @@ export function campaignNebulaRegions(campaign,position,radius){
  }
  return out;
 }
-export function updateNebula(game){const {width,height,scale}=game.viewport,radius=Math.max(500,Math.hypot(width,height)/scale/2);game.nebula.regions=[...nebulaRegions(game.nebula.seed,game.flight.position,radius),...campaignNebulaRegions(game.campaign,game.flight.position,radius)];if(game.tuning)game.nebula.regions=game.nebula.regions.map(r=>({...r,density:r.density*game.tuning.nebula.densityMultiplier}));game.nebula.field=environmentAt(game.nebula.regions,game.flight.position,game.flight.elapsed);}
+export function updateNebula(game){const {width,height,scale}=game.viewport,radius=Math.max(500,Math.hypot(width,height)/scale/2);game.nebula.regions=[...nebulaRegions(game.nebula.seed,game.flight.position,radius),...campaignNebulaRegions(game.campaign,game.flight.position,radius)];if(game.tuning)game.nebula.regions=game.nebula.regions.map(r=>({...r,density:r.density*game.tuning.nebula.densityMultiplier}));game.nebula.field=environmentAt(insideStableSpace(game)?[]:game.nebula.regions,game.flight.position,game.flight.elapsed);}
 
 export function environmentForFlight(field,heading=0,strength=1){return {drag:Math.min(NEBULA.drag,field.density*NEBULA.drag*strength),lateral:(field.flow.x*Math.cos(heading)+field.flow.y*Math.sin(heading))*NEBULA.lateralForce*strength,turn:field.turbulence*field.flow.y*NEBULA.turnRate*strength,minimumSpeed:12};}
 export function observableRegion(region,game){return game.observation>0&&Math.hypot(region.position.x-game.flight.position.x,region.position.y-game.flight.position.y)<=game.observation+Math.max(region.extent.x,region.extent.y)*1.2;}
@@ -79,10 +80,10 @@ export function stepNebulaObservation(game,dt){
  const entries=Object.values(state.observations).sort((a,b)=>b.lastSeen-a.lastSeen);for(const record of entries.slice(24))if(record.id!==state.selected)delete state.observations[record.id];
 }
 export function stepNebulaContacts(game,dt){
- const state=game.nebula;state.contactClock+=dt;if(state.contactClock+1e-9<NEBULA.contactInterval)return;const duration=state.contactClock;state.contactClock=0;
+ const state=game.nebula;if(insideStableSpace(game)){state.contactClock=0;return;}state.contactClock+=dt;if(state.contactClock+1e-9<NEBULA.contactInterval)return;const duration=state.contactClock;state.contactClock=0;
  const touched=new Set(),live=shipCells(game.ship),occupied=new Set(live.map(c=>`${c.x},${c.y}`));let hottest=null;
  for(const cell of live){
-  const point=cellToWorld(cell,game.flight),field=environmentAt(state.regions,point,game.flight.elapsed);if(field.density<.15)continue;
+  const point=cellToWorld(cell,game.flight);if(insideStableSpace(game,point))continue;const field=environmentAt(state.regions,point,game.flight.elapsed);if(field.density<.15)continue;
   const surface=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>!occupied.has(`${cell.x+dx},${cell.y+dy}`));
   if(surface&&field.density>.5&&field.heat>0&&(!hottest||field.heat>hottest.heat))hottest={point,heat:field.heat};
   const key=cell.role||cell.part?.id||`${cell.x},${cell.y}`;if(touched.has(key))continue;touched.add(key);

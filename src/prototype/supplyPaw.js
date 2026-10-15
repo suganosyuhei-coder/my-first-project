@@ -2,7 +2,7 @@ import {shipCells,cellToWorld} from './ship.js';
 import {grantPart,LOOT_PARTS} from './spaceLoot.js';
 import {recoverVital} from './vital.js';
 // One supply robot per 5 km band, versus one normal PAW per 1 km band.
-export const SUPPLY_PAW={spacing:5000,radius:14,water:1,vital:8,speed:8};
+export const SUPPLY_PAW={spacing:5000,radius:14,water:1,vital:12,speed:8};
 export const createSupplyPaws=()=>({units:[],supplied:new Set(),effects:[],lastReceipt:null});
 export function supplyPawHome(index,seed=7309){return {x:Math.sin(index*2.71+seed*.013)*160,y:index*SUPPLY_PAW.spacing+SUPPLY_PAW.spacing/2+Math.sin(index*1.37+seed*.017)*400};}
 export function deliverSupply(game,unit){
